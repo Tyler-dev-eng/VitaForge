@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import org.jetbrains.compose.resources.painterResource
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.compose_multiplatform
