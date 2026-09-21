@@ -37,6 +37,7 @@ fun App() {
             Button(onClick = { showContent = !showContent }) {
                 Text("Click me!")
             }
+            Text("VitaForge", fontFamily = bebasNeueFontFamily())
             AnimatedVisibility(showContent) {
                 val greeting = remember { Greeting().greet() }
                 Column(
