@@ -67,6 +67,8 @@ fun GoogleButton(
                     shape = shape,
                     color = borderColour,
                 ).clickable(enabled = !isLoading) { onClicked() },
+        shape = shape,
+        color = backgroundColour,
     ) {
         Row(
             modifier =
@@ -85,6 +87,7 @@ fun GoogleButton(
                 Icon(
                     painter = painterResource(icon),
                     contentDescription = "Google Logo",
+                    tint = Color.Unspecified,
                 )
             }
             AnimatedVisibility(
