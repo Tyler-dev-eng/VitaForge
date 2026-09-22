@@ -23,32 +23,8 @@ import vitaforge.shared.generated.resources.compose_multiplatform
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-@Preview
-fun App() {
+fun App(content: @Composable () -> Unit) {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier =
-                Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .safeContentPadding()
-                    .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            Text("VitaForge", fontFamily = bebasNeueFontFamily())
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
-        }
+        content()
     }
 }
