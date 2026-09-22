@@ -27,5 +27,6 @@ dependencyResolutionManagement {
     }
 }
 
+include(":feature:auth")
 include(":androidApp")
 include(":shared")
