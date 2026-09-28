@@ -30,10 +30,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.FontSize
-import com.tylerdev.vitaforge.shared.Gray
-import com.tylerdev.vitaforge.shared.GrayDarker
 import com.tylerdev.vitaforge.shared.IconSecondary
 import com.tylerdev.vitaforge.shared.Resources
+import com.tylerdev.vitaforge.shared.SurfaceDarker
+import com.tylerdev.vitaforge.shared.SurfaceLighter
 import com.tylerdev.vitaforge.shared.TextPrimary
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -47,8 +47,8 @@ fun GoogleButton(
     secondaryText: String = "Please wait...",
     icon: DrawableResource = Resources.Image.GoogleLogo,
     shape: Shape = RoundedCornerShape(size = 99.dp),
-    backgroundColour: Color = Gray,
-    borderColour: Color = GrayDarker,
+    backgroundColour: Color = SurfaceLighter,
+    borderColour: Color = SurfaceDarker,
     progressColourIndicator: Color = IconSecondary,
     onClicked: () -> Unit,
 ) {
