@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.google.services)
 }
 
 kotlin {
@@ -15,6 +16,7 @@ dependencies {
     implementation(project(":navigation"))
 
     implementation(libs.auth.kmp)
+    implementation(libs.firebase.app)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.splash.screen)

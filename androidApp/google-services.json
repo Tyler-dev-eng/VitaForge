@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "903209547720",
+    "project_id": "vitaforge-509311",
+    "storage_bucket": "vitaforge-509311.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903209547720:android:7ef777aaf1b94c3039f2fd",
+        "android_client_info": {
+          "package_name": "com.tylerdev.vitaforge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "903209547720-ljl169dkfvb0pe5nknfl14lhjhrl8lt7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy7rYvGaeyngF8Mnsn314Kqzcr9bI8NYc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "903209547720-ljl169dkfvb0pe5nknfl14lhjhrl8lt7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
