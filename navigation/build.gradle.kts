@@ -65,6 +65,7 @@ kotlin {
         iosMain.dependencies {
             implementation(project(path = ":shared"))
             implementation(libs.auth.kmp)
+            implementation(libs.firebase.app)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
