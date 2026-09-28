@@ -62,6 +62,10 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(project(path = ":feature:auth"))
         }
+        iosMain.dependencies {
+            implementation(project(path = ":shared"))
+            implementation(libs.auth.kmp)
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
