@@ -12,7 +12,11 @@ struct ComposeView: UIViewControllerRepresentable {
 
 struct ContentView: View {
     var body: some View {
-        ComposeView()
-            .ignoresSafeArea()
+        ZStack {
+            Color.white
+                .ignoresSafeArea()
+            ComposeView()
+                .ignoresSafeArea(.all, edges: .bottom)
+        }
     }
 }
