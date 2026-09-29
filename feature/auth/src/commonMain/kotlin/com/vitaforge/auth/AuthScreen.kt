@@ -26,9 +26,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.mmk.kmpauth.google.GoogleButtonUiContainer
 import com.mmk.kmpauth.google.rememberGoogleAuthState
-import com.mmk.kmpauth.google.rememberGoogleSignInState
 import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.Black
 import com.tylerdev.vitaforge.shared.Error
