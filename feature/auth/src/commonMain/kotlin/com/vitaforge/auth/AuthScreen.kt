@@ -107,7 +107,7 @@ fun AuthScreen() {
                                             "Network error. Please check your connection and try again."
                                         error.message?.contains("Id token is null") == true ->
                                             "Sign-in failed. Please try again."
-                                        else -> error.message ?: "Sign-in failed. Please try again."
+                                        else -> error.message?.replace(Regex("\\s*\\(com\\.google\\.GIDSignIn -?\\d+\\)"), "")?.trim() ?: "Sign-in failed. Please try again."
                                     }
                                 messageBarState.addError(message)
                             }
