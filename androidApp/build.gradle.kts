@@ -14,12 +14,15 @@ kotlin {
 dependencies {
     implementation(project(":shared"))
     implementation(project(":navigation"))
+    implementation(project(":di"))
 
     implementation(libs.auth.kmp)
     implementation(libs.firebase.app)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.splash.screen)
+
+    implementation(libs.koin.android)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)

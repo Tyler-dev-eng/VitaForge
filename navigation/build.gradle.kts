@@ -47,11 +47,6 @@ kotlin {
     }
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.compose.uiTooling)
-            implementation(libs.splash.screen)
-        }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -67,6 +62,7 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(project(path = ":shared"))
+            implementation(project(path = ":di"))
             implementation(libs.auth.kmp)
             implementation(libs.firebase.app)
         }
