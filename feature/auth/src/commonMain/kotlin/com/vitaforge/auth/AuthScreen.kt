@@ -23,7 +23,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
 import com.mmk.kmpauth.google.rememberGoogleAuthState
+import com.mmk.kmpauth.google.rememberGoogleSignInState
 import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.Black
 import com.tylerdev.vitaforge.shared.Error
@@ -33,11 +35,14 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.White
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.vitaforge.auth.component.GoogleButton
+import dev.gitlive.firebase.auth.FirebaseUser
+import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun AuthScreen() {
+    val viewModel = koinViewModel<AuthViewModel>()
     var loadingState by remember { mutableStateOf(false) }
     val messageBarState = rememberMessageBarState()
 
@@ -95,21 +100,28 @@ fun AuthScreen() {
                     onResult = { result ->
                         result
                             .onSuccess { user ->
-                                loadingState = false
-                                messageBarState.addSuccess(
-                                    "Signed in as ${user.email ?: user.displayName ?: "user"}",
+                                viewModel.createCustomer(
+                                    user = user.raw as? FirebaseUser,
+                                    onSuccess = { messageBarState.addSuccess("Authentication successful!") },
+                                    onError = { message -> messageBarState.addError(message) },
                                 )
+                                loadingState = false
                             }.onFailure { error ->
                                 loadingState = false
                                 val message =
                                     when {
-                                        error.message?.contains("A network error") == true ->
+                                        error.message?.contains("A network error") == true -> {
                                             "Network error. Please check your connection and try again."
-                                        error.message?.contains("Id token is null") == true ->
+                                        }
+
+                                        error.message?.contains("Id token is null") == true -> {
                                             "Sign-in failed. Please try again."
-                                        else ->
+                                        }
+
+                                        else -> {
                                             error.message?.replace(Regex("\\s*\\(com\\.google\\.GIDSignIn -?\\d+\\)"), "")?.trim()
                                                 ?: "Sign-in failed. Please try again."
+                                        }
                                     }
                                 messageBarState.addError(message)
                             }
