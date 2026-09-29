@@ -9,6 +9,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.initialize
 import platform.UIKit.UIViewController
 
+@Suppress("ktlint:standard:function-naming")
 fun MainViewController(): UIViewController {
     Firebase.initialize()
     KMPAuth.initialize {

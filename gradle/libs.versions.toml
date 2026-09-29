@@ -2,6 +2,7 @@
 # Build Plugins
 agp = "9.1.1"
 kotlin = "2.4.20"
+ktlint = "14.2.0"
 
 # Android SDK
 android-compileSdk = "37"
@@ -145,3 +146,6 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 
 # Firebase / Google
 google-services = { id = "com.google.gms.google-services", version.ref = "google" }
+
+# Code Style
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }

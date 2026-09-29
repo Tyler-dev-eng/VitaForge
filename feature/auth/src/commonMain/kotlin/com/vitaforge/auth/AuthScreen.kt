@@ -1,5 +1,6 @@
 package com.vitaforge.auth
 
+import ContentWithMessageBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,6 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.White
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.vitaforge.auth.component.GoogleButton
-import ContentWithMessageBar
 import rememberMessageBarState
 
 @Suppress("ktlint:standard:function-naming")
@@ -107,7 +107,9 @@ fun AuthScreen() {
                                             "Network error. Please check your connection and try again."
                                         error.message?.contains("Id token is null") == true ->
                                             "Sign-in failed. Please try again."
-                                        else -> error.message?.replace(Regex("\\s*\\(com\\.google\\.GIDSignIn -?\\d+\\)"), "")?.trim() ?: "Sign-in failed. Please try again."
+                                        else ->
+                                            error.message?.replace(Regex("\\s*\\(com\\.google\\.GIDSignIn -?\\d+\\)"), "")?.trim()
+                                                ?: "Sign-in failed. Please try again."
                                     }
                                 messageBarState.addError(message)
                             }
