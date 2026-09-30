@@ -60,6 +60,8 @@ kotlin {
             implementation(libs.compose.navigation)
             implementation(project(path = ":feature:auth"))
             implementation(project(path = ":feature:home"))
+            implementation(project(path = ":shared"))
+            implementation(project(path = ":di"))
         }
         iosMain.dependencies {
             implementation(project(path = ":shared"))
