@@ -1,4 +1,4 @@
-package com.vitaforge.navigation
+package com.tylerdev.vitaforge.shared.navigation
 
 import kotlinx.serialization.Serializable
 

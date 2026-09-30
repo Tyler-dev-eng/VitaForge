@@ -8,8 +8,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.mmk.kmpauth.core.KMPAuth
 import com.mmk.kmpauth.google.google
 import com.tylerdev.vitaforge.shared.Constants.GOOGLE_WEB_CLIENT_ID
+import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.di.isUserSignedIn
-import com.vitaforge.navigation.Screen
 import com.vitaforge.navigation.SetupNavGraph
 
 class MainActivity : ComponentActivity() {

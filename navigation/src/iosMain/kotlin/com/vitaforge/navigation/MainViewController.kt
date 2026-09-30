@@ -5,6 +5,7 @@ import com.mmk.kmpauth.core.KMPAuth
 import com.mmk.kmpauth.google.google
 import com.tylerdev.vitaforge.App
 import com.tylerdev.vitaforge.shared.Constants.GOOGLE_WEB_CLIENT_ID
+import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.di.initialiseKoin
 import com.vitaforge.di.isUserSignedIn
 import dev.gitlive.firebase.Firebase
