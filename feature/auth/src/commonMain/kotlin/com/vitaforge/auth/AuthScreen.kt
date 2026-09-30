@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,12 +38,15 @@ import com.tylerdev.vitaforge.shared.White
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.vitaforge.auth.component.GoogleButton
 import dev.gitlive.firebase.auth.FirebaseUser
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-fun AuthScreen() {
+fun AuthScreen(navigateToHome: () -> Unit) {
+    val scope = rememberCoroutineScope()
     val viewModel = koinViewModel<AuthViewModel>()
     var loadingState by remember { mutableStateOf(false) }
     val messageBarState = rememberMessageBarState()
@@ -106,7 +110,13 @@ fun AuthScreen() {
                             .onSuccess { user ->
                                 viewModel.createCustomer(
                                     user = user.raw as? FirebaseUser,
-                                    onSuccess = { messageBarState.addSuccess("Authentication successful!") },
+                                    onSuccess = {
+                                        scope.launch {
+                                            messageBarState.addSuccess("Authentication successful!")
+                                            delay(timeMillis = 2000)
+                                            navigateToHome()
+                                        }
+                                    },
                                     onError = { message -> messageBarState.addError(message) },
                                 )
                                 loadingState = false
