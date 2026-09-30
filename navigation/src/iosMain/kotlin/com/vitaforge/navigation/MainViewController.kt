@@ -6,6 +6,7 @@ import com.mmk.kmpauth.google.google
 import com.tylerdev.vitaforge.App
 import com.tylerdev.vitaforge.shared.Constants.GOOGLE_WEB_CLIENT_ID
 import com.vitaforge.di.initialiseKoin
+import com.vitaforge.di.isUserSignedIn
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.initialize
 import platform.UIKit.UIViewController
@@ -17,9 +18,10 @@ fun MainViewController(): UIViewController {
     KMPAuth.initialize {
         google(serverId = GOOGLE_WEB_CLIENT_ID)
     }
+    val startDestination = if (isUserSignedIn()) Screen.HomeGraph else Screen.Auth
     return ComposeUIViewController {
         App {
-            SetupNavGraph()
+            SetupNavGraph(startDestination = startDestination)
         }
     }
 }

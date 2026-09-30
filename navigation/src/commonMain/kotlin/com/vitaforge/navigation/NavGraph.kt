@@ -9,7 +9,7 @@ import com.vitaforge.home.HomeGraphScreen
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-fun SetupNavGraph(startDestination: Screen = Screen.Auth) {
+fun SetupNavGraph(startDestination: Screen) {
     val navController = rememberNavController()
 
     NavHost(

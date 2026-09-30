@@ -7,6 +7,7 @@ import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import org.koin.mp.KoinPlatform
 
 val sharedModule =
     module {
@@ -20,3 +21,9 @@ fun initialiseKoin(config: (KoinApplication.() -> Unit)? = null) {
         modules(sharedModule)
     }
 }
+
+fun isUserSignedIn(): Boolean =
+    KoinPlatform
+        .getKoin()
+        .get<CustomerRepository>()
+        .getCurrentUserId() != null
