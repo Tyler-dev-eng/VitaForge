@@ -11,7 +11,7 @@ enum class BottomBarDestination(
 ) {
     ProductsOverview(
         icon = Resources.Icon.Home,
-        title = "VitaForge",
+        title = "Home",
         screen = Screen.ProductsOverview,
     ),
     Cart(
