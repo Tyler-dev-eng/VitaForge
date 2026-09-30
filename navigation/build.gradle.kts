@@ -64,8 +64,6 @@ kotlin {
             implementation(project(path = ":di"))
         }
         iosMain.dependencies {
-            implementation(project(path = ":shared"))
-            implementation(project(path = ":di"))
             implementation(libs.auth.kmp)
             implementation(libs.firebase.app)
         }
