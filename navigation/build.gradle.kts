@@ -59,6 +59,7 @@ kotlin {
             implementation(libs.kotlinx.serialization)
             implementation(libs.compose.navigation)
             implementation(project(path = ":feature:auth"))
+            implementation(project(path = ":feature:home"))
         }
         iosMain.dependencies {
             implementation(project(path = ":shared"))

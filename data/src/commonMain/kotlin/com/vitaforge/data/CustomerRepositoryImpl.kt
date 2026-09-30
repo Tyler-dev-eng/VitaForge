@@ -4,9 +4,12 @@ import com.tylerdev.vitaforge.shared.domain.Customer
 import com.vitaforge.data.domain.CustomerRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
 
 class CustomerRepositoryImpl : CustomerRepository {
+    override fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
+
     override suspend fun createCustomer(
         user: FirebaseUser?,
         onSuccess: () -> Unit,
