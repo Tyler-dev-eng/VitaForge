@@ -1,6 +1,7 @@
 package com.vitaforge.data
 
 import com.tylerdev.vitaforge.shared.domain.Customer
+import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -39,4 +40,12 @@ class CustomerRepositoryImpl : CustomerRepository {
             onError("Error creating customer: ${e.message}")
         }
     }
+
+    override suspend fun signOut(): RequestState<Unit> =
+        try {
+            Firebase.auth.signOut()
+            RequestState.Success(Unit)
+        } catch (e: Exception) {
+            RequestState.Error("Error signing out: ${e.message}")
+        }
 }

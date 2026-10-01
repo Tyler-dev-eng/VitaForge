@@ -9,8 +9,8 @@ KMP app (Android + iOS) with shared Compose Multiplatform UI. One Gradle build;
 all dependency versions live in `gradle/libs.versions.toml`.
 
 ## Modules
-- `:shared` — design system (colours, fonts, alpha, resources), common models, `Screen` routes
-- `:data` — repository interfaces + implementations (Firebase via GitLive)
+- `:shared` — design system (colours, fonts, alpha, resources), domain models, `Screen` routes (package `com.tylerdev.vitaforge.shared`)
+- `:data` — repository interfaces (`com.vitaforge.data.domain`) + internal implementations (Firebase via GitLive)
 - `:di` — Koin modules, `initialiseKoin()`
 - `:feature:auth`, `:feature:home` — one module per feature (screens, ViewModels, components)
 - `:navigation` — root `NavGraph`, platform entry points
@@ -25,7 +25,7 @@ all dependency versions live in `gradle/libs.versions.toml`.
 - Only `:di` (and platform entry points) wire implementations to interfaces
 - Avoid circular dependencies and "god" modules; split `:shared` before it becomes a dumping ground
 - New feature = new `:feature:<name>` module registered in `settings.gradle.kts`
-- Package names follow the module: `com.vitaforge.<module>`
+- Package names follow the module: `com.vitaforge.<module>` (the one exception is `:shared`, see Modules)
 - Use type-safe project accessors (`projects.feature.home`) and the version catalog; never hardcode versions or coordinates in module build files
 - Keep module build files minimal; extract shared config into convention plugins (`build-logic`) when duplication appears
 
@@ -43,10 +43,11 @@ all dependency versions live in `gradle/libs.versions.toml`.
 - No secrets in the repo; keep keys in `local.properties` / untracked platform config
 
 ## Architecture
-- Clean Architecture: data → domain ← presentation (domain has no dependencies)
+- Clean Architecture: data → domain ← presentation. There is no `:domain` module: domain models live in `:shared`, repository interfaces in `:data`'s `domain` package, and use cases in the feature that owns them
+- Domain code (models, interfaces, use cases) must not expose SDK types (e.g. Firebase) in its signatures
 - MVVM: ViewModels expose `StateFlow<ScreenNameUiState>` (sealed: Loading, Success, Error)
 - Business logic lives in UseCases, not ViewModels or the data layer
-- Repository interfaces in domain; implementations in `:data`
+- Repository interfaces in `:data`'s `domain` package; implementations are `internal` in `:data`
 - Return `Flow` / `suspend` results from the data layer; no callback lambdas, no coroutine launches
 - ViewModels use `viewModelScope`; never launch unscoped coroutines
 

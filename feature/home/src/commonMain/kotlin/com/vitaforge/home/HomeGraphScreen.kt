@@ -1,5 +1,6 @@
 package com.vitaforge.home
 
+import ContentWithMessageBar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -55,9 +56,13 @@ import com.vitaforge.domain.CustomDrawerState
 import com.vitaforge.domain.isOpened
 import com.vitaforge.domain.opposite
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
+import rememberMessageBarState
 
 @Composable
-fun HomeGraphScreen() {
+fun HomeGraphScreen(navigateToAuth: () -> Unit) {
+    val viewModel = koinViewModel<HomeGraphViewModel>()
+    val messageBarState = rememberMessageBarState()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
 
@@ -99,7 +104,12 @@ fun HomeGraphScreen() {
             userTier = "Athlete Tier • Active",
             onProfileClick = {},
             onContactUsClick = {},
-            onSignOutClick = {},
+            onSignOutClick = {
+                viewModel.signOut(
+                    onSuccess = navigateToAuth,
+                    onError = { message -> messageBarState.addError(message) },
+                )
+            },
             onAdminClick = {},
         )
         Box(
@@ -175,7 +185,7 @@ fun HomeGraphScreen() {
                     )
                 },
             ) { paddingValues ->
-                Column(
+                ContentWithMessageBar(
                     modifier =
                         Modifier
                             .fillMaxSize()
@@ -183,31 +193,38 @@ fun HomeGraphScreen() {
                                 top = paddingValues.calculateTopPadding(),
                                 bottom = paddingValues.calculateBottomPadding(),
                             ),
+                    messageBarState = messageBarState,
+                    errorMaxLines = 2,
+                    contentBackgroundColor = Surface,
                 ) {
-                    NavHost(
-                        modifier = Modifier.weight(1f),
-                        navController = navController,
-                        startDestination = Screen.ProductsOverview,
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
                     ) {
-                        composable<Screen.ProductsOverview> { }
-                        composable<Screen.Cart> { }
-                        composable<Screen.Categories> { }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(modifier = Modifier.padding(12.dp)) {
-                        BottomBar(
-                            selected = selectedDestination,
-                            onSelect = { destination ->
-                                navController.navigate(destination.screen) {
-                                    launchSingleTop = true
-                                    popUpTo<Screen.ProductsOverview> {
-                                        saveState = true
-                                        inclusive = false
+                        NavHost(
+                            modifier = Modifier.weight(1f),
+                            navController = navController,
+                            startDestination = Screen.ProductsOverview,
+                        ) {
+                            composable<Screen.ProductsOverview> { }
+                            composable<Screen.Cart> { }
+                            composable<Screen.Categories> { }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(modifier = Modifier.padding(12.dp)) {
+                            BottomBar(
+                                selected = selectedDestination,
+                                onSelect = { destination ->
+                                    navController.navigate(destination.screen) {
+                                        launchSingleTop = true
+                                        popUpTo<Screen.ProductsOverview> {
+                                            saveState = true
+                                            inclusive = false
+                                        }
+                                        restoreState = true
                                     }
-                                    restoreState = true
-                                }
-                            },
-                        )
+                                },
+                            )
+                        }
                     }
                 }
             }
