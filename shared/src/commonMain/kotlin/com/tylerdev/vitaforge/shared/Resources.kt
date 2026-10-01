@@ -4,6 +4,7 @@ import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.add_to_cart
 import vitaforge.shared.generated.resources.arrow_right
 import vitaforge.shared.generated.resources.back
+import vitaforge.shared.generated.resources.blog
 import vitaforge.shared.generated.resources.camera
 import vitaforge.shared.generated.resources.cart
 import vitaforge.shared.generated.resources.cash
@@ -51,13 +52,16 @@ import vitaforge.shared.generated.resources.zero_fillers
 object Resources {
     object Icon {
         val AddToCart = Res.drawable.add_to_cart
+        val Admin = Res.drawable.admin
         val ArrowRight = Res.drawable.arrow_right
         val Back = Res.drawable.back
+        val Blog = Res.drawable.blog
         val Camera = Res.drawable.camera
         val Cart = Res.drawable.cart
         val Cash = Res.drawable.cash
         val Categories = Res.drawable.categories
         val ChevronRight = Res.drawable.chevron_right
+        val ContactUs = Res.drawable.contactus
         val DeliveryTruck = Res.drawable.delivery_truck
         val Email = Res.drawable.email
         val EmailVerified = Res.drawable.email_verified
