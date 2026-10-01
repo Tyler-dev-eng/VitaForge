@@ -1,6 +1,7 @@
 package com.vitaforge.home
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,10 +29,12 @@ import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
+import com.tylerdev.vitaforge.shared.SurfaceLighter
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.components.BottomBar
+import com.vitaforge.components.CustomDrawer
 import com.vitaforge.domain.BottomBarDestination
 import org.jetbrains.compose.resources.painterResource
 
@@ -47,80 +50,97 @@ fun HomeGraphScreen() {
                 ?: BottomBarDestination.ProductsOverview
         }
     }
-    Scaffold(
-        containerColor = Surface,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    AnimatedContent(
-                        targetState = selectedDestination,
-                    ) { destination ->
-                        Text(
-                            text =
-                                if (destination == BottomBarDestination.ProductsOverview) {
-                                    "VitaForge"
-                                } else {
-                                    destination.title
-                                },
-                            fontFamily = bebasNeueFontFamily(),
-                            fontSize = FontSize.LARGE,
-                            color = TextPrimary,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(Resources.Icon.Menu),
-                            contentDescription = "Menu Icon",
-                            tint = IconPrimary,
-                        )
-                    }
-                },
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = Surface,
-                        scrolledContainerColor = Surface,
-                        navigationIconContentColor = IconPrimary,
-                        titleContentColor = TextPrimary,
-                        actionIconContentColor = IconPrimary,
-                    ),
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                        bottom = paddingValues.calculateBottomPadding(),
-                    ),
-        ) {
-            NavHost(
-                modifier = Modifier.weight(1f),
-                navController = navController,
-                startDestination = Screen.ProductsOverview,
-            ) {
-                composable<Screen.ProductsOverview> { }
-                composable<Screen.Cart> { }
-                composable<Screen.Categories> { }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Box(modifier = Modifier.padding(12.dp)) {
-                BottomBar(
-                    selected = selectedDestination,
-                    onSelect = { destination ->
-                        navController.navigate(destination.screen) {
-                            launchSingleTop = true
-                            popUpTo<Screen.ProductsOverview> {
-                                saveState = true
-                                inclusive = false
-                            }
-                            restoreState = true
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(SurfaceLighter),
+    ) {
+        CustomDrawer(
+            userName = "Alex Mercer",
+            userTier = "Athlete Tier • Active",
+            onCloseClick = {},
+            onProfileClick = {},
+            onContactUsClick = {},
+            onSignOutClick = {},
+            onAdminClick = {},
+        )
+        Scaffold(
+            containerColor = Surface,
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        AnimatedContent(
+                            targetState = selectedDestination,
+                        ) { destination ->
+                            Text(
+                                text =
+                                    if (destination == BottomBarDestination.ProductsOverview) {
+                                        "VitaForge"
+                                    } else {
+                                        destination.title
+                                    },
+                                fontFamily = bebasNeueFontFamily(),
+                                fontSize = FontSize.LARGE,
+                                color = TextPrimary,
+                            )
                         }
                     },
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                painter = painterResource(Resources.Icon.Menu),
+                                contentDescription = "Menu Icon",
+                                tint = IconPrimary,
+                            )
+                        }
+                    },
+                    colors =
+                        TopAppBarDefaults.topAppBarColors(
+                            containerColor = Surface,
+                            scrolledContainerColor = Surface,
+                            navigationIconContentColor = IconPrimary,
+                            titleContentColor = TextPrimary,
+                            actionIconContentColor = IconPrimary,
+                        ),
                 )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom = paddingValues.calculateBottomPadding(),
+                        ),
+            ) {
+                NavHost(
+                    modifier = Modifier.weight(1f),
+                    navController = navController,
+                    startDestination = Screen.ProductsOverview,
+                ) {
+                    composable<Screen.ProductsOverview> { }
+                    composable<Screen.Cart> { }
+                    composable<Screen.Categories> { }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Box(modifier = Modifier.padding(12.dp)) {
+                    BottomBar(
+                        selected = selectedDestination,
+                        onSelect = { destination ->
+                            navController.navigate(destination.screen) {
+                                launchSingleTop = true
+                                popUpTo<Screen.ProductsOverview> {
+                                    saveState = true
+                                    inclusive = false
+                                }
+                                restoreState = true
+                            }
+                        },
+                    )
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package com.tylerdev.vitaforge.shared
 
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.add_to_cart
+import vitaforge.shared.generated.resources.admin
 import vitaforge.shared.generated.resources.arrow_right
 import vitaforge.shared.generated.resources.back
 import vitaforge.shared.generated.resources.blog
@@ -11,6 +12,8 @@ import vitaforge.shared.generated.resources.cash
 import vitaforge.shared.generated.resources.categories
 import vitaforge.shared.generated.resources.check_mark
 import vitaforge.shared.generated.resources.chevron_right
+import vitaforge.shared.generated.resources.close
+import vitaforge.shared.generated.resources.contactus
 import vitaforge.shared.generated.resources.delivery_truck
 import vitaforge.shared.generated.resources.email
 import vitaforge.shared.generated.resources.email_verified
@@ -61,6 +64,7 @@ object Resources {
         val Cash = Res.drawable.cash
         val Categories = Res.drawable.categories
         val ChevronRight = Res.drawable.chevron_right
+        val Close = Res.drawable.close
         val ContactUs = Res.drawable.contactus
         val DeliveryTruck = Res.drawable.delivery_truck
         val Email = Res.drawable.email

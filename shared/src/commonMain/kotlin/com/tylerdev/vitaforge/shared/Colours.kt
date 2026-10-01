@@ -38,3 +38,4 @@ val TextPrimary = Black
 val TextSecondary = Orange
 val TextWhite = White
 val TextBrand = Yellowish
+val TextMuted = Color(0xFF8A8A8A)
