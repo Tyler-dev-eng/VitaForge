@@ -43,7 +43,7 @@ import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.vitaforge.domain.DrawerItem
 import org.jetbrains.compose.resources.painterResource
 
-private const val DRAWER_WIDTH_FRACTION = 0.84f
+private const val DRAWER_WIDTH_FRACTION = 0.72f
 private val DrawerCardRadius = 16.dp
 private val AvatarSize = 48.dp
 private val AdminIconSize = 40.dp
@@ -52,7 +52,6 @@ private val AdminIconSize = 40.dp
 fun CustomDrawer(
     userName: String,
     userTier: String,
-    onCloseClick: () -> Unit,
     onProfileClick: () -> Unit,
     onContactUsClick: () -> Unit,
     onSignOutClick: () -> Unit,
@@ -69,7 +68,6 @@ fun CustomDrawer(
         DrawerHeader(
             userName = userName,
             userTier = userTier,
-            onCloseClick = onCloseClick,
         )
         Column(
             modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 16.dp),
@@ -98,7 +96,6 @@ fun CustomDrawer(
 private fun DrawerHeader(
     userName: String,
     userTier: String,
-    onCloseClick: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 50.dp)) {
         Row(
@@ -122,12 +119,6 @@ private fun DrawerHeader(
                     fontSize = FontSize.EXTRA_SMALL,
                 )
             }
-            Icon(
-                painter = painterResource(Resources.Icon.Close),
-                contentDescription = "Close menu",
-                modifier = Modifier.clip(CircleShape).clickable(onClick = onCloseClick).padding(10.dp),
-                tint = IconPrimary,
-            )
         }
         Spacer(Modifier.height(20.dp))
         DrawerProfileCard(userName = userName, userTier = userTier)
