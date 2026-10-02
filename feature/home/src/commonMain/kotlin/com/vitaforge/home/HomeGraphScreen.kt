@@ -60,7 +60,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
 
 @Composable
-fun HomeGraphScreen(navigateToAuth: () -> Unit) {
+fun HomeGraphScreen(
+    navigateToAuth: () -> Unit,
+    navigateToProfile: () -> Unit,
+) {
     val viewModel = koinViewModel<HomeGraphViewModel>()
     val messageBarState = rememberMessageBarState()
     val navController = rememberNavController()
@@ -102,7 +105,7 @@ fun HomeGraphScreen(navigateToAuth: () -> Unit) {
         CustomDrawer(
             userName = "Alex Mercer",
             userTier = "Athlete Tier • Active",
-            onProfileClick = {},
+            onProfileClick = navigateToProfile,
             onContactUsClick = {},
             onSignOutClick = {
                 viewModel.signOut(

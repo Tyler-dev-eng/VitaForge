@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.auth.AuthScreen
 import com.vitaforge.home.HomeGraphScreen
+import com.vitaforge.profile.ProfileScreen
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -32,7 +33,12 @@ fun SetupNavGraph(startDestination: Screen) {
                         popUpTo(Screen.HomeGraph) { inclusive = true }
                     }
                 },
+                navigateToProfile = { navController.navigate(Screen.Profile) },
             )
+        }
+
+        composable<Screen.Profile> {
+            ProfileScreen()
         }
     }
 }
