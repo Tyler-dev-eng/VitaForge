@@ -1,4 +1,4 @@
-package com.vitaforge.profile.components
+package com.tylerdev.vitaforge.shared.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
