@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.mmk.kmpauth.google.rememberGoogleAuthState
 import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.Black
-import com.tylerdev.vitaforge.shared.Error
 import com.tylerdev.vitaforge.shared.FontSize
+import com.tylerdev.vitaforge.shared.Red
 import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.White
@@ -59,7 +59,7 @@ fun AuthScreen(navigateToHome: () -> Unit) {
         errorMaxLines = 2,
         successContainerColor = Color(0xFF2E7D32),
         successContentColor = White,
-        errorContainerColor = Error,
+        errorContainerColor = Red,
         errorContentColor = White,
         contentBackgroundColor = Surface,
     ) {
@@ -80,7 +80,7 @@ fun AuthScreen(navigateToHome: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     text =
                         buildAnnotatedString {
-                            withStyle(SpanStyle(color = Error)) {
+                            withStyle(SpanStyle(color = Red)) {
                                 append("VITA")
                             }
                             withStyle(SpanStyle(color = Black)) {

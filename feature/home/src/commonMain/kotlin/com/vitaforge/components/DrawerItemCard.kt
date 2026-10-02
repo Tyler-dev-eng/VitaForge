@@ -19,9 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.Alpha
-import com.tylerdev.vitaforge.shared.Error
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
+import com.tylerdev.vitaforge.shared.Red
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.SurfaceDarker
 import com.tylerdev.vitaforge.shared.TextMuted
@@ -41,8 +41,8 @@ fun DrawerItemCard(
     onClick: () -> Unit,
 ) {
     val isDestructive = drawerItem == DrawerItem.SignOut
-    val contentColor = if (isDestructive) Error else TextPrimary
-    val iconBackground = if (isDestructive) Error.copy(alpha = Alpha.TEN_PERCENT) else SurfaceDarker
+    val contentColor = if (isDestructive) Red else TextPrimary
+    val iconBackground = if (isDestructive) Red.copy(alpha = Alpha.TEN_PERCENT) else SurfaceDarker
 
     Row(
         modifier =
@@ -64,7 +64,7 @@ fun DrawerItemCard(
                 painter = painterResource(drawerItem.icon),
                 contentDescription = null,
                 modifier = Modifier.size(ItemIconSize),
-                tint = if (isDestructive) Error else IconPrimary,
+                tint = if (isDestructive) Red else IconPrimary,
             )
         }
         Spacer(modifier = Modifier.width(14.dp))

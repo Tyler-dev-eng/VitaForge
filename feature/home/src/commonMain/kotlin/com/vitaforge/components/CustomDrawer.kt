@@ -28,10 +28,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.Black
-import com.tylerdev.vitaforge.shared.Error
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.GrayDarker
 import com.tylerdev.vitaforge.shared.IconPrimary
+import com.tylerdev.vitaforge.shared.Red
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.SurfaceBrand
@@ -107,7 +107,7 @@ private fun DrawerHeader(
                 Text(
                     text =
                         buildAnnotatedString {
-                            withStyle(SpanStyle(color = Error)) { append("VITA") }
+                            withStyle(SpanStyle(color = Red)) { append("VITA") }
                             withStyle(SpanStyle(color = TextPrimary)) { append("FORGE") }
                         },
                     fontFamily = bebasNeueFontFamily(),
