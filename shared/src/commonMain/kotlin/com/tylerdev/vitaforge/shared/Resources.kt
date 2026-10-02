@@ -25,6 +25,7 @@ import vitaforge.shared.generated.resources.filter
 import vitaforge.shared.generated.resources.google_logo
 import vitaforge.shared.generated.resources.home
 import vitaforge.shared.generated.resources.hplc_tested
+import vitaforge.shared.generated.resources.india
 import vitaforge.shared.generated.resources.location_pin
 import vitaforge.shared.generated.resources.lock
 import vitaforge.shared.generated.resources.menu
@@ -41,12 +42,16 @@ import vitaforge.shared.generated.resources.resource_return
 import vitaforge.shared.generated.resources.rocket
 import vitaforge.shared.generated.resources.scales
 import vitaforge.shared.generated.resources.search
+import vitaforge.shared.generated.resources.serbia
 import vitaforge.shared.generated.resources.settings
 import vitaforge.shared.generated.resources.sign_out
+import vitaforge.shared.generated.resources.south_africa
 import vitaforge.shared.generated.resources.star
 import vitaforge.shared.generated.resources.timer
 import vitaforge.shared.generated.resources.trust_shield
 import vitaforge.shared.generated.resources.trusted
+import vitaforge.shared.generated.resources.united_kingdom
+import vitaforge.shared.generated.resources.united_states
 import vitaforge.shared.generated.resources.user
 import vitaforge.shared.generated.resources.verified
 import vitaforge.shared.generated.resources.weight
@@ -107,5 +112,13 @@ object Resources {
         val EmptyCategory = Res.drawable.empty_category
         val GoogleLogo = Res.drawable.google_logo
         val PayPalLogo = Res.drawable.paypal_logo
+    }
+
+    object Flag {
+        val India = Res.drawable.india
+        val Serbia = Res.drawable.serbia
+        val SouthAfrica = Res.drawable.south_africa
+        val UnitedKingdom = Res.drawable.united_kingdom
+        val UnitedStates = Res.drawable.united_states
     }
 }
