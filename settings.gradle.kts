@@ -29,6 +29,7 @@ dependencyResolutionManagement {
 include(":data")
 include(":di")
 
+include(":feature:profile")
 include(":feature:home")
 include(":feature:auth")
 include(":navigation")
