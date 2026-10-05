@@ -3,8 +3,10 @@ package com.tylerdev.vitaforge.shared.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -20,7 +22,10 @@ import com.tylerdev.vitaforge.shared.BorderError
 import com.tylerdev.vitaforge.shared.BorderIdle
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.SurfaceLighter
+import com.tylerdev.vitaforge.shared.TextMuted
 import com.tylerdev.vitaforge.shared.TextPrimary
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun CustomTextField(
@@ -31,6 +36,7 @@ fun CustomTextField(
     enabled: Boolean = true,
     error: Boolean = false,
     expanded: Boolean = false,
+    trailingIcon: DrawableResource? = null,
     keyboardOptions: KeyboardOptions =
         KeyboardOptions(
             keyboardType = KeyboardType.Text,
@@ -64,6 +70,17 @@ fun CustomTextField(
                 }
             } else {
                 null
+            },
+        trailingIcon =
+            trailingIcon?.let {
+                {
+                    Icon(
+                        painter = painterResource(it),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = TextMuted,
+                    )
+                }
             },
         singleLine = !expanded,
         shape = RoundedCornerShape(size = 6.dp),

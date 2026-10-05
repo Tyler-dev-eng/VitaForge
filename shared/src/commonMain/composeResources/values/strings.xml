@@ -6,4 +6,32 @@
     <string name="country_picker_cancel">Cancel</string>
     <string name="country_picker_flag_description">Country flag</string>
     <string name="country_picker_no_results">Dial code not found.</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_change_photo">Change profile photo</string>
+    <string name="profile_member_tier">Athlete Pro Member</string>
+    <string name="profile_member_since">Member since March 2023 • Tier Level 3</string>
+    <string name="profile_stat_complete">Profile Complete</string>
+    <string name="profile_stat_points">Forge Fuel Pts</string>
+    <string name="profile_stat_status">Status</string>
+    <string name="profile_section_details">Personal Details</string>
+    <string name="profile_section_details_hint">Editable Data</string>
+    <string name="profile_label_first_name">First Name</string>
+    <string name="profile_label_last_name">Last Name</string>
+    <string name="profile_label_email">Email Address</string>
+    <string name="profile_email_locked">Locked</string>
+    <string name="profile_label_phone">Mobile Phone</string>
+    <string name="profile_label_address">Primary Shipping Address</string>
+    <string name="profile_label_city">City</string>
+    <string name="profile_label_postal_code">Postal Code</string>
+    <string name="profile_section_account">Account Operations</string>
+    <string name="profile_action_orders">Order History</string>
+    <string name="profile_action_orders_subtitle">6 total orders • Last shipped 3d ago</string>
+    <string name="profile_action_payments">Saved Payment Methods</string>
+    <string name="profile_action_payments_subtitle">Visa ending in •••• 4092</string>
+    <string name="profile_action_preferences">Nutrition &amp; Goal Preferences</string>
+    <string name="profile_action_preferences_subtitle">Hypertrophy • Whey Isolate Focus</string>
+    <string name="profile_update">Update Profile</string>
+    <string name="profile_sign_out">Sign Out of VitaForge</string>
+    <string name="profile_footer">VitaForge • Bio-Engineered</string>
 </resources>
