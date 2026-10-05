@@ -56,6 +56,7 @@ import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.country_picker_cancel
 import vitaforge.shared.generated.resources.country_picker_confirm
 import vitaforge.shared.generated.resources.country_picker_flag_description
+import vitaforge.shared.generated.resources.country_picker_no_results
 import vitaforge.shared.generated.resources.country_picker_search_placeholder
 import vitaforge.shared.generated.resources.country_picker_title
 
@@ -86,7 +87,7 @@ fun CountryPickerDialog(
         text = {
             Column(
                 modifier =
-                    Modifier
+                    modifier
                         .height(300.dp)
                         .fillMaxWidth(),
             ) {
@@ -96,19 +97,32 @@ fun CountryPickerDialog(
                     placeholder = stringResource(Res.string.country_picker_search_placeholder),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    items(
-                        items = filteredCountries,
-                        key = { it.ordinal },
+                if (filteredCountries.isEmpty()) {
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        CountryPicker(
-                            country = it,
-                            isSelected = it == selectedCountry,
-                            onSelect = { selectedCountry = it },
+                        Text(
+                            text = stringResource(Res.string.country_picker_no_results),
+                            fontSize = FontSize.SMALL,
+                            color = TextPrimary.copy(alpha = Alpha.HALF),
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        items(
+                            items = filteredCountries,
+                            key = { it.ordinal },
+                        ) {
+                            CountryPicker(
+                                country = it,
+                                isSelected = it == selectedCountry,
+                                onSelect = { selectedCountry = it },
+                            )
+                        }
                     }
                 }
             }

@@ -5,4 +5,5 @@
     <string name="country_picker_confirm">Confirm</string>
     <string name="country_picker_cancel">Cancel</string>
     <string name="country_picker_flag_description">Country flag</string>
+    <string name="country_picker_no_results">Dial code not found.</string>
 </resources>
