@@ -10,6 +10,7 @@ import vitaforge.shared.generated.resources.camera
 import vitaforge.shared.generated.resources.cart
 import vitaforge.shared.generated.resources.cash
 import vitaforge.shared.generated.resources.categories
+import vitaforge.shared.generated.resources.check
 import vitaforge.shared.generated.resources.check_mark
 import vitaforge.shared.generated.resources.chevron_right
 import vitaforge.shared.generated.resources.close
@@ -68,6 +69,7 @@ object Resources {
         val Cart = Res.drawable.cart
         val Cash = Res.drawable.cash
         val Categories = Res.drawable.categories
+        val Check = Res.drawable.check
         val ChevronRight = Res.drawable.chevron_right
         val Close = Res.drawable.close
         val ContactUs = Res.drawable.contactus

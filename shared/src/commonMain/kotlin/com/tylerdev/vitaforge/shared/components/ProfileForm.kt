@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.tylerdev.vitaforge.shared.components.dialog.CountryPickerDialog
+import com.tylerdev.vitaforge.shared.domain.Country
 
 @Composable
 fun ProfileForm(
@@ -35,6 +37,11 @@ fun ProfileForm(
     phoneNumber: String?,
     onPhoneNumberChange: (String) -> Unit,
 ) {
+    CountryPickerDialog(
+        country = Country.UnitedStates,
+        onDismiss = {},
+        onConfirm = {},
+    )
     Column(
         modifier =
             modifier
