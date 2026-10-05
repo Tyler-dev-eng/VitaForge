@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.FontSize
@@ -52,6 +51,13 @@ import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.components.CustomTextField
 import com.tylerdev.vitaforge.shared.domain.Country
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.country_picker_cancel
+import vitaforge.shared.generated.resources.country_picker_confirm
+import vitaforge.shared.generated.resources.country_picker_flag_description
+import vitaforge.shared.generated.resources.country_picker_search_placeholder
+import vitaforge.shared.generated.resources.country_picker_title
 
 @Composable
 fun CountryPickerDialog(
@@ -62,14 +68,17 @@ fun CountryPickerDialog(
 ) {
     var selectedCountry by remember(country) { mutableStateOf(country) }
     val allCountries = remember { Country.entries.toList() }
-    val filteredCountries = remember { mutableListOf<Country>().apply { addAll(allCountries) } }
     var searchQuery by remember { mutableStateOf("") }
+    val filteredCountries =
+        remember(searchQuery) {
+            if (searchQuery.isBlank()) allCountries else allCountries.filterByCountry(searchQuery)
+        }
 
     AlertDialog(
         containerColor = Surface,
         title = {
             Text(
-                text = "Select a Country",
+                text = stringResource(Res.string.country_picker_title),
                 fontSize = FontSize.EXTRA_MEDIUM,
                 color = TextPrimary,
             )
@@ -83,18 +92,8 @@ fun CountryPickerDialog(
             ) {
                 CustomTextField(
                     value = searchQuery,
-                    onValueChange = { query ->
-                        searchQuery = query
-                        if (searchQuery.isNotBlank()) {
-                            val filtered = allCountries.filterByCountry(query)
-                            filteredCountries.clear()
-                            filteredCountries.addAll(filtered)
-                        } else {
-                            filteredCountries.clear()
-                            filteredCountries.addAll(allCountries)
-                        }
-                    },
-                    placeholder = "Dail Code",
+                    onValueChange = { searchQuery = it },
+                    placeholder = stringResource(Res.string.country_picker_search_placeholder),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyColumn(
@@ -125,7 +124,7 @@ fun CountryPickerDialog(
                     ),
             ) {
                 Text(
-                    text = "Confirm",
+                    text = stringResource(Res.string.country_picker_confirm),
                     fontSize = FontSize.REGULAR,
                     fontWeight = FontWeight.Medium,
                 )
@@ -141,7 +140,7 @@ fun CountryPickerDialog(
                     ),
             ) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(Res.string.country_picker_cancel),
                     fontSize = FontSize.REGULAR,
                     fontWeight = FontWeight.Medium,
                 )
@@ -181,7 +180,7 @@ private fun CountryPicker(
         Image(
             modifier = Modifier.size(14.dp),
             painter = painterResource(country.flag),
-            contentDescription = "Country Flag",
+            contentDescription = stringResource(Res.string.country_picker_flag_description),
             colorFilter = ColorFilter.colorMatrix(colourMatrix),
         )
         Spacer(modifier = Modifier.width(12.dp))
@@ -233,7 +232,7 @@ fun List<Country>.filterByCountry(query: String): List<Country> {
 
     return this.filter {
         it.name.lowercase().contains(queryLower) ||
-            it.name.lowercase().contains(queryLower) ||
+            it.code.lowercase().contains(queryLower) ||
             (queryInt != null && it.dialCode == queryInt)
     }
 }

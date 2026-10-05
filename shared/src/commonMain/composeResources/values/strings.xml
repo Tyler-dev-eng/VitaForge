@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="country_picker_title">Select a Country</string>
+    <string name="country_picker_search_placeholder">Country or dial code</string>
+    <string name="country_picker_confirm">Confirm</string>
+    <string name="country_picker_cancel">Cancel</string>
+    <string name="country_picker_flag_description">Country flag</string>
+</resources>
