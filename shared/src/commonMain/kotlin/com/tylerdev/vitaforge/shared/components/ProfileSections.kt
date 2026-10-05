@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,15 +37,44 @@ import vitaforge.shared.generated.resources.profile_action_payments
 import vitaforge.shared.generated.resources.profile_action_payments_subtitle
 import vitaforge.shared.generated.resources.profile_action_preferences
 import vitaforge.shared.generated.resources.profile_action_preferences_subtitle
+import vitaforge.shared.generated.resources.profile_back
 import vitaforge.shared.generated.resources.profile_footer
 import vitaforge.shared.generated.resources.profile_section_account
 import vitaforge.shared.generated.resources.profile_section_details
 import vitaforge.shared.generated.resources.profile_section_details_hint
 import vitaforge.shared.generated.resources.profile_sign_out
+import vitaforge.shared.generated.resources.profile_title
 import vitaforge.shared.generated.resources.profile_update
 
 private val CardShape = RoundedCornerShape(12.dp)
 private val CardElevation = 2.dp
+
+@Composable
+fun ProfileTopBar(
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().background(Surface).padding(horizontal = 8.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                painter = painterResource(Resources.Icon.Back),
+                contentDescription = stringResource(Res.string.profile_back),
+                modifier = Modifier.size(24.dp),
+                tint = TextPrimary,
+            )
+        }
+        Text(
+            text = stringResource(Res.string.profile_title).uppercase(),
+            fontFamily = bebasNeueFontFamily(),
+            fontSize = FontSize.LARGE,
+            color = TextPrimary,
+        )
+    }
+}
 
 @Composable
 fun ProfileDetailsHeader(modifier: Modifier = Modifier) {
@@ -102,7 +132,7 @@ fun ProfileActions(
     ) {
         PrimaryButton(
             text = stringResource(Res.string.profile_update),
-            icon = Resources.Icon.Energy,
+            icon = Resources.Icon.Check,
             onClick = onUpdateClick,
         )
         TextButton(onClick = onSignOutClick) {

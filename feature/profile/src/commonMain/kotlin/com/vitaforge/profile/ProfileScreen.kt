@@ -24,6 +24,7 @@ import com.tylerdev.vitaforge.shared.components.ProfileDetailsHeader
 import com.tylerdev.vitaforge.shared.components.ProfileFooter
 import com.tylerdev.vitaforge.shared.components.ProfileForm
 import com.tylerdev.vitaforge.shared.components.ProfileIdentityCard
+import com.tylerdev.vitaforge.shared.components.ProfileTopBar
 import com.tylerdev.vitaforge.shared.domain.Country
 
 private const val SAMPLE_COMPLETION_PERCENT = 94
@@ -31,16 +32,31 @@ private const val SAMPLE_POINTS = 420
 private const val SAMPLE_STATUS = "PRO"
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
+fun ProfileScreen(
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(SurfaceLighter)
+                .windowInsetsPadding(WindowInsets.safeDrawing),
+    ) {
+        ProfileTopBar(onBackClick = onNavigateBack)
+        ProfileContent()
+    }
+}
+
+@Composable
+private fun ProfileContent(modifier: Modifier = Modifier) {
     var country by remember { mutableStateOf(Country.UnitedKingdom) }
 
     Column(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(SurfaceLighter)
                 .verticalScroll(rememberScrollState())
-                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(horizontal = 24.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {

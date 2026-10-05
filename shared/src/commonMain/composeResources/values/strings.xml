@@ -7,7 +7,8 @@
     <string name="country_picker_flag_description">Country flag</string>
     <string name="country_picker_no_results">Dial code not found.</string>
 
-    <string name="profile_title">Profile</string>
+    <string name="profile_title">My Profile</string>
+    <string name="profile_back">Go back</string>
     <string name="profile_change_photo">Change profile photo</string>
     <string name="profile_member_tier">Athlete Pro Member</string>
     <string name="profile_member_since">Member since March 2023 • Tier Level 3</string>
