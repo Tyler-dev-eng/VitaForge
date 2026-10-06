@@ -124,6 +124,7 @@ fun ProfileActions(
     onUpdateClick: () -> Unit,
     onSignOutClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isUpdateEnabled: Boolean = true,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -133,6 +134,7 @@ fun ProfileActions(
         PrimaryButton(
             text = stringResource(Res.string.profile_update),
             icon = Resources.Icon.Check,
+            enabled = isUpdateEnabled,
             onClick = onUpdateClick,
         )
         TextButton(onClick = onSignOutClick) {

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.domain.Country
+import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
@@ -40,6 +41,17 @@ class ProfileViewModel(
             initialValue = RequestState.Loading,
         )
 
+    val isFormValid: Boolean
+        get() =
+            with(screenState) {
+                firstName.length in 3..50 &&
+                    lastName.length in 3..50 &&
+                    city?.length in 3..50 &&
+                    postalCode?.toString()?.length in 3..8 &&
+                    address?.length in 3..50 &&
+                    phoneNumber?.number?.length in 5..30
+            }
+
     init {
         viewModelScope.launch {
             customerRepository.readCustomerFlow().collectLatest { data ->
@@ -64,6 +76,70 @@ class ProfileViewModel(
                     screenReady = RequestState.Error(data.getErrorMessage())
                 }
             }
+        }
+    }
+
+    fun updateFirstName(value: String) {
+        screenState = screenState.copy(firstName = value)
+    }
+
+    fun updateLastName(value: String) {
+        screenState = screenState.copy(lastName = value)
+    }
+
+    fun updateCity(value: String) {
+        screenState = screenState.copy(city = value)
+    }
+
+    fun updatePostalCode(value: Int?) {
+        screenState = screenState.copy(postalCode = value)
+    }
+
+    fun updateAddress(value: String) {
+        screenState = screenState.copy(address = value)
+    }
+
+    fun updateCountry(value: Country) {
+        screenState =
+            screenState.copy(
+                country = value,
+                phoneNumber =
+                    screenState.phoneNumber?.copy(
+                        dialCode = value.dialCode,
+                    ),
+            )
+    }
+
+    fun updatePhoneNumber(value: String) {
+        screenState =
+            screenState.copy(
+                phoneNumber =
+                    PhoneNumber(
+                        dialCode = screenState.country.dialCode,
+                        number = value,
+                    ),
+            )
+    }
+
+    fun updateCustomer(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+//            customerRepository.updateCustomer(
+//                customer = Customer(
+//                    id = screenState.id,
+//                    firstName = screenState.firstName,
+//                    lastName = screenState.lastName,
+//                    email = screenState.email,
+//                    city = screenState.city,
+//                    postalCode = screenState.postalCode,
+//                    address = screenState.address,
+//                    phoneNumber = screenState.phoneNumber
+//                ),
+//                onSuccess = onSuccess,
+//                onError = onError
+//            )
         }
     }
 }

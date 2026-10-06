@@ -49,6 +49,7 @@ fun ProfileScreen(
 private fun ProfileContent(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val screenState = viewModel.screenState
+    val isFormValid = viewModel.isFormValid
 
     Column(
         modifier =
@@ -71,20 +72,20 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
             onSuccess = {
                 ProfileForm(
                     firstName = screenState.firstName,
-                    onFirstNameChange = {},
+                    onFirstNameChange = viewModel::updateFirstName,
                     lastName = screenState.lastName,
-                    onLastNameChange = {},
+                    onLastNameChange = viewModel::updateLastName,
                     email = screenState.email,
                     city = screenState.city,
-                    onCityChange = {},
+                    onCityChange = viewModel::updateCity,
                     postalCode = screenState.postalCode,
-                    onPostalCodeChange = {},
+                    onPostalCodeChange = viewModel::updatePostalCode,
                     address = screenState.address,
-                    onAddressChange = {},
+                    onAddressChange = viewModel::updateAddress,
                     phoneNumber = screenState.phoneNumber?.number,
-                    onPhoneNumberChange = {},
+                    onPhoneNumberChange = viewModel::updatePhoneNumber,
                     country = screenState.country,
-                    onCountrySelect = {},
+                    onCountrySelect = viewModel::updateCountry,
                 )
             },
             onError = {},
@@ -94,7 +95,11 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
             onPaymentsClick = {},
             onPreferencesClick = {},
         )
-        ProfileActions(onUpdateClick = {}, onSignOutClick = {})
+        ProfileActions(
+            onUpdateClick = {},
+            onSignOutClick = {},
+            isUpdateEnabled = isFormValid,
+        )
         ProfileFooter()
     }
 }
