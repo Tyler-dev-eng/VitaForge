@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -65,6 +66,7 @@ fun HomeGraphScreen(
     navigateToProfile: () -> Unit,
 ) {
     val viewModel = koinViewModel<HomeGraphViewModel>()
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
     val messageBarState = rememberMessageBarState()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -103,7 +105,7 @@ fun HomeGraphScreen(
                 .background(animatedBackground),
     ) {
         CustomDrawer(
-            userName = "Alex Mercer",
+            userName = userName,
             userTier = "Athlete Tier • Active",
             onProfileClick = navigateToProfile,
             onContactUsClick = {},
