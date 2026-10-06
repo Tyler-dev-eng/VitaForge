@@ -34,6 +34,12 @@ import vitaforge.shared.generated.resources.profile_label_first_name
 import vitaforge.shared.generated.resources.profile_label_last_name
 import vitaforge.shared.generated.resources.profile_label_phone
 import vitaforge.shared.generated.resources.profile_label_postal_code
+import vitaforge.shared.generated.resources.profile_placeholder_address
+import vitaforge.shared.generated.resources.profile_placeholder_city
+import vitaforge.shared.generated.resources.profile_placeholder_first_name
+import vitaforge.shared.generated.resources.profile_placeholder_last_name
+import vitaforge.shared.generated.resources.profile_placeholder_phone
+import vitaforge.shared.generated.resources.profile_placeholder_postal_code
 
 @Composable
 fun ProfileForm(
@@ -77,6 +83,7 @@ fun ProfileForm(
             LabelledField(stringResource(Res.string.profile_label_first_name), Modifier.weight(1f)) {
                 CustomTextField(
                     value = firstName,
+                    placeholder = stringResource(Res.string.profile_placeholder_first_name),
                     onValueChange = onFirstNameChange,
                     error = firstName.length !in 3..50,
                 )
@@ -84,6 +91,7 @@ fun ProfileForm(
             LabelledField(stringResource(Res.string.profile_label_last_name), Modifier.weight(1f)) {
                 CustomTextField(
                     value = lastName,
+                    placeholder = stringResource(Res.string.profile_placeholder_last_name),
                     onValueChange = onLastNameChange,
                     error = lastName.length !in 3..50,
                 )
@@ -110,6 +118,7 @@ fun ProfileForm(
                 Spacer(modifier = Modifier.width(12.dp))
                 CustomTextField(
                     value = phoneNumber ?: "",
+                    placeholder = stringResource(Res.string.profile_placeholder_phone),
                     onValueChange = onPhoneNumberChange,
                     error = phoneNumber.toString().length !in 5..30,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -119,6 +128,7 @@ fun ProfileForm(
         LabelledField(stringResource(Res.string.profile_label_address)) {
             CustomTextField(
                 value = address ?: "",
+                placeholder = stringResource(Res.string.profile_placeholder_address),
                 onValueChange = onAddressChange,
                 error = address?.length !in 3..50,
                 trailingIcon = Resources.Icon.LocationPin,
@@ -128,6 +138,7 @@ fun ProfileForm(
             LabelledField(stringResource(Res.string.profile_label_city), Modifier.weight(1f)) {
                 CustomTextField(
                     value = city ?: "",
+                    placeholder = stringResource(Res.string.profile_placeholder_city),
                     onValueChange = onCityChange,
                     error = city?.length !in 3..50,
                 )
@@ -135,6 +146,7 @@ fun ProfileForm(
             LabelledField(stringResource(Res.string.profile_label_postal_code), Modifier.weight(1f)) {
                 CustomTextField(
                     value = "${postalCode ?: ""}",
+                    placeholder = stringResource(Res.string.profile_placeholder_postal_code),
                     onValueChange = { onPostalCodeChange(it.toIntOrNull()) },
                     error = postalCode.toString().length !in 3..8,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
