@@ -6,11 +6,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -40,7 +42,8 @@ fun AlertTextField(
                     shape = RoundedCornerShape(6.dp),
                 ).clip(RoundedCornerShape(6.dp))
                 .clickable { onClick() }
-                .padding(vertical = 20.dp, horizontal = 16.dp),
+                .heightIn(min = TextFieldDefaults.MinHeight)
+                .padding(horizontal = 16.dp),
         verticalAlignment = CenterVertically,
     ) {
         if (icon != null) {
