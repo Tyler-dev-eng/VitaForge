@@ -19,7 +19,9 @@ import com.tylerdev.vitaforge.shared.components.ProfileActions
 import com.tylerdev.vitaforge.shared.components.ProfileDetailsHeader
 import com.tylerdev.vitaforge.shared.components.ProfileFooter
 import com.tylerdev.vitaforge.shared.components.ProfileForm
+import com.tylerdev.vitaforge.shared.components.ProfileFormLoading
 import com.tylerdev.vitaforge.shared.components.ProfileIdentityCard
+import com.tylerdev.vitaforge.shared.components.ProfileLoadingCard
 import com.tylerdev.vitaforge.shared.components.ProfileTopBar
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import org.koin.compose.viewmodel.koinViewModel
@@ -59,16 +61,20 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
                 .padding(horizontal = 24.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        ProfileIdentityCard(
-            name = screenState.firstName + " " + screenState.lastName,
-            completionPercent = SAMPLE_COMPLETION_PERCENT,
-            points = SAMPLE_POINTS,
-            status = SAMPLE_STATUS,
-            onChangePhotoClick = {},
-        )
+        if (viewModel.screenReady.isLoading()) {
+            ProfileLoadingCard()
+        } else {
+            ProfileIdentityCard(
+                name = screenState.firstName + " " + screenState.lastName,
+                completionPercent = SAMPLE_COMPLETION_PERCENT,
+                points = SAMPLE_POINTS,
+                status = SAMPLE_STATUS,
+                onChangePhotoClick = {},
+            )
+        }
         ProfileDetailsHeader()
         viewModel.screenReady.DisplayResult(
-            onLoading = {},
+            onLoading = { ProfileFormLoading() },
             onSuccess = {
                 ProfileForm(
                     firstName = screenState.firstName,

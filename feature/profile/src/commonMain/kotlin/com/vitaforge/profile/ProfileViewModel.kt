@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.domain.Country
-import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
