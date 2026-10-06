@@ -6,6 +6,7 @@ import vitaforge.shared.generated.resources.admin
 import vitaforge.shared.generated.resources.arrow_right
 import vitaforge.shared.generated.resources.back
 import vitaforge.shared.generated.resources.blog
+import vitaforge.shared.generated.resources.bug_report
 import vitaforge.shared.generated.resources.camera
 import vitaforge.shared.generated.resources.cart
 import vitaforge.shared.generated.resources.cash
@@ -38,6 +39,7 @@ import vitaforge.shared.generated.resources.payment_methods
 import vitaforge.shared.generated.resources.paypal_logo
 import vitaforge.shared.generated.resources.plus
 import vitaforge.shared.generated.resources.profile_badge
+import vitaforge.shared.generated.resources.profile_error
 import vitaforge.shared.generated.resources.reset
 import vitaforge.shared.generated.resources.resource_return
 import vitaforge.shared.generated.resources.rocket
@@ -65,6 +67,7 @@ object Resources {
         val ArrowRight = Res.drawable.arrow_right
         val Back = Res.drawable.back
         val Blog = Res.drawable.blog
+        val BugReport = Res.drawable.bug_report
         val Camera = Res.drawable.camera
         val Cart = Res.drawable.cart
         val Cash = Res.drawable.cash
@@ -114,6 +117,7 @@ object Resources {
         val EmptyCategory = Res.drawable.empty_category
         val GoogleLogo = Res.drawable.google_logo
         val PayPalLogo = Res.drawable.paypal_logo
+        val ProfileError = Res.drawable.profile_error
     }
 
     object Flag {

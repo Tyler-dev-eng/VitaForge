@@ -6,12 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.domain.Country
+import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class ProfileScreenState(
@@ -33,13 +33,6 @@ class ProfileViewModel(
     var screenState: ProfileScreenState by mutableStateOf(ProfileScreenState())
         private set
 
-    private val customer =
-        customerRepository.readCustomerFlow().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = RequestState.Loading,
-        )
-
     val isFormValid: Boolean
         get() =
             with(screenState) {
@@ -51,31 +44,44 @@ class ProfileViewModel(
                     phoneNumber?.number?.length in 5..30
             }
 
+    private var loadJob: Job? = null
+
     init {
-        viewModelScope.launch {
-            customerRepository.readCustomerFlow().collectLatest { data ->
-                if (data.isSuccess()) {
-                    val fetchedCustomer = data.getSuccessData()
-                    screenState =
-                        ProfileScreenState(
-                            id = fetchedCustomer.id,
-                            firstName = fetchedCustomer.firstName,
-                            lastName = fetchedCustomer.lastName,
-                            email = fetchedCustomer.email,
-                            city = fetchedCustomer.city,
-                            postalCode = fetchedCustomer.postalCode,
-                            address = fetchedCustomer.address,
-                            phoneNumber = fetchedCustomer.phoneNumber,
-                            country =
-                                Country.entries.firstOrNull { it.dialCode == fetchedCustomer.phoneNumber?.dialCode }
-                                    ?: Country.UnitedKingdom,
-                        )
-                    screenReady = RequestState.Success(Unit)
-                } else if (data.isError()) {
-                    screenReady = RequestState.Error(data.getErrorMessage())
+        loadCustomer()
+    }
+
+    fun retry() {
+        screenReady = RequestState.Loading
+        loadCustomer()
+    }
+
+    private fun loadCustomer() {
+        loadJob?.cancel()
+        loadJob =
+            viewModelScope.launch {
+                customerRepository.readCustomerFlow().collectLatest { data ->
+                    if (data.isSuccess()) {
+                        val fetchedCustomer = data.getSuccessData()
+                        screenState =
+                            ProfileScreenState(
+                                id = fetchedCustomer.id,
+                                firstName = fetchedCustomer.firstName,
+                                lastName = fetchedCustomer.lastName,
+                                email = fetchedCustomer.email,
+                                city = fetchedCustomer.city,
+                                postalCode = fetchedCustomer.postalCode,
+                                address = fetchedCustomer.address,
+                                phoneNumber = fetchedCustomer.phoneNumber,
+                                country =
+                                    Country.entries.firstOrNull { it.dialCode == fetchedCustomer.phoneNumber?.dialCode }
+                                        ?: Country.UnitedKingdom,
+                            )
+                        screenReady = RequestState.Success(Unit)
+                    } else if (data.isError()) {
+                        screenReady = RequestState.Error(data.getErrorMessage())
+                    }
                 }
             }
-        }
     }
 
     fun updateFirstName(value: String) {
@@ -125,20 +131,21 @@ class ProfileViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-//            customerRepository.updateCustomer(
-//                customer = Customer(
-//                    id = screenState.id,
-//                    firstName = screenState.firstName,
-//                    lastName = screenState.lastName,
-//                    email = screenState.email,
-//                    city = screenState.city,
-//                    postalCode = screenState.postalCode,
-//                    address = screenState.address,
-//                    phoneNumber = screenState.phoneNumber
-//                ),
-//                onSuccess = onSuccess,
-//                onError = onError
-//            )
+            customerRepository.updateCustomer(
+                customer =
+                    Customer(
+                        id = screenState.id,
+                        firstName = screenState.firstName,
+                        lastName = screenState.lastName,
+                        email = screenState.email,
+                        city = screenState.city,
+                        postalCode = screenState.postalCode,
+                        address = screenState.address,
+                        phoneNumber = screenState.phoneNumber,
+                    ),
+                onSuccess = onSuccess,
+                onError = onError,
+            )
         }
     }
 }

@@ -40,5 +40,14 @@
     <string name="profile_action_preferences_subtitle">Hypertrophy • Whey Isolate Focus</string>
     <string name="profile_update">Update Profile</string>
     <string name="profile_sign_out">Sign Out of VitaForge</string>
+    <string name="profile_error_status">Status: Sync Failure</string>
+    <string name="profile_error_title">Oops! Something went wrong.</string>
+    <string name="profile_error_message">We couldn't load your profile details. Please check your connection and try again.</string>
+    <string name="profile_error_retry">Retry Connection</string>
+    <string name="profile_error_illustration">Confused cat with a disconnected cable</string>
+    <string name="profile_error_support">Contact Athlete Support</string>
+    <string name="profile_error_support_subtitle">Get help from our team with profile issues</string>
+    <string name="profile_error_export">Export Crash Payload</string>
+    <string name="profile_error_export_subtitle">Copy sanitised logs to clipboard</string>
     <string name="profile_footer">VitaForge • Bio-Engineered</string>
 </resources>

@@ -17,6 +17,8 @@ import com.tylerdev.vitaforge.shared.SurfaceLighter
 import com.tylerdev.vitaforge.shared.components.ProfileAccountOperations
 import com.tylerdev.vitaforge.shared.components.ProfileActions
 import com.tylerdev.vitaforge.shared.components.ProfileDetailsHeader
+import com.tylerdev.vitaforge.shared.components.ProfileErrorCard
+import com.tylerdev.vitaforge.shared.components.ProfileErrorSupport
 import com.tylerdev.vitaforge.shared.components.ProfileFooter
 import com.tylerdev.vitaforge.shared.components.ProfileForm
 import com.tylerdev.vitaforge.shared.components.ProfileFormLoading
@@ -61,6 +63,11 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
                 .padding(horizontal = 24.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
+        if (viewModel.screenReady.isError()) {
+            ProfileErrorCard(onRetryClick = viewModel::retry)
+            ProfileErrorSupport(onContactSupportClick = {}, onExportCrashClick = {})
+            return@Column
+        }
         if (viewModel.screenReady.isLoading()) {
             ProfileLoadingCard()
         } else {

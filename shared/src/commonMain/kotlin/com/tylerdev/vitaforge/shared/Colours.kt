@@ -18,6 +18,7 @@ val SurfaceLighter = GrayLighter
 val SurfaceDarker = Gray
 val SurfaceBrand = Yellowish
 val SurfaceError = Red
+val SurfaceErrorContainer = Color(0xFFFFDAD6)
 val SurfaceSecondary = Orange
 
 // BUTTON COLOURS
@@ -50,3 +51,4 @@ val TextBrand = Yellowish
 val TextMuted = Color(0xFF8A8A8A)
 val TextOlive = Color(0xFF596400)
 val TextOnBrand = Color(0xFF5F6A00)
+val TextOnErrorContainer = Color(0xFF93000A)
