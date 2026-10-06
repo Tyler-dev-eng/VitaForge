@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":di"))
 
     implementation(libs.auth.kmp)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.app)
 
     implementation(libs.androidx.activity.compose)

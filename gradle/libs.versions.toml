@@ -31,7 +31,8 @@ splash = "1.2.0"
 
 # Auth & Firebase
 auth = "3.0.6"
-firebase = "2.7.0"
+firebase = "3.0.0-alpha01"
+firebase-bom = "34.17.0"
 google = "4.5.0"
 
 # Notifications
@@ -92,6 +93,7 @@ auth-firebase-kmp = { module = "io.github.mirzemehdi:kmpauth-firebase", version.
 kmp-notifier = { module = "io.github.mirzemehdi:kmpnotifier", version.ref = "notifier" }
 
 # Firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-app = { module = "dev.gitlive:firebase-app", version.ref = "firebase" }
 firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase" }
 firebase-storage = { module = "dev.gitlive:firebase-storage", version.ref = "firebase" }
