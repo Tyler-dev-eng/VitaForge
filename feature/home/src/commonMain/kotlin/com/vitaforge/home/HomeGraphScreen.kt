@@ -64,6 +64,7 @@ import rememberMessageBarState
 fun HomeGraphScreen(
     navigateToAuth: () -> Unit,
     navigateToProfile: () -> Unit,
+    navigateToAdminPanel: () -> Unit,
 ) {
     val viewModel = koinViewModel<HomeGraphViewModel>()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
@@ -115,7 +116,7 @@ fun HomeGraphScreen(
                     onError = { message -> messageBarState.addError(message) },
                 )
             },
-            onAdminClick = {},
+            onAdminClick = navigateToAdminPanel,
         )
         Box(
             modifier =

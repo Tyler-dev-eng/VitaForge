@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tylerdev.vitaforge.shared.navigation.Screen
+import com.vitaforge.admin_panel.AdminPanelScreen
 import com.vitaforge.auth.AuthScreen
 import com.vitaforge.home.HomeGraphScreen
 import com.vitaforge.profile.ProfileScreen
@@ -34,11 +35,16 @@ fun SetupNavGraph(startDestination: Screen) {
                     }
                 },
                 navigateToProfile = { navController.navigate(Screen.Profile) },
+                navigateToAdminPanel = { navController.navigate(Screen.AdminPanel) },
             )
         }
 
         composable<Screen.Profile> {
             ProfileScreen(onNavigateBack = { navController.navigateUp() })
+        }
+
+        composable<Screen.AdminPanel> {
+            AdminPanelScreen(navigateBack = { navController.navigateUp() })
         }
     }
 }
