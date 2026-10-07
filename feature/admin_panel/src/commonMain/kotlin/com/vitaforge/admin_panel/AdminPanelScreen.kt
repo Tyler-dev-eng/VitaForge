@@ -19,6 +19,12 @@ import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.admin_panel_add_product
+import vitaforge.shared.generated.resources.admin_panel_back
+import vitaforge.shared.generated.resources.admin_panel_search
+import vitaforge.shared.generated.resources.admin_panel_title
 
 @Composable
 fun AdminPanelScreen(
@@ -32,7 +38,7 @@ fun AdminPanelScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Admin Panel",
+                        text = stringResource(Res.string.admin_panel_title),
                         fontFamily = bebasNeueFontFamily(),
                         fontSize = FontSize.LARGE,
                         color = TextPrimary,
@@ -42,7 +48,7 @@ fun AdminPanelScreen(
                     IconButton(onClick = navigateBack) {
                         Icon(
                             painter = painterResource(Resources.Icon.Back),
-                            contentDescription = null,
+                            contentDescription = stringResource(Res.string.admin_panel_back),
                             tint = IconPrimary,
                         )
                     }
@@ -51,7 +57,7 @@ fun AdminPanelScreen(
                     IconButton(onClick = {}) {
                         Icon(
                             painter = painterResource(Resources.Icon.Search),
-                            contentDescription = null,
+                            contentDescription = stringResource(Res.string.admin_panel_search),
                             tint = IconPrimary,
                         )
                     }
@@ -60,7 +66,7 @@ fun AdminPanelScreen(
                     TopAppBarDefaults.topAppBarColors(
                         containerColor = Surface,
                         scrolledContainerColor = Surface,
-                        navigationIconContentColor = Surface,
+                        navigationIconContentColor = IconPrimary,
                         titleContentColor = TextPrimary,
                         actionIconContentColor = IconPrimary,
                     ),
@@ -74,7 +80,7 @@ fun AdminPanelScreen(
                 content = {
                     Icon(
                         painter = painterResource(Resources.Icon.Plus),
-                        contentDescription = null,
+                        contentDescription = stringResource(Res.string.admin_panel_add_product),
                     )
                 },
             )

@@ -16,6 +16,12 @@ import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.manage_product_back
+import vitaforge.shared.generated.resources.manage_product_save
+import vitaforge.shared.generated.resources.manage_product_title_add
+import vitaforge.shared.generated.resources.manage_product_title_edit
 
 @Composable
 fun ManageProductScreen(
@@ -28,7 +34,14 @@ fun ManageProductScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (id == null) "Add Product" else "Edit Product",
+                        text =
+                            stringResource(
+                                if (id == null) {
+                                    Res.string.manage_product_title_add
+                                } else {
+                                    Res.string.manage_product_title_edit
+                                },
+                            ),
                         fontFamily = bebasNeueFontFamily(),
                         fontSize = FontSize.LARGE,
                         color = TextPrimary,
@@ -38,7 +51,7 @@ fun ManageProductScreen(
                     IconButton(onClick = navigateBack) {
                         Icon(
                             painter = painterResource(Resources.Icon.Back),
-                            contentDescription = null,
+                            contentDescription = stringResource(Res.string.manage_product_back),
                             tint = IconPrimary,
                         )
                     }
@@ -47,7 +60,7 @@ fun ManageProductScreen(
                     TopAppBarDefaults.topAppBarColors(
                         containerColor = Surface,
                         scrolledContainerColor = Surface,
-                        navigationIconContentColor = Surface,
+                        navigationIconContentColor = IconPrimary,
                         titleContentColor = TextPrimary,
                         actionIconContentColor = IconPrimary,
                     ),
@@ -61,7 +74,7 @@ fun ManageProductScreen(
                 content = {
                     Icon(
                         painter = painterResource(Resources.Icon.Plus),
-                        contentDescription = null,
+                        contentDescription = stringResource(Res.string.manage_product_save),
                     )
                 },
             )

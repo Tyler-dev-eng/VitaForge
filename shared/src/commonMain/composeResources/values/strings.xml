@@ -51,4 +51,14 @@
     <string name="profile_error_export">Export Crash Payload</string>
     <string name="profile_error_export_subtitle">Copy sanitised logs to clipboard</string>
     <string name="profile_footer">VitaForge • Bio-Engineered</string>
+
+    <string name="admin_panel_title">Admin Panel</string>
+    <string name="admin_panel_back">Go back</string>
+    <string name="admin_panel_search">Search products</string>
+    <string name="admin_panel_add_product">Add product</string>
+
+    <string name="manage_product_title_add">Add Product</string>
+    <string name="manage_product_title_edit">Edit Product</string>
+    <string name="manage_product_back">Go back</string>
+    <string name="manage_product_save">Save product</string>
 </resources>
