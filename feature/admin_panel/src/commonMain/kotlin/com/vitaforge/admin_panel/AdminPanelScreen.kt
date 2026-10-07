@@ -1,5 +1,6 @@
 package com.vitaforge.admin_panel
 
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.tylerdev.vitaforge.shared.ButtonPrimary
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
@@ -59,6 +61,19 @@ fun AdminPanelScreen(navigateBack: () -> Unit) {
                         titleContentColor = TextPrimary,
                         actionIconContentColor = IconPrimary,
                     ),
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = ButtonPrimary,
+                contentColor = IconPrimary,
+                content = {
+                    Icon(
+                        painter = painterResource(Resources.Icon.Plus),
+                        contentDescription = null,
+                    )
+                },
             )
         },
     ) { }
