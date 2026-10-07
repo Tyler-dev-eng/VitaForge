@@ -4,10 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.admin_panel.AdminPanelScreen
 import com.vitaforge.auth.AuthScreen
 import com.vitaforge.home.HomeGraphScreen
+import com.vitaforge.manage_product.ManageProductScreen
 import com.vitaforge.profile.ProfileScreen
 
 @Suppress("ktlint:standard:function-naming")
@@ -44,7 +46,20 @@ fun SetupNavGraph(startDestination: Screen) {
         }
 
         composable<Screen.AdminPanel> {
-            AdminPanelScreen(navigateBack = { navController.navigateUp() })
+            AdminPanelScreen(
+                navigateBack = { navController.navigateUp() },
+                navigateToManageProduct = { id ->
+                    navController.navigate(Screen.ManageProduct(id))
+                },
+            )
+        }
+
+        composable<Screen.ManageProduct> {
+            val id = it.toRoute<Screen.ManageProduct>().id
+            ManageProductScreen(
+                id = id,
+                navigateBack = { navController.navigateUp() },
+            )
         }
     }
 }

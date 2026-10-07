@@ -21,7 +21,10 @@ import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun AdminPanelScreen(navigateBack: () -> Unit) {
+fun AdminPanelScreen(
+    navigateBack: () -> Unit,
+    navigateToManageProduct: (String?) -> Unit,
+) {
     var searchBarVisible by mutableStateOf(false)
     Scaffold(
         containerColor = Surface,
@@ -65,7 +68,7 @@ fun AdminPanelScreen(navigateBack: () -> Unit) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = { navigateToManageProduct(null) },
                 containerColor = ButtonPrimary,
                 contentColor = IconPrimary,
                 content = {
