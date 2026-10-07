@@ -28,7 +28,6 @@ import com.tylerdev.vitaforge.shared.components.ProfileTopBar
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import org.koin.compose.viewmodel.koinViewModel
 
-private const val SAMPLE_COMPLETION_PERCENT = 94
 private const val SAMPLE_POINTS = 420
 private const val SAMPLE_STATUS = "PRO"
 
@@ -73,7 +72,7 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
         } else {
             ProfileIdentityCard(
                 name = screenState.firstName + " " + screenState.lastName,
-                completionPercent = SAMPLE_COMPLETION_PERCENT,
+                completionPercent = screenState.completionPercent,
                 points = SAMPLE_POINTS,
                 status = SAMPLE_STATUS,
                 onChangePhotoClick = {},

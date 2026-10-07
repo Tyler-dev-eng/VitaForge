@@ -24,7 +24,24 @@ data class ProfileScreenState(
     val address: String? = null,
     val country: Country = Country.UnitedKingdom,
     val phoneNumber: PhoneNumber? = null,
-)
+) {
+    val completionPercent: Int
+        get() {
+            val completedFields =
+                listOf(
+                    firstName.isNotBlank(),
+                    lastName.isNotBlank(),
+                    email.isNotBlank(),
+                    !city.isNullOrBlank(),
+                    postalCode != null,
+                    !address.isNullOrBlank(),
+                    !phoneNumber?.number.isNullOrBlank(),
+                )
+            return completedFields.count { it } * PERCENT_MAX / completedFields.size
+        }
+}
+
+private const val PERCENT_MAX = 100
 
 class ProfileViewModel(
     private val customerRepository: CustomerRepository,
