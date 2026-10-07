@@ -13,6 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.FontSize
+import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.SurfaceDarker
@@ -55,26 +58,34 @@ fun ProfileTopBar(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().background(Surface).padding(horizontal = 8.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                painter = painterResource(Resources.Icon.Back),
-                contentDescription = stringResource(Res.string.profile_back),
-                modifier = Modifier.size(24.dp),
-                tint = TextPrimary,
+    TopAppBar(
+        modifier = modifier,
+        title = {
+            Text(
+                text = stringResource(Res.string.profile_title).uppercase(),
+                fontFamily = bebasNeueFontFamily(),
+                fontSize = FontSize.LARGE,
+                color = TextPrimary,
             )
-        }
-        Text(
-            text = stringResource(Res.string.profile_title).uppercase(),
-            fontFamily = bebasNeueFontFamily(),
-            fontSize = FontSize.LARGE,
-            color = TextPrimary,
-        )
-    }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    painter = painterResource(Resources.Icon.Back),
+                    contentDescription = stringResource(Res.string.profile_back),
+                    tint = IconPrimary,
+                )
+            }
+        },
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = Surface,
+                scrolledContainerColor = Surface,
+                navigationIconContentColor = Surface,
+                titleContentColor = TextPrimary,
+                actionIconContentColor = IconPrimary,
+            ),
+    )
 }
 
 @Composable
