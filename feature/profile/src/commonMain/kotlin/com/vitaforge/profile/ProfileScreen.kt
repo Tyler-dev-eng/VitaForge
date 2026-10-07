@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.SurfaceLighter
@@ -25,7 +29,9 @@ import com.tylerdev.vitaforge.shared.components.ProfileFormLoading
 import com.tylerdev.vitaforge.shared.components.ProfileIdentityCard
 import com.tylerdev.vitaforge.shared.components.ProfileLoadingCard
 import com.tylerdev.vitaforge.shared.components.ProfileTopBar
+import com.tylerdev.vitaforge.shared.components.profileUpdateSuccessMessage
 import com.tylerdev.vitaforge.shared.util.DisplayResult
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val SAMPLE_POINTS = 420
@@ -36,6 +42,7 @@ fun ProfileScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     Column(
         modifier =
             modifier
@@ -44,12 +51,21 @@ fun ProfileScreen(
                 .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
         ProfileTopBar(onBackClick = onNavigateBack)
-        ProfileContent()
+        ProfileContent(
+            snackbarHostState = snackbarHostState,
+            modifier = Modifier.weight(1f),
+        )
+        SnackbarHost(snackbarHostState)
     }
 }
 
 @Composable
-private fun ProfileContent(modifier: Modifier = Modifier) {
+private fun ProfileContent(
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier,
+) {
+    val scope = rememberCoroutineScope()
+    val updateSuccessMessage = profileUpdateSuccessMessage()
     val viewModel = koinViewModel<ProfileViewModel>()
     val screenState = viewModel.screenState
     val isFormValid = viewModel.isFormValid
@@ -108,7 +124,12 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
             onPreferencesClick = {},
         )
         ProfileActions(
-            onUpdateClick = {},
+            onUpdateClick = {
+                viewModel.updateCustomer(
+                    onSuccess = { scope.launch { snackbarHostState.showSnackbar(updateSuccessMessage) } },
+                    onError = { message -> scope.launch { snackbarHostState.showSnackbar(message) } },
+                )
+            },
             onSignOutClick = {},
             isUpdateEnabled = isFormValid,
         )

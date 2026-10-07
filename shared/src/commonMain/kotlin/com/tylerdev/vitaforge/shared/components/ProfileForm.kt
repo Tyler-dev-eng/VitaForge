@@ -148,7 +148,7 @@ fun ProfileForm(
                     value = "${postalCode ?: ""}",
                     placeholder = stringResource(Res.string.profile_placeholder_postal_code),
                     onValueChange = { onPostalCodeChange(it.toIntOrNull()) },
-                    error = postalCode.toString().length !in 3..8,
+                    error = postalCode == null || postalCode.toString().length !in 3..8,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
             }

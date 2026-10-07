@@ -45,6 +45,7 @@ import vitaforge.shared.generated.resources.profile_section_details_hint
 import vitaforge.shared.generated.resources.profile_sign_out
 import vitaforge.shared.generated.resources.profile_title
 import vitaforge.shared.generated.resources.profile_update
+import vitaforge.shared.generated.resources.profile_update_success
 
 private val CardShape = RoundedCornerShape(12.dp)
 private val CardElevation = 2.dp
@@ -118,6 +119,9 @@ fun ProfileAccountOperations(
         }
     }
 }
+
+@Composable
+fun profileUpdateSuccessMessage(): String = stringResource(Res.string.profile_update_success)
 
 @Composable
 fun ProfileActions(
