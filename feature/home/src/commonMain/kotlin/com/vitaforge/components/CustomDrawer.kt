@@ -205,16 +205,6 @@ private fun DrawerAdminRow(onClick: () -> Unit) {
                 fontFamily = bebasNeueFontFamily(),
                 fontSize = FontSize.MEDIUM,
             )
-            Text(
-                text = "ADMIN",
-                modifier =
-                    Modifier
-                        .background(SurfaceBrand, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                color = TextPrimary,
-                fontFamily = bebasNeueFontFamily(),
-                fontSize = FontSize.SMALL,
-            )
         }
     }
 }
