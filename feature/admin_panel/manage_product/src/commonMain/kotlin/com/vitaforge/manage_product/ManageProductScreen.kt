@@ -1,6 +1,7 @@
 package com.vitaforge.manage_product
 
 import ContentWithMessageBar
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +44,8 @@ import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.AlertTextField
 import com.tylerdev.vitaforge.shared.components.CustomTextField
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
+import com.tylerdev.vitaforge.shared.components.dialog.CategoryDialog
+import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import rememberMessageBarState
@@ -53,6 +60,22 @@ fun ManageProductScreen(
     navigateBack: () -> Unit,
 ) {
     val messageBarState = rememberMessageBarState()
+    var category by remember { mutableStateOf(ProductCategory.Protein) }
+    var showCategoryDialog by remember { mutableStateOf(false) }
+
+    AnimatedVisibility(
+        visible = showCategoryDialog,
+    ) {
+        CategoryDialog(
+            category = category,
+            onDismiss = { showCategoryDialog = false },
+            onConfirmClicked = { selectedCategory ->
+                category = selectedCategory
+                showCategoryDialog = false
+            },
+        )
+    }
+
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -140,8 +163,8 @@ fun ManageProductScreen(
                     )
                     AlertTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "Protein",
-                        onClick = {},
+                        text = category.title,
+                        onClick = { showCategoryDialog = true },
                     )
                     CustomTextField(
                         value = "",
