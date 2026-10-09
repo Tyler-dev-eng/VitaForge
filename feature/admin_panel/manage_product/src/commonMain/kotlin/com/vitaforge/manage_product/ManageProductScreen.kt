@@ -41,6 +41,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.tylerdev.vitaforge.shared.BorderIdle
+import com.tylerdev.vitaforge.shared.ButtonPrimary
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
@@ -181,17 +182,47 @@ fun ManageProductScreen(
                             },
                             onLoading = { LoadingCard() },
                             onSuccess = {
-                                AsyncImage(
+                                Box(
                                     modifier = Modifier.fillMaxSize(),
-                                    model =
-                                        ImageRequest
-                                            .Builder(LocalPlatformContext.current)
-                                            .data(screenState.thumbnail)
-                                            .crossfade(true)
-                                            .build(),
-                                    contentDescription = "Product thumbnail",
-                                    contentScale = ContentScale.Crop,
-                                )
+                                    contentAlignment = Alignment.TopEnd,
+                                ) {
+                                    AsyncImage(
+                                        modifier = Modifier.fillMaxSize(),
+                                        model =
+                                            ImageRequest
+                                                .Builder(LocalPlatformContext.current)
+                                                .data(screenState.thumbnail)
+                                                .crossfade(true)
+                                                .build(),
+                                        contentDescription = "Product thumbnail",
+                                        contentScale = ContentScale.Crop,
+                                    )
+
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .padding(top = 12.dp, end = 12.dp)
+                                                .background(ButtonPrimary)
+                                                .clickable {
+                                                    viewModel.deleteThumbnailFromStorage(
+                                                        onSuccess = {
+                                                            messageBarState.addSuccess("Image successfully deleted!")
+                                                        },
+                                                        onError = { message ->
+                                                            messageBarState.addError(message)
+                                                        },
+                                                    )
+                                                }.padding(12.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier.size(14.dp),
+                                            painter = painterResource(Resources.Icon.TrashCan),
+                                            contentDescription = "Delete photo",
+                                        )
+                                    }
+                                }
                             },
                             onError = { message ->
                                 ErrorCard(
