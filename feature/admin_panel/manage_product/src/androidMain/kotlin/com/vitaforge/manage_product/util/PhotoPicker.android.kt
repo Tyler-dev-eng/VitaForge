@@ -5,14 +5,12 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import dev.gitlive.firebase.storage.File
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class PhotoPicker {
-    private var openPhotoPicker by mutableStateOf(false)
+    private var openPhotoPicker = mutableStateOf(false)
 
     @Composable
     actual fun InitialisePhotoPicker(onImageSelect: (File?) -> Unit) {
@@ -21,11 +19,11 @@ actual class PhotoPicker {
                 contract = ActivityResultContracts.PickVisualMedia(),
             ) { uri ->
                 uri?.let { onImageSelect(File(it)) } ?: onImageSelect(null)
-                openPhotoPicker = false
+                openPhotoPicker.value = false
             }
 
-        LaunchedEffect(openPhotoPicker) {
-            if (openPhotoPicker) {
+        LaunchedEffect(openPhotoPicker.value) {
+            if (openPhotoPicker.value) {
                 pickMedia.launch(
                     PickVisualMediaRequest(
                         ActivityResultContracts.PickVisualMedia.ImageOnly,
@@ -36,6 +34,6 @@ actual class PhotoPicker {
     }
 
     actual fun open() {
-        openPhotoPicker = true
+        openPhotoPicker.value = true
     }
 }

@@ -4,10 +4,12 @@ import ContentWithMessageBar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -31,8 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.tylerdev.vitaforge.shared.BorderIdle
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
@@ -43,11 +50,16 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.AlertTextField
 import com.tylerdev.vitaforge.shared.components.CustomTextField
+import com.tylerdev.vitaforge.shared.components.ErrorCard
+import com.tylerdev.vitaforge.shared.components.LoadingCard
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
 import com.tylerdev.vitaforge.shared.components.dialog.CategoryDialog
-import com.tylerdev.vitaforge.shared.domain.ProductCategory
+import com.tylerdev.vitaforge.shared.util.DisplayResult
+import com.tylerdev.vitaforge.shared.util.RequestState
+import com.vitaforge.manage_product.util.PhotoPicker
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
@@ -64,8 +76,18 @@ fun ManageProductScreen(
     val viewModel = koinViewModel<ManageProductViewModel>()
     val screenState = viewModel.screenState
     val isFormValid = viewModel.isFormValid
+    val thumbnailUploaderState = viewModel.thumbnailUploaderState
     var showCategoryDialog by remember { mutableStateOf(false) }
+    val photoPicker = koinInject<PhotoPicker>()
 
+    photoPicker.InitialisePhotoPicker(
+        onImageSelect = { file ->
+            viewModel.uploadThumbnailToStorage(
+                file = file,
+                onSuccess = { messageBarState.addSuccess("Image successfully uploaded!") },
+            )
+        },
+    )
     AnimatedVisibility(
         visible = showCategoryDialog,
     ) {
@@ -142,14 +164,44 @@ fun ManageProductScreen(
                                 .height(300.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .border(width = 1.dp, color = BorderIdle, shape = RoundedCornerShape(12.dp))
-                                .background(SurfaceLighter),
+                                .background(SurfaceLighter)
+                                .clickable(enabled = thumbnailUploaderState.isIdle()) {
+                                    photoPicker.open()
+                                },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            modifier = Modifier.size(24.dp),
-                            painter = painterResource(Resources.Icon.Plus),
-                            contentDescription = "Add photo",
-                            tint = IconPrimary,
+                        thumbnailUploaderState.DisplayResult(
+                            onIdle = {
+                                Icon(
+                                    modifier = Modifier.size(24.dp),
+                                    painter = painterResource(Resources.Icon.Plus),
+                                    contentDescription = "Add photo",
+                                    tint = IconPrimary,
+                                )
+                            },
+                            onLoading = { LoadingCard() },
+                            onSuccess = {
+                                AsyncImage(
+                                    modifier = Modifier.fillMaxSize(),
+                                    model =
+                                        ImageRequest
+                                            .Builder(LocalPlatformContext.current)
+                                            .data(screenState.thumbnail)
+                                            .crossfade(true)
+                                            .build(),
+                                    contentDescription = "Product thumbnail",
+                                    contentScale = ContentScale.Crop,
+                                )
+                            },
+                            onError = { message ->
+                                ErrorCard(
+                                    message = message,
+                                    onRetryClick = {
+                                        viewModel.updateThumbnailUploaderState(RequestState.Idle)
+                                        photoPicker.open()
+                                    },
+                                )
+                            },
                         )
                     }
                     CustomTextField(

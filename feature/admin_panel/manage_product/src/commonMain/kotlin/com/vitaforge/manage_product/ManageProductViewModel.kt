@@ -10,6 +10,7 @@ import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
+import dev.gitlive.firebase.storage.File
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -123,6 +124,33 @@ class ManageProductViewModel(
                 onSuccess = onSuccess,
                 onError = onError,
             )
+        }
+    }
+
+    fun uploadThumbnailToStorage(
+        file: File?,
+        onSuccess: () -> Unit,
+    ) {
+        if (file == null) {
+            updateThumbnailUploaderState(RequestState.Error("No image selected"))
+            return
+        }
+
+        updateThumbnailUploaderState(RequestState.Loading)
+
+        viewModelScope.launch {
+            try {
+                val downloadUrl = adminRepository.uploadImageToStorage(file)
+                if (downloadUrl.isNullOrEmpty()) {
+                    throw Exception("Failed to retrieve a download URL for the image after upload.")
+                }
+
+                onSuccess()
+                updateThumbnailUploaderState(RequestState.Success(Unit))
+                updateThumbnail(downloadUrl)
+            } catch (e: Exception) {
+                updateThumbnailUploaderState(RequestState.Error("Error while uploading thumbnail: ${e.message}"))
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.profile.ProfileViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
@@ -24,10 +25,12 @@ val sharedModule =
         viewModelOf(::ManageProductViewModel)
     }
 
+expect val targetModule: Module
+
 fun initialiseKoin(config: (KoinApplication.() -> Unit)? = null) {
     startKoin {
         config?.invoke(this)
-        modules(sharedModule)
+        modules(sharedModule, targetModule)
     }
 }
 

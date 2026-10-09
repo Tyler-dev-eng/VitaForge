@@ -65,4 +65,7 @@
     <string name="manage_product_title_edit">Edit Product</string>
     <string name="manage_product_back">Go back</string>
     <string name="manage_product_save">Save product</string>
+
+    <string name="loading_card_description">Loading</string>
+    <string name="error_card_retry">Try again</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.vitaforge.data.domain
 
 import com.tylerdev.vitaforge.shared.domain.Product
+import dev.gitlive.firebase.storage.File
 
 interface AdminRepository {
     fun getCurrentUserId(): String?
@@ -10,4 +11,6 @@ interface AdminRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     )
+
+    suspend fun uploadImageToStorage(file: File): String?
 }

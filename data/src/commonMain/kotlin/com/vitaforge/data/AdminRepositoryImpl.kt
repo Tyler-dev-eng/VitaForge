@@ -5,6 +5,10 @@ import com.vitaforge.data.domain.AdminRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
+import dev.gitlive.firebase.storage.File
+import dev.gitlive.firebase.storage.storage
+import kotlinx.coroutines.withTimeout
+import kotlin.uuid.Uuid
 
 class AdminRepositoryImpl : AdminRepository {
     override fun getCurrentUserId() = Firebase.auth.currentUser?.uid
@@ -28,4 +32,22 @@ class AdminRepositoryImpl : AdminRepository {
             onError("Error while creating a new product: ${e.message}")
         }
     }
+
+    override suspend fun uploadImageToStorage(file: File): String? =
+        (
+            if (getCurrentUserId() != null) {
+                val storage = Firebase.storage.reference
+                val imagePath = storage.child("images/${Uuid.random().toHexString()}")
+                try {
+                    withTimeout(timeMillis = 20000) {
+                        imagePath.putFile(file)
+                        imagePath.getDownloadUrl()
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
+        )
 }
