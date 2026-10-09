@@ -12,6 +12,7 @@ import platform.UIKit.UIImagePickerController
 import platform.UIKit.UIImagePickerControllerDelegateProtocol
 import platform.UIKit.UIImagePickerControllerImageURL
 import platform.UIKit.UIImagePickerControllerSourceType
+import platform.UIKit.UIModalPresentationFullScreen
 import platform.UIKit.UINavigationController
 import platform.UIKit.UINavigationControllerDelegateProtocol
 import platform.UIKit.UITabBarController
@@ -22,6 +23,9 @@ import platform.darwin.NSObject
 actual class PhotoPicker {
     private var openPhotoPicker = mutableStateOf(false)
 
+    // UIKit holds the delegate weakly, so keep it alive while the picker is shown
+    private var pickerDelegate: PickerDelegate? = null
+
     @Composable
     actual fun InitialisePhotoPicker(onImageSelect: (File?) -> Unit) {
         val openPhotoPickerState by remember { openPhotoPicker }
@@ -29,18 +33,22 @@ actual class PhotoPicker {
         LaunchedEffect(openPhotoPickerState) {
             if (openPhotoPickerState) {
                 val viewController = getCurrentViewController()
+                val pickerDelegate =
+                    PickerDelegate(
+                        callback = { file ->
+                            this@PhotoPicker.pickerDelegate = null
+                            openPhotoPicker.value = false
+                            onImageSelect(file)
+                        },
+                    ).also { this@PhotoPicker.pickerDelegate = it }
                 val picker =
                     UIImagePickerController().apply {
+                        // Full screen so the sheet can't be swiped away without calling the delegate
+                        modalPresentationStyle = UIModalPresentationFullScreen
                         sourceType =
                             UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypePhotoLibrary
                         mediaTypes = listOf("public.image", "public.heif")
-                        delegate =
-                            PickerDelegate(
-                                callback = { file ->
-                                    onImageSelect(file)
-                                    openPhotoPicker.value = false
-                                },
-                            )
+                        delegate = pickerDelegate
                     }
 
                 viewController?.presentViewController(
