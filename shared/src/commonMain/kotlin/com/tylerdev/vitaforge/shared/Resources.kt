@@ -51,6 +51,7 @@ import vitaforge.shared.generated.resources.sign_out
 import vitaforge.shared.generated.resources.south_africa
 import vitaforge.shared.generated.resources.star
 import vitaforge.shared.generated.resources.timer
+import vitaforge.shared.generated.resources.trash_can
 import vitaforge.shared.generated.resources.trust_shield
 import vitaforge.shared.generated.resources.trusted
 import vitaforge.shared.generated.resources.united_kingdom
@@ -103,6 +104,7 @@ object Resources {
         val SignOut = Res.drawable.sign_out
         val Star = Res.drawable.star
         val Timer = Res.drawable.timer
+        val TrashCan = Res.drawable.trash_can
         val TrustShield = Res.drawable.trust_shield
         val Trusted = Res.drawable.trusted
         val User = Res.drawable.user
