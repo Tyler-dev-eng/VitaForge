@@ -12,7 +12,6 @@ import dev.gitlive.firebase.storage.storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.internal.ChannelFlow
 import kotlinx.coroutines.withTimeout
 import kotlin.uuid.Uuid
 
@@ -50,6 +49,7 @@ class AdminRepositoryImpl : AdminRepository {
                         imagePath.getDownloadUrl()
                     }
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     null
                 }
             } else {
@@ -112,6 +112,43 @@ class AdminRepositoryImpl : AdminRepository {
             } catch (e: Exception) {
                 send(RequestState.Error("Error while reading products: ${e.message}"))
             }
+        }
+
+    override suspend fun readProductById(id: String): RequestState<Product> =
+        try {
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                val firestore = Firebase.firestore
+                val productDocument =
+                    firestore
+                        .collection(collectionPath = "product")
+                        .document(documentPath = id)
+                        .get()
+                if (productDocument.exists) {
+                    val product =
+                        Product(
+                            id = productDocument.id,
+                            createdAt = productDocument.get(field = "createdAt"),
+                            title = productDocument.get(field = "title"),
+                            description = productDocument.get(field = "description"),
+                            thumbnail = productDocument.get(field = "thumbnail"),
+                            category = productDocument.get(field = "category"),
+                            flavours = productDocument.get(field = "flavours"),
+                            weight = productDocument.get(field = "weight"),
+                            price = productDocument.get(field = "price"),
+                            isNew = productDocument.get(field = "isNew"),
+                            isPopular = productDocument.get(field = "isPopular"),
+                            isDiscounted = productDocument.get(field = "isDiscounted"),
+                        )
+                    RequestState.Success(product)
+                } else {
+                    RequestState.Error("Product does not exist.")
+                }
+            } else {
+                RequestState.Error("User is not available.")
+            }
+        } catch (e: Exception) {
+            RequestState.Error("Error while reading product: ${e.message}")
         }
 
     private fun extractFirebaseStoragePath(downloadUrl: String): String? {

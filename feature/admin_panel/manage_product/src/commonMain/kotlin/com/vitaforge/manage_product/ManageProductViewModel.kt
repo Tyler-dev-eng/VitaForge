@@ -49,6 +49,25 @@ class ManageProductViewModel(
                 screenState.thumbnail.isNotEmpty() &&
                 screenState.price != 0.0
 
+    init {
+        productId.takeIf { it.isNotEmpty() }?.let { id ->
+            viewModelScope.launch {
+                val selectedProduct = adminRepository.readProductById(id)
+                if (selectedProduct.isSuccess()) {
+                    val product = selectedProduct.getSuccessData()
+                    updateTitle(product.title)
+                    updateDescription(product.description)
+                    updateThumbnail(product.thumbnail)
+                    updateThumbnailUploaderState(RequestState.Success(Unit))
+                    updateCategory(ProductCategory.valueOf(product.category))
+                    updateFlavors(product.flavours?.joinToString(",") ?: "")
+                    updateWeight(product.weight)
+                    updatePrice(product.price)
+                }
+            }
+        }
+    }
+
     fun updateId(value: String) {
         screenState = screenState.copy(id = value)
     }
