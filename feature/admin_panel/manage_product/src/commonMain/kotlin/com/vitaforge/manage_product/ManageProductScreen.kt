@@ -55,6 +55,7 @@ import com.tylerdev.vitaforge.shared.components.ErrorCard
 import com.tylerdev.vitaforge.shared.components.LoadingCard
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
 import com.tylerdev.vitaforge.shared.components.dialog.CategoryDialog
+import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.manage_product.util.PhotoPicker
@@ -252,20 +253,26 @@ fun ManageProductScreen(
                         text = screenState.category.title,
                         onClick = { showCategoryDialog = true },
                     )
-                    CustomTextField(
-                        value = screenState.weight?.toString() ?: "",
-                        onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0) },
-                        placeholder = "Weight (Optional)",
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType = KeyboardType.Number,
-                            ),
-                    )
-                    CustomTextField(
-                        value = screenState.flavors,
-                        onValueChange = viewModel::updateFlavors,
-                        placeholder = "Flavours (Optional)",
-                    )
+                    AnimatedVisibility(
+                        visible = screenState.category != ProductCategory.Accessories,
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            CustomTextField(
+                                value = screenState.weight?.toString() ?: "",
+                                onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0) },
+                                placeholder = "Weight",
+                                keyboardOptions =
+                                    KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                    ),
+                            )
+                            CustomTextField(
+                                value = screenState.flavors,
+                                onValueChange = viewModel::updateFlavors,
+                                placeholder = "Flavours",
+                            )
+                        }
+                    }
                     CustomTextField(
                         value = screenState.price.toString(),
                         onValueChange = { value ->
