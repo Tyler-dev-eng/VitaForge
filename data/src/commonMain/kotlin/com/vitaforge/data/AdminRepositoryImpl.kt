@@ -1,12 +1,18 @@
 package com.vitaforge.data
 
 import com.tylerdev.vitaforge.shared.domain.Product
+import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.firestore.Direction
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.storage.File
 import dev.gitlive.firebase.storage.storage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.internal.ChannelFlow
 import kotlinx.coroutines.withTimeout
 import kotlin.uuid.Uuid
 
@@ -68,6 +74,45 @@ class AdminRepositoryImpl : AdminRepository {
             onError("Error while deleting a thumbnail: $e")
         }
     }
+
+    override fun readLastTenProducts(): Flow<RequestState<List<Product>>> =
+        channelFlow {
+            try {
+                val userId = getCurrentUserId()
+                if (userId != null) {
+                    val firestore = Firebase.firestore
+                    firestore
+                        .collection(collectionPath = "product")
+                        .orderBy("createdAt", direction = Direction.DESCENDING)
+                        .limit(10)
+                        .snapshots
+                        .collectLatest { snapshot ->
+                            val products =
+                                snapshot.documents.map { documentSnapshot ->
+                                    Product(
+                                        id = documentSnapshot.id,
+                                        createdAt = documentSnapshot.get(field = "createdAt"),
+                                        title = documentSnapshot.get(field = "title"),
+                                        description = documentSnapshot.get(field = "description"),
+                                        thumbnail = documentSnapshot.get(field = "thumbnail"),
+                                        category = documentSnapshot.get(field = "category"),
+                                        flavours = documentSnapshot.get(field = "flavours"),
+                                        weight = documentSnapshot.get(field = "weight"),
+                                        price = documentSnapshot.get(field = "price"),
+                                        isNew = documentSnapshot.get(field = "isNew"),
+                                        isPopular = documentSnapshot.get(field = "isPopular"),
+                                        isDiscounted = documentSnapshot.get(field = "isDiscounted"),
+                                    )
+                                }
+                            send(RequestState.Success(products))
+                        }
+                } else {
+                    send(RequestState.Error("User is not available."))
+                }
+            } catch (e: Exception) {
+                send(RequestState.Error("Error while reading products: ${e.message}"))
+            }
+        }
 
     private fun extractFirebaseStoragePath(downloadUrl: String): String? {
         val startIndex = downloadUrl.indexOf("/o/") + 3

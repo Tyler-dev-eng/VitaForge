@@ -1,5 +1,6 @@
 package com.vitaforge.di
 
+import com.vitaforge.admin_panel.AdminPanelViewModel
 import com.vitaforge.auth.AuthViewModel
 import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
@@ -23,6 +24,7 @@ val sharedModule =
         viewModelOf(::HomeGraphViewModel)
         viewModelOf(::ProfileViewModel)
         viewModelOf(::ManageProductViewModel)
+        viewModelOf(::AdminPanelViewModel)
     }
 
 expect val targetModule: Module

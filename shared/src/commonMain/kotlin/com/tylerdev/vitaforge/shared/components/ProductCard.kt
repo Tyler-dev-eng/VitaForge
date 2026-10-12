@@ -1,10 +1,12 @@
 package com.tylerdev.vitaforge.shared.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +38,7 @@ import com.tylerdev.vitaforge.shared.SurfaceLighter
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.domain.Product
+import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
 import org.jetbrains.compose.resources.painterResource
 
@@ -49,6 +52,7 @@ fun ProductCard(
         modifier =
             modifier
                 .fillMaxWidth()
+                .height(IntrinsicSize.Min)
                 .clip(RoundedCornerShape(size = 12.dp))
                 .border(
                     width = 1.dp,
@@ -96,9 +100,8 @@ fun ProductCard(
                 modifier = Modifier.fillMaxWidth().alpha(Alpha.HALF),
                 text = product.description,
                 fontSize = FontSize.REGULAR,
+                lineHeight = FontSize.REGULAR * 1.3,
                 color = TextPrimary,
-                fontFamily = robotoCondensedFontFamily(),
-                fontWeight = FontWeight.Medium,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -108,19 +111,29 @@ fun ProductCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Row {
-                    Icon(
-                        modifier = Modifier.size(14.dp),
-                        painter = painterResource(Resources.Icon.Weight),
-                        contentDescription = "Weight",
-                        tint = TextPrimary,
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = "${product.weight}g",
-                        fontSize = FontSize.EXTRA_SMALL,
-                        color = TextPrimary,
-                    )
+                AnimatedContent(
+                    targetState = product.category,
+                ) { category ->
+                    if (ProductCategory.valueOf(category) == ProductCategory.Accessories) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(14.dp),
+                                painter = painterResource(Resources.Icon.Scales),
+                                contentDescription = "Weight",
+                                tint = TextPrimary,
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = "${product.weight}g",
+                                fontSize = FontSize.EXTRA_SMALL,
+                                color = TextPrimary,
+                            )
+                        }
+                    }
                 }
                 Text(
                     text = "R${product.price}",

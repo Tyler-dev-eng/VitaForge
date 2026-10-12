@@ -7,10 +7,12 @@ import com.tylerdev.vitaforge.shared.CategoryPurple
 import com.tylerdev.vitaforge.shared.CategoryRed
 import com.tylerdev.vitaforge.shared.CategoryYellow
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
 
 @Serializable
 data class Product(
     val id: String,
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val title: String,
     val description: String,
     val thumbnail: String,
