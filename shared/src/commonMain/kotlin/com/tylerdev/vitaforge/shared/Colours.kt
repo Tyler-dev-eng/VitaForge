@@ -20,6 +20,7 @@ val SurfaceBrand = Yellowish
 val SurfaceError = Red
 val SurfaceErrorContainer = Color(0xFFFFDAD6)
 val SurfaceSecondary = Orange
+val SurfaceBadgeNew = Color(0xFFFFDBD1)
 
 // BUTTON COLOURS
 val ButtonPrimary = Yellowish
@@ -52,3 +53,4 @@ val TextMuted = Color(0xFF8A8A8A)
 val TextOlive = Color(0xFF596400)
 val TextOnBrand = Color(0xFF5F6A00)
 val TextOnErrorContainer = Color(0xFF93000A)
+val TextOnBadgeNew = Color(0xFF3A0A00)

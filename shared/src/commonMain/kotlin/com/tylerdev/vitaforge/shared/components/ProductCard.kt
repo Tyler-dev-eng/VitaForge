@@ -20,8 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,17 +30,45 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.BorderIdle
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.Resources
-import com.tylerdev.vitaforge.shared.SurfaceLighter
+import com.tylerdev.vitaforge.shared.Surface
+import com.tylerdev.vitaforge.shared.SurfaceBadgeNew
+import com.tylerdev.vitaforge.shared.SurfaceBrand
+import com.tylerdev.vitaforge.shared.TextMuted
+import com.tylerdev.vitaforge.shared.TextOnBadgeNew
+import com.tylerdev.vitaforge.shared.TextOnBrand
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.product_badge_new
+import vitaforge.shared.generated.resources.product_badge_popular
+import vitaforge.shared.generated.resources.product_badge_sale
+
+private val CardShape = RoundedCornerShape(16.dp)
+private val ImageShape = RoundedCornerShape(12.dp)
+private val BadgeShape = RoundedCornerShape(50)
+
+private data class ProductBadge(
+    val label: StringResource,
+    val containerColor: Color,
+    val contentColor: Color,
+)
+
+private fun Product.badge(): ProductBadge? =
+    when {
+        isDiscounted -> ProductBadge(Res.string.product_badge_sale, SurfaceBrand, TextOnBrand)
+        isNew -> ProductBadge(Res.string.product_badge_new, SurfaceBadgeNew, TextOnBadgeNew)
+        isPopular -> ProductBadge(Res.string.product_badge_popular, SurfaceBrand, TextOnBrand)
+        else -> null
+    }
 
 @Composable
 fun ProductCard(
@@ -53,23 +81,20 @@ fun ProductCard(
             modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
-                .clip(RoundedCornerShape(size = 12.dp))
-                .border(
-                    width = 1.dp,
-                    color = BorderIdle,
-                    shape = RoundedCornerShape(12.dp),
-                ).background(SurfaceLighter)
+                .clip(CardShape)
+                .border(width = 1.dp, color = BorderIdle, shape = CardShape)
+                .background(Surface)
                 .clickable { onClick(product.id) },
     ) {
         AsyncImage(
             modifier =
                 Modifier
                     .width(120.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(ImageShape)
                     .border(
                         width = 1.dp,
                         color = BorderIdle,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = ImageShape,
                     ),
             model =
                 ImageRequest
@@ -89,59 +114,84 @@ fun ProductCard(
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = product.title,
+                text = product.title.uppercase(),
                 fontSize = FontSize.MEDIUM,
                 color = TextPrimary,
                 fontFamily = robotoCondensedFontFamily(),
                 fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                modifier = Modifier.fillMaxWidth().alpha(Alpha.HALF),
+                modifier = Modifier.fillMaxWidth(),
                 text = product.description,
-                fontSize = FontSize.REGULAR,
-                lineHeight = FontSize.REGULAR * 1.3,
-                color = TextPrimary,
-                maxLines = 3,
+                fontSize = FontSize.SMALL,
+                lineHeight = FontSize.SMALL * 1.3,
+                color = TextMuted,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                AnimatedContent(
-                    targetState = product.category,
-                ) { category ->
-                    if (ProductCategory.valueOf(category) == ProductCategory.Accessories) {
-                        Spacer(modifier = Modifier.weight(1f))
-                    } else {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(14.dp),
-                                painter = painterResource(Resources.Icon.Scales),
-                                contentDescription = "Weight",
-                                tint = TextPrimary,
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            Text(
-                                text = "${product.weight}g",
-                                fontSize = FontSize.EXTRA_SMALL,
-                                color = TextPrimary,
-                            )
-                        }
-                    }
-                }
+            ProductWeight(product = product)
+            Spacer(Modifier.height(8.dp))
+            ProductFooter(product = product)
+        }
+    }
+}
+
+@Composable
+private fun ProductWeight(product: Product) {
+    AnimatedContent(targetState = product.category) { category ->
+        if (ProductCategory.valueOf(category) == ProductCategory.Accessories) {
+            Spacer(modifier = Modifier.height(0.dp))
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    modifier = Modifier.size(14.dp),
+                    painter = painterResource(Resources.Icon.Scales),
+                    contentDescription = "Weight",
+                    tint = TextPrimary,
+                )
+                Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "R${product.price}",
-                    fontSize = FontSize.EXTRA_REGULAR,
-                    fontWeight = FontWeight.Medium,
-                    color = TextSecondary,
+                    text = "${product.weight}g",
+                    fontSize = FontSize.EXTRA_SMALL,
+                    color = TextPrimary,
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProductFooter(product: Product) {
+    val badge = product.badge()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        if (badge != null) {
+            Text(
+                modifier =
+                    Modifier
+                        .clip(BadgeShape)
+                        .background(badge.containerColor)
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                text = stringResource(badge.label).uppercase(),
+                fontSize = FontSize.EXTRA_SMALL,
+                fontWeight = FontWeight.Bold,
+                color = badge.contentColor,
+            )
+        } else {
+            Spacer(Modifier.width(0.dp))
+        }
+        Text(
+            text = "R${product.price}",
+            fontSize = FontSize.MEDIUM,
+            fontWeight = FontWeight.Bold,
+            color = TextSecondary,
+        )
     }
 }
