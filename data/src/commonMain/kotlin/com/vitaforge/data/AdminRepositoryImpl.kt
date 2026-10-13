@@ -28,7 +28,9 @@ class AdminRepositoryImpl : AdminRepository {
             if (currentUserId != null) {
                 val firestore = Firebase.firestore
                 val productCollection = firestore.collection(collectionPath = "product")
-                productCollection.document(product.id).set(product.copy(title = product.title.lowercase()))
+                productCollection
+                    .document(product.id)
+                    .set(product.copy(title = product.title.lowercase()))
                 onSuccess()
             } else {
                 onError("User is not available.")
@@ -39,23 +41,20 @@ class AdminRepositoryImpl : AdminRepository {
     }
 
     override suspend fun uploadImageToStorage(file: File): String? =
-        (
-            if (getCurrentUserId() != null) {
-                val storage = Firebase.storage.reference
-                val imagePath = storage.child("images/${Uuid.random().toHexString()}")
-                try {
-                    withTimeout(timeMillis = 20000) {
-                        imagePath.putFile(file)
-                        imagePath.getDownloadUrl()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    null
+        if (getCurrentUserId() != null) {
+            val storage = Firebase.storage.reference
+            val imagePath = storage.child(path = "images/${Uuid.random().toHexString()}")
+            try {
+                withTimeout(timeMillis = 20000L) {
+                    imagePath.putFile(file)
+                    imagePath.getDownloadUrl()
                 }
-            } else {
+            } catch (e: Exception) {
                 null
             }
-        )
+        } else {
+            null
+        }
 
     override suspend fun deleteImageFromStorage(
         downloadUrl: String,
@@ -80,37 +79,37 @@ class AdminRepositoryImpl : AdminRepository {
             try {
                 val userId = getCurrentUserId()
                 if (userId != null) {
-                    val firestore = Firebase.firestore
-                    firestore
+                    val database = Firebase.firestore
+                    database
                         .collection(collectionPath = "product")
-                        .orderBy("createdAt", direction = Direction.DESCENDING)
+                        .orderBy("createdAt", Direction.DESCENDING)
                         .limit(10)
                         .snapshots
-                        .collectLatest { snapshot ->
+                        .collectLatest { query ->
                             val products =
-                                snapshot.documents.map { documentSnapshot ->
+                                query.documents.map { document ->
                                     Product(
-                                        id = documentSnapshot.id,
-                                        createdAt = documentSnapshot.get(field = "createdAt"),
-                                        title = documentSnapshot.get(field = "title"),
-                                        description = documentSnapshot.get(field = "description"),
-                                        thumbnail = documentSnapshot.get(field = "thumbnail"),
-                                        category = documentSnapshot.get(field = "category"),
-                                        flavours = documentSnapshot.get(field = "flavours"),
-                                        weight = documentSnapshot.get(field = "weight"),
-                                        price = documentSnapshot.get(field = "price"),
-                                        isNew = documentSnapshot.get(field = "isNew"),
-                                        isPopular = documentSnapshot.get(field = "isPopular"),
-                                        isDiscounted = documentSnapshot.get(field = "isDiscounted"),
+                                        id = document.id,
+                                        title = document.get(field = "title"),
+                                        createdAt = document.get(field = "createdAt"),
+                                        description = document.get(field = "description"),
+                                        thumbnail = document.get(field = "thumbnail"),
+                                        category = document.get(field = "category"),
+                                        flavours = document.get(field = "flavours"),
+                                        weight = document.get(field = "weight"),
+                                        price = document.get(field = "price"),
+                                        isPopular = document.get(field = "isPopular"),
+                                        isDiscounted = document.get(field = "isDiscounted"),
+                                        isNew = document.get(field = "isNew"),
                                     )
                                 }
-                            send(RequestState.Success(products))
+                            send(RequestState.Success(data = products.map { it.copy(title = it.title.uppercase()) }))
                         }
                 } else {
                     send(RequestState.Error("User is not available."))
                 }
             } catch (e: Exception) {
-                send(RequestState.Error("Error while reading products: ${e.message}"))
+                send(RequestState.Error("Error while reading the last 10 items from the database: ${e.message}"))
             }
         }
 
@@ -118,40 +117,40 @@ class AdminRepositoryImpl : AdminRepository {
         try {
             val userId = getCurrentUserId()
             if (userId != null) {
-                val firestore = Firebase.firestore
+                val database = Firebase.firestore
                 val productDocument =
-                    firestore
+                    database
                         .collection(collectionPath = "product")
-                        .document(documentPath = id)
+                        .document(id)
                         .get()
                 if (productDocument.exists) {
                     val product =
                         Product(
                             id = productDocument.id,
-                            createdAt = productDocument.get(field = "createdAt"),
                             title = productDocument.get(field = "title"),
+                            createdAt = productDocument.get(field = "createdAt"),
                             description = productDocument.get(field = "description"),
                             thumbnail = productDocument.get(field = "thumbnail"),
                             category = productDocument.get(field = "category"),
                             flavours = productDocument.get(field = "flavours"),
                             weight = productDocument.get(field = "weight"),
                             price = productDocument.get(field = "price"),
-                            isNew = productDocument.get(field = "isNew"),
                             isPopular = productDocument.get(field = "isPopular"),
                             isDiscounted = productDocument.get(field = "isDiscounted"),
+                            isNew = productDocument.get(field = "isNew"),
                         )
-                    RequestState.Success(product)
+                    RequestState.Success(product.copy(title = product.title.uppercase()))
                 } else {
-                    RequestState.Error("Product does not exist.")
+                    RequestState.Error("Selected product not found.")
                 }
             } else {
                 RequestState.Error("User is not available.")
             }
         } catch (e: Exception) {
-            RequestState.Error("Error while reading product: ${e.message}")
+            RequestState.Error("Error while reading a selected product: ${e.message}")
         }
 
-    override suspend fun updateImageThumbnail(
+    override suspend fun updateProductThumbnail(
         productId: String,
         downloadUrl: String,
         onSuccess: () -> Unit,
@@ -188,25 +187,26 @@ class AdminRepositoryImpl : AdminRepository {
     ) {
         try {
             val userId = getCurrentUserId()
-
             if (userId != null) {
-                val firestore = Firebase.firestore
-                val productDocument = firestore.collection(collectionPath = "product")
-                val existingProduct = productDocument.document(documentPath = product.id).get()
-
+                val database = Firebase.firestore
+                val productCollection = database.collection(collectionPath = "product")
+                val existingProduct =
+                    productCollection
+                        .document(product.id)
+                        .get()
                 if (existingProduct.exists) {
-                    productDocument
-                        .document(documentPath = product.id)
-                        .update(product)
+                    productCollection
+                        .document(product.id)
+                        .update(product.copy(title = product.title.lowercase()))
                     onSuccess()
                 } else {
-                    onError("Product does not exist.")
+                    onError("Selected Product not found.")
                 }
             } else {
                 onError("User is not available.")
             }
         } catch (e: Exception) {
-            onError("Error while updating product: $e")
+            onError("Error while updating a thumbnail image: ${e.message}")
         }
     }
 
@@ -234,6 +234,50 @@ class AdminRepositoryImpl : AdminRepository {
             onError("Error while deleting product: $e")
         }
     }
+
+    override fun searchProductByTitle(searchQuery: String): Flow<RequestState<List<Product>>> =
+        channelFlow {
+            try {
+                val userId = getCurrentUserId()
+                if (userId != null) {
+                    val database = Firebase.firestore
+
+                    database
+                        .collection(collectionPath = "product")
+                        .snapshots
+                        .collectLatest { query ->
+                            val products =
+                                query.documents.map { document ->
+                                    Product(
+                                        id = document.id,
+                                        title = document.get(field = "title"),
+                                        createdAt = document.get<Long?>(field = "createdAt") ?: 0L,
+                                        description = document.get(field = "description"),
+                                        thumbnail = document.get(field = "thumbnail"),
+                                        category = document.get(field = "category"),
+                                        flavours = document.get(field = "flavours"),
+                                        weight = document.get(field = "weight"),
+                                        price = document.get(field = "price"),
+                                        isPopular = document.get(field = "isPopular"),
+                                        isDiscounted = document.get(field = "isDiscounted"),
+                                        isNew = document.get(field = "isNew"),
+                                    )
+                                }
+                            send(
+                                RequestState.Success(
+                                    products
+                                        .filter { it.title.contains(searchQuery.trim(), ignoreCase = true) }
+                                        .map { it.copy(title = it.title.uppercase()) },
+                                ),
+                            )
+                        }
+                } else {
+                    send(RequestState.Error("User is not available."))
+                }
+            } catch (e: Exception) {
+                send(RequestState.Error("Error while searching products: ${e.message}"))
+            }
+        }
 
     private fun extractFirebaseStoragePath(downloadUrl: String): String? {
         val startIndex = downloadUrl.indexOf("/o/") + 3
