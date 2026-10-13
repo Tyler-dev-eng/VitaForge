@@ -58,6 +58,7 @@ import vitaforge.shared.generated.resources.united_kingdom
 import vitaforge.shared.generated.resources.united_states
 import vitaforge.shared.generated.resources.user
 import vitaforge.shared.generated.resources.verified
+import vitaforge.shared.generated.resources.vertical_menu
 import vitaforge.shared.generated.resources.weight
 import vitaforge.shared.generated.resources.zero_fillers
 
@@ -109,6 +110,7 @@ object Resources {
         val Trusted = Res.drawable.trusted
         val User = Res.drawable.user
         val Verified = Res.drawable.verified
+        val VerticalMenu = Res.drawable.vertical_menu
         val Weight = Res.drawable.weight
         val ZeroFillers = Res.drawable.zero_fillers
     }
