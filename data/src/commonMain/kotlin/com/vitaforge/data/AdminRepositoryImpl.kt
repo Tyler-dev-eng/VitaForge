@@ -151,6 +151,65 @@ class AdminRepositoryImpl : AdminRepository {
             RequestState.Error("Error while reading product: ${e.message}")
         }
 
+    override suspend fun updateImageThumbnail(
+        productId: String,
+        downloadUrl: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        try {
+            val userId = getCurrentUserId()
+
+            if (userId != null) {
+                val firestore = Firebase.firestore
+                val productDocument = firestore.collection(collectionPath = "product")
+                val existingProduct = productDocument.document(documentPath = productId).get()
+
+                if (existingProduct.exists) {
+                    productDocument
+                        .document(documentPath = productId)
+                        .updateFields { "thumbnail" to downloadUrl }
+                    onSuccess()
+                } else {
+                    onError("Product does not exist.")
+                }
+            } else {
+                onError("User is not available.")
+            }
+        } catch (e: Exception) {
+            onError("Error while updating thumbnail: $e")
+        }
+    }
+
+    override suspend fun updateProduct(
+        product: Product,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        try {
+            val userId = getCurrentUserId()
+
+            if (userId != null) {
+                val firestore = Firebase.firestore
+                val productDocument = firestore.collection(collectionPath = "product")
+                val existingProduct = productDocument.document(documentPath = product.id).get()
+
+                if (existingProduct.exists) {
+                    productDocument
+                        .document(documentPath = product.id)
+                        .update(product)
+                    onSuccess()
+                } else {
+                    onError("Product does not exist.")
+                }
+            } else {
+                onError("User is not available.")
+            }
+        } catch (e: Exception) {
+            onError("Error while updating product: $e")
+        }
+    }
+
     private fun extractFirebaseStoragePath(downloadUrl: String): String? {
         val startIndex = downloadUrl.indexOf("/o/") + 3
         if (startIndex < 3) return null

@@ -299,10 +299,10 @@ fun ManageProductScreen(
                         },
                     onClick = {
                         if (id != null) {
-//                            viewModel.updateProduct(
-//                                onSuccess = { messageBarState.addSuccess("Product successfully updated!") },
-//                                onError = { message -> messageBarState.addError(message) }
-//                            )
+                            viewModel.updateProduct(
+                                onSuccess = { messageBarState.addSuccess("Product successfully updated!") },
+                                onError = { message -> messageBarState.addError(message) },
+                            )
                         } else {
                             viewModel.createNewProduct(
                                 onSuccess = { messageBarState.addSuccess("Product successfully added!") },
