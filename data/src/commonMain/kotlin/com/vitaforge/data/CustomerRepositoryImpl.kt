@@ -34,6 +34,11 @@ class CustomerRepositoryImpl : CustomerRepository {
                     onSuccess()
                 } else {
                     customerCollection.document(user.uid).set(customer)
+                    customerCollection
+                        .document(user.uid)
+                        .collection("privateData")
+                        .document("role")
+                        .set(mapOf("isAdmin" to false))
                     onSuccess()
                 }
             } else {
@@ -56,6 +61,13 @@ class CustomerRepositoryImpl : CustomerRepository {
                         .snapshots
                         .collectLatest { document ->
                             if (document.exists) {
+                                val privateData =
+                                    database
+                                        .collection(collectionPath = "customer")
+                                        .document(userId)
+                                        .collection("privateData")
+                                        .document("role")
+                                        .get()
                                 val customer =
                                     Customer(
                                         id = document.id,
@@ -67,6 +79,7 @@ class CustomerRepositoryImpl : CustomerRepository {
                                         address = document.get(field = "address"),
                                         phoneNumber = document.get(field = "phoneNumber"),
                                         cart = document.get(field = "cart"),
+                                        isAdmin = privateData.takeIf { it.exists }?.get<Boolean?>(field = "isAdmin") ?: false,
                                     )
                                 send(RequestState.Success(data = customer))
                             } else {

@@ -67,6 +67,7 @@ fun HomeGraphScreen(
     navigateToAdminPanel: () -> Unit,
 ) {
     val viewModel = koinViewModel<HomeGraphViewModel>()
+    val customer by viewModel.customer.collectAsStateWithLifecycle()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
     val messageBarState = rememberMessageBarState()
     val navController = rememberNavController()
@@ -106,6 +107,7 @@ fun HomeGraphScreen(
                 .background(animatedBackground),
     ) {
         CustomDrawer(
+            customer = customer,
             userName = userName,
             userTier = "Athlete Tier • Active",
             onProfileClick = navigateToProfile,

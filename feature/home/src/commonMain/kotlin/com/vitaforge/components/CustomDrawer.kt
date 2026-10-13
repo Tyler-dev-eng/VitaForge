@@ -1,5 +1,6 @@
 package com.vitaforge.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,8 @@ import com.tylerdev.vitaforge.shared.TextMuted
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
+import com.tylerdev.vitaforge.shared.domain.Customer
+import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.domain.DrawerItem
 import org.jetbrains.compose.resources.painterResource
 
@@ -50,6 +53,7 @@ private val AdminIconSize = 40.dp
 
 @Composable
 fun CustomDrawer(
+    customer: RequestState<Customer>,
     userName: String,
     userTier: String,
     onProfileClick: () -> Unit,
@@ -88,7 +92,13 @@ fun CustomDrawer(
                 )
             }
         }
-        DrawerAdminRow(onClick = onAdminClick)
+        AnimatedContent(
+            targetState = customer,
+        ) { customerState ->
+            if (customerState is RequestState.Success && customerState.data.isAdmin) {
+                DrawerAdminRow(onClick = onAdminClick)
+            }
+        }
     }
 }
 
