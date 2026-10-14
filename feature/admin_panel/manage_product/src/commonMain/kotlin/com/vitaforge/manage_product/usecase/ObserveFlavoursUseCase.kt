@@ -5,7 +5,7 @@ import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.FlavourRepository
 import kotlinx.coroutines.flow.Flow
 
-internal class ObserveFlavoursUseCase(
+class ObserveFlavoursUseCase(
     private val flavourRepository: FlavourRepository,
 ) {
     operator fun invoke(): Flow<RequestState<List<Flavour>>> = flavourRepository.observeFlavours()

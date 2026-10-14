@@ -3,7 +3,7 @@ package com.vitaforge.manage_product.usecase
 import com.tylerdev.vitaforge.shared.domain.Flavour
 import com.vitaforge.data.domain.FlavourRepository
 
-internal class AddFlavourUseCase(
+class AddFlavourUseCase(
     private val flavourRepository: FlavourRepository,
 ) {
     suspend operator fun invoke(name: String): Result<Flavour> {

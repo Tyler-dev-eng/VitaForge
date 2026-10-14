@@ -6,14 +6,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tylerdev.vitaforge.shared.domain.Flavour
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
+import com.vitaforge.manage_product.usecase.AddFlavourUseCase
+import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
 import dev.gitlive.firebase.storage.File
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
+
+private const val ADD_FLAVOUR_ERROR = "Could not add flavour."
 
 data class ManageProductState(
     val id: String = Uuid.random().toHexString(),
@@ -22,7 +27,7 @@ data class ManageProductState(
     val description: String = "",
     val thumbnail: String = "thumbnail image",
     val category: ProductCategory = ProductCategory.Protein,
-    val flavors: String = "",
+    val selectedFlavours: List<String> = emptyList(),
     val weight: Int? = null,
     val price: Double = 0.0,
     val isNew: Boolean = false,
@@ -32,6 +37,8 @@ data class ManageProductState(
 
 class ManageProductViewModel(
     private val adminRepository: AdminRepository,
+    private val observeFlavoursUseCase: ObserveFlavoursUseCase,
+    private val addFlavourUseCase: AddFlavourUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val productId = savedStateHandle.get<String>("id") ?: ""
@@ -42,6 +49,9 @@ class ManageProductViewModel(
     var thumbnailUploaderState: RequestState<Unit> by mutableStateOf(RequestState.Idle)
         private set
 
+    var availableFlavours: RequestState<List<Flavour>> by mutableStateOf(RequestState.Loading)
+        private set
+
     val isFormValid: Boolean
         get() =
             screenState.title.isNotEmpty() &&
@@ -50,6 +60,7 @@ class ManageProductViewModel(
                 screenState.price != 0.0
 
     init {
+        observeAvailableFlavours()
         productId.takeIf { it.isNotEmpty() }?.let { id ->
             viewModelScope.launch {
                 val selectedProduct = adminRepository.readProductById(id)
@@ -62,7 +73,7 @@ class ManageProductViewModel(
                     updateThumbnail(product.thumbnail)
                     updateThumbnailUploaderState(RequestState.Success(Unit))
                     updateCategory(ProductCategory.valueOf(product.category))
-                    updateFlavors(product.flavours?.joinToString(",") ?: "")
+                    updateSelectedFlavours(product.flavours.orEmpty().map { it.trim() }.filter { it.isNotEmpty() })
                     updateWeight(product.weight)
                     updatePrice(product.price)
                     updateNew(product.isNew)
@@ -101,8 +112,37 @@ class ManageProductViewModel(
         screenState = screenState.copy(category = value)
     }
 
-    fun updateFlavors(value: String) {
-        screenState = screenState.copy(flavors = value)
+    fun updateSelectedFlavours(value: List<String>) {
+        screenState = screenState.copy(selectedFlavours = value)
+    }
+
+    fun toggleFlavour(name: String) {
+        val current = screenState.selectedFlavours
+        val isSelected = current.any { it.equals(name, ignoreCase = true) }
+        updateSelectedFlavours(
+            if (isSelected) current.filterNot { it.equals(name, ignoreCase = true) } else current + name,
+        )
+    }
+
+    fun addFlavour(
+        name: String,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            addFlavourUseCase(name)
+                .onSuccess { flavour -> updateSelectedFlavours(screenState.selectedFlavours + flavour.name) }
+                .onFailure { error ->
+                    onError(
+                        if (error is IllegalArgumentException) error.message ?: ADD_FLAVOUR_ERROR else ADD_FLAVOUR_ERROR,
+                    )
+                }
+        }
+    }
+
+    private fun observeAvailableFlavours() {
+        viewModelScope.launch {
+            observeFlavoursUseCase().collect { availableFlavours = it }
+        }
     }
 
     fun updateWeight(value: Int?) {
@@ -138,7 +178,7 @@ class ManageProductViewModel(
                         description = screenState.description,
                         thumbnail = screenState.thumbnail,
                         category = screenState.category.name,
-                        flavours = screenState.flavors.split(","),
+                        flavours = screenState.selectedFlavours,
                         weight = screenState.weight,
                         price = screenState.price,
                         isNew = screenState.isNew,
@@ -208,11 +248,7 @@ class ManageProductViewModel(
                             description = screenState.description,
                             thumbnail = screenState.thumbnail,
                             category = screenState.category.name,
-                            flavours =
-                                screenState.flavors
-                                    .split(",")
-                                    .map { it.trim() }
-                                    .filter { it.isNotEmpty() },
+                            flavours = screenState.selectedFlavours,
                             weight = screenState.weight,
                             price = screenState.price,
                             isNew = screenState.isNew,
