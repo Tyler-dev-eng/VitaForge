@@ -14,9 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.components.ConnectionErrorState
@@ -42,7 +44,7 @@ fun ProductOverviewScreen() {
                     Column {
                         Spacer(Modifier.height(24.dp))
                         Text(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().alpha(Alpha.HALF),
                             text = "Discounted Products",
                             fontSize = FontSize.EXTRA_REGULAR,
                             color = TextPrimary,
