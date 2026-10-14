@@ -73,6 +73,9 @@
     <string name="manage_product_back">Go back</string>
     <string name="manage_product_save">Save product</string>
     <string name="manage_product_section_media">Product media</string>
+    <string name="manage_product_upload_title">Tap to upload product image</string>
+    <string name="manage_product_upload_hint">PNG, JPG up to 10MB • Transparent background recommended</string>
+    <string name="manage_product_upload_description">Add product image</string>
     <string name="manage_product_section_title">Product title</string>
     <string name="manage_product_section_category">Category</string>
     <string name="manage_product_section_description">Description &amp; specs</string>

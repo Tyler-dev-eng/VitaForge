@@ -3,7 +3,6 @@ package com.vitaforge.manage_product
 import ContentWithMessageBar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -221,22 +220,15 @@ fun ManageProductScreen(
                                 .fillMaxWidth()
                                 .height(300.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .border(width = 1.dp, color = BorderIdle, shape = RoundedCornerShape(12.dp))
                                 .background(SurfaceLighter)
+                                .dashedBorder(color = BorderIdle)
                                 .clickable(enabled = thumbnailUploaderState.isIdle()) {
                                     photoPicker.open()
                                 },
                         contentAlignment = Alignment.Center,
                     ) {
                         thumbnailUploaderState.DisplayResult(
-                            onIdle = {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    painter = painterResource(Resources.Icon.Plus),
-                                    contentDescription = "Add photo",
-                                    tint = IconPrimary,
-                                )
-                            },
+                            onIdle = { ImageUploadPlaceholder() },
                             onLoading = { LoadingCard() },
                             onSuccess = {
                                 Box(

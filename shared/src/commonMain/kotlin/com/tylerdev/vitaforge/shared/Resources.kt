@@ -27,6 +27,7 @@ import vitaforge.shared.generated.resources.filter
 import vitaforge.shared.generated.resources.google_logo
 import vitaforge.shared.generated.resources.home
 import vitaforge.shared.generated.resources.hplc_tested
+import vitaforge.shared.generated.resources.image
 import vitaforge.shared.generated.resources.india
 import vitaforge.shared.generated.resources.location_pin
 import vitaforge.shared.generated.resources.lock
@@ -86,6 +87,7 @@ object Resources {
         val Filter = Res.drawable.filter
         val Home = Res.drawable.home
         val HplcTested = Res.drawable.hplc_tested
+        val Image = Res.drawable.image
         val LocationPin = Res.drawable.location_pin
         val Lock = Res.drawable.lock
         val Menu = Res.drawable.menu
