@@ -78,6 +78,7 @@ import vitaforge.shared.generated.resources.manage_product_badge_popular_title
 import vitaforge.shared.generated.resources.manage_product_section_badges
 import vitaforge.shared.generated.resources.manage_product_section_category
 import vitaforge.shared.generated.resources.manage_product_section_description
+import vitaforge.shared.generated.resources.manage_product_section_flavours
 import vitaforge.shared.generated.resources.manage_product_section_media
 import vitaforge.shared.generated.resources.manage_product_section_price
 import vitaforge.shared.generated.resources.manage_product_section_title
@@ -97,6 +98,7 @@ fun ManageProductScreen(
     val thumbnailUploaderState = viewModel.thumbnailUploaderState
     var showCategoryDialog by remember { mutableStateOf(false) }
     var dropDownMenuOpened by remember { mutableStateOf(false) }
+    var showAddFlavourDialog by remember { mutableStateOf(false) }
     val photoPicker = koinInject<PhotoPicker>()
     var priceText by remember { mutableStateOf("") }
 
@@ -114,6 +116,15 @@ fun ManageProductScreen(
             )
         },
     )
+    if (showAddFlavourDialog) {
+        AddFlavourDialog(
+            onDismiss = { showAddFlavourDialog = false },
+            onConfirm = { name ->
+                showAddFlavourDialog = false
+                viewModel.addFlavour(name = name, onError = { message -> messageBarState.addError(message) })
+            },
+        )
+    }
     AnimatedVisibility(
         visible = showCategoryDialog,
     ) {
@@ -341,6 +352,19 @@ fun ManageProductScreen(
                                 },
                                 placeholder = "Price",
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = screenState.category != ProductCategory.Accessories,
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            FormSectionLabel(stringResource(Res.string.manage_product_section_flavours))
+                            FlavourChips(
+                                flavours = viewModel.availableFlavours,
+                                selectedFlavours = screenState.selectedFlavours,
+                                onToggleFlavour = viewModel::toggleFlavour,
+                                onAddClick = { showAddFlavourDialog = true },
                             )
                         }
                     }

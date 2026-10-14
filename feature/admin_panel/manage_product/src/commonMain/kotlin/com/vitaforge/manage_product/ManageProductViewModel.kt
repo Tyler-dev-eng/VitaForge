@@ -73,7 +73,12 @@ class ManageProductViewModel(
                     updateThumbnail(product.thumbnail)
                     updateThumbnailUploaderState(RequestState.Success(Unit))
                     updateCategory(ProductCategory.valueOf(product.category))
-                    updateSelectedFlavours(product.flavours.orEmpty().map { it.trim() }.filter { it.isNotEmpty() })
+                    updateSelectedFlavours(
+                        product.flavours
+                            .orEmpty()
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() },
+                    )
                     updateWeight(product.weight)
                     updatePrice(product.price)
                     updateNew(product.isNew)
@@ -139,6 +144,9 @@ class ManageProductViewModel(
         }
     }
 
+    private fun productFlavours(): List<String> =
+        if (screenState.category == ProductCategory.Accessories) emptyList() else screenState.selectedFlavours
+
     private fun observeAvailableFlavours() {
         viewModelScope.launch {
             observeFlavoursUseCase().collect { availableFlavours = it }
@@ -178,7 +186,7 @@ class ManageProductViewModel(
                         description = screenState.description,
                         thumbnail = screenState.thumbnail,
                         category = screenState.category.name,
-                        flavours = screenState.selectedFlavours,
+                        flavours = productFlavours(),
                         weight = screenState.weight,
                         price = screenState.price,
                         isNew = screenState.isNew,
@@ -248,7 +256,7 @@ class ManageProductViewModel(
                             description = screenState.description,
                             thumbnail = screenState.thumbnail,
                             category = screenState.category.name,
-                            flavours = screenState.selectedFlavours,
+                            flavours = productFlavours(),
                             weight = screenState.weight,
                             price = screenState.price,
                             isNew = screenState.isNew,
