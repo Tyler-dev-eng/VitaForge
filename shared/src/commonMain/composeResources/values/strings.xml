@@ -80,7 +80,7 @@
     <string name="manage_product_section_category">Category</string>
     <string name="manage_product_section_description">Description &amp; specs</string>
     <string name="manage_product_section_weight">Net weight</string>
-    <string name="manage_product_section_price">Price</string>
+    <string name="manage_product_section_price">(R) Price</string>
     <string name="manage_product_section_flavours">Available flavours</string>
     <string name="manage_product_section_badges">Catalog badges &amp; status</string>
     <string name="manage_product_badge_new_title">New release</string>
@@ -92,4 +92,6 @@
 
     <string name="loading_card_description">Loading</string>
     <string name="error_card_retry">Try again</string>
+    <string name="error_card_title">Upload failed</string>
+    <string name="error_card_icon_description">Error</string>
 </resources>

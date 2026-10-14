@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,6 +99,13 @@ fun ManageProductScreen(
     var showCategoryDialog by remember { mutableStateOf(false) }
     var dropDownMenuOpened by remember { mutableStateOf(false) }
     val photoPicker = koinInject<PhotoPicker>()
+    var priceText by remember { mutableStateOf("") }
+
+    LaunchedEffect(screenState.price) {
+        if (priceText.toDoubleOrNull() != screenState.price) {
+            priceText = screenState.price.toPriceText()
+        }
+    }
 
     photoPicker.InitialisePhotoPicker(
         onImageSelect = { file ->
@@ -325,9 +333,10 @@ fun ManageProductScreen(
                         ) {
                             FormSectionLabel(stringResource(Res.string.manage_product_section_price))
                             CustomTextField(
-                                value = screenState.price.toString(),
+                                value = priceText,
                                 onValueChange = { value ->
                                     if (value.isEmpty() || value.toDoubleOrNull() != null) {
+                                        priceText = value
                                         viewModel.updatePrice(value.toDoubleOrNull() ?: 0.0)
                                     }
                                 },
@@ -403,3 +412,5 @@ fun ManageProductScreen(
         }
     }
 }
+
+private fun Double.toPriceText(): String = if (this == 0.0) "" else toString().removeSuffix(".0")
