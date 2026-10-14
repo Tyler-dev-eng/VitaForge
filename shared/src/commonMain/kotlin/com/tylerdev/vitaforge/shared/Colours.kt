@@ -31,6 +31,8 @@ val ButtonDisabled = GrayDarker
 val IconPrimary = Black
 val IconSecondary = Orange
 val IconWhite = White
+val IconOlive = Color(0xFF596400)
+val IconBrick = Color(0xFFA73327)
 
 // CATEGORY COLOURS
 val CategoryYellow = Color(0xFFFFC738)

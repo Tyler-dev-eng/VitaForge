@@ -4,14 +4,17 @@ import com.vitaforge.admin_panel.AdminPanelViewModel
 import com.vitaforge.auth.AuthViewModel
 import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
+import com.vitaforge.data.ProductRepositoryImpl
 import com.vitaforge.data.createFlavourRepository
 import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.FlavourRepository
+import com.vitaforge.data.domain.ProductRepository
 import com.vitaforge.home.HomeGraphViewModel
 import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
+import com.vitaforge.products_overview.ProductOverviewViewModel
 import com.vitaforge.profile.ProfileViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -25,6 +28,7 @@ val sharedModule =
     module {
         single<CustomerRepository> { CustomerRepositoryImpl() }
         single<AdminRepository> { AdminRepositoryImpl() }
+        single<ProductRepository> { ProductRepositoryImpl() }
         single<FlavourRepository> { createFlavourRepository() }
         factoryOf(::ObserveFlavoursUseCase)
         factoryOf(::AddFlavourUseCase)
@@ -33,6 +37,7 @@ val sharedModule =
         viewModelOf(::ProfileViewModel)
         viewModelOf(::ManageProductViewModel)
         viewModelOf(::AdminPanelViewModel)
+        viewModelOf(::ProductOverviewViewModel)
     }
 
 expect val targetModule: Module

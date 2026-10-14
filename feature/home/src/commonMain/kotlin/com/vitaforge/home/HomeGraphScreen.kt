@@ -56,6 +56,7 @@ import com.vitaforge.domain.BottomBarDestination
 import com.vitaforge.domain.CustomDrawerState
 import com.vitaforge.domain.isOpened
 import com.vitaforge.domain.opposite
+import com.vitaforge.products_overview.ProductOverviewScreen
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
@@ -213,7 +214,7 @@ fun HomeGraphScreen(
                             navController = navController,
                             startDestination = Screen.ProductsOverview,
                         ) {
-                            composable<Screen.ProductsOverview> { }
+                            composable<Screen.ProductsOverview> { ProductOverviewScreen() }
                             composable<Screen.Cart> { }
                             composable<Screen.Categories> { }
                         }

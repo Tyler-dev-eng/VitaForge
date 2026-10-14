@@ -100,4 +100,21 @@
     <string name="error_card_retry">Try again</string>
     <string name="error_card_title">Upload failed</string>
     <string name="error_card_icon_description">Error</string>
+    <string name="connection_error_title">Oops! Something went wrong.</string>
+    <string name="connection_error_message">We ran into a little trouble connecting to VitaForge. Don't worry, check your internet connection and let's give it another shot!</string>
+    <string name="connection_error_retry">Retry Connection</string>
+    <string name="connection_error_illustration">Confused cat with a disconnected cable</string>
+    <string name="no_products_illustration">Empty catalog illustration</string>
+    <string name="no_products_status">Recharging</string>
+    <string name="no_products_title">No supplements found</string>
+    <string name="no_products_message">Our laboratory catalog is currently undergoing scheduled batch quarantine and HPLC purity verification. Fresh formulas dropping shortly.</string>
+    <string name="no_products_refresh">Refresh catalog</string>
+    <string name="verification_title">Verification protocol</string>
+    <string name="verification_badge">100% pure</string>
+    <string name="verification_hplc_title">HPLC tested</string>
+    <string name="verification_hplc_subtitle">99.8% Potency</string>
+    <string name="verification_sport_title">Informed Sport</string>
+    <string name="verification_sport_subtitle">WADA Compliant</string>
+    <string name="verification_blends_title">Zero blends</string>
+    <string name="verification_blends_subtitle">100% Disclosed</string>
 </resources>

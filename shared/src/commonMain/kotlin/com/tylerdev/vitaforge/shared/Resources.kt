@@ -10,6 +10,7 @@ import vitaforge.shared.generated.resources.bug_report
 import vitaforge.shared.generated.resources.camera
 import vitaforge.shared.generated.resources.cart
 import vitaforge.shared.generated.resources.cash
+import vitaforge.shared.generated.resources.cat_sleep
 import vitaforge.shared.generated.resources.categories
 import vitaforge.shared.generated.resources.check
 import vitaforge.shared.generated.resources.check_mark
@@ -41,6 +42,7 @@ import vitaforge.shared.generated.resources.paypal_logo
 import vitaforge.shared.generated.resources.plus
 import vitaforge.shared.generated.resources.profile_badge
 import vitaforge.shared.generated.resources.profile_error
+import vitaforge.shared.generated.resources.red_check
 import vitaforge.shared.generated.resources.reset
 import vitaforge.shared.generated.resources.resource_return
 import vitaforge.shared.generated.resources.rocket
@@ -74,6 +76,7 @@ object Resources {
         val Camera = Res.drawable.camera
         val Cart = Res.drawable.cart
         val Cash = Res.drawable.cash
+        val CatSleep = Res.drawable.cat_sleep
         val Categories = Res.drawable.categories
         val Check = Res.drawable.check
         val ChevronRight = Res.drawable.chevron_right
@@ -98,6 +101,8 @@ object Resources {
         val PaymentMethods = Res.drawable.payment_methods
         val Plus = Res.drawable.plus
         val ProfileBadge = Res.drawable.profile_badge
+        val ProfileError = Res.drawable.profile_error
+        val RedCheck = Res.drawable.red_check
         val Reset = Res.drawable.reset
         val Return = Res.drawable.resource_return
         val Rocket = Res.drawable.rocket
