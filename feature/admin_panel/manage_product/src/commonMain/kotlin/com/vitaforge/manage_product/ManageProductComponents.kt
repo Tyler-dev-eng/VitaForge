@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,12 +42,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.tylerdev.vitaforge.shared.Black
 import com.tylerdev.vitaforge.shared.BorderIdle
-import com.tylerdev.vitaforge.shared.ButtonPrimary
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
-import com.tylerdev.vitaforge.shared.IconSecondary
 import com.tylerdev.vitaforge.shared.IconWhite
 import com.tylerdev.vitaforge.shared.Orange
 import com.tylerdev.vitaforge.shared.Resources
@@ -56,6 +57,7 @@ import com.tylerdev.vitaforge.shared.TextMuted
 import com.tylerdev.vitaforge.shared.TextOnErrorContainer
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
+import com.tylerdev.vitaforge.shared.TextWhite
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.CustomTextField
 import com.tylerdev.vitaforge.shared.domain.Flavour
@@ -83,11 +85,15 @@ private val UploadBadgeSize = 20.dp
 private val UploadBadgeIconSize = 12.dp
 private val UploadContentSpacing = 12.dp
 private val UploadHorizontalPadding = 24.dp
-private val ChipShape = RoundedCornerShape(24.dp)
-private val ChipMinHeight = 48.dp
-private val ChipHorizontalPadding = 16.dp
+private val ChipHeight = 32.dp
+private val ChipShape = RoundedCornerShape(ChipHeight / 2)
+private val ChipMinTouchTarget = 48.dp
+private val ChipHorizontalPadding = 14.dp
 private val ChipSpacing = 8.dp
-private val ChipIconSize = 14.dp
+private val ChipContentSpacing = 6.dp
+private val ChipIconSize = 12.dp
+private val ChipDashStrokeWidth = 1.dp
+private val ChipDashLength = 4.dp
 
 @Composable
 internal fun FormSectionLabel(
@@ -159,14 +165,18 @@ private fun BadgeToggleRow(
     }
 }
 
-internal fun Modifier.dashedBorder(color: Color): Modifier =
+internal fun Modifier.dashedBorder(
+    color: Color,
+    cornerRadius: Dp = CardCornerRadius,
+    strokeWidth: Dp = DashStrokeWidth,
+    dashLength: Dp = DashLength,
+): Modifier =
     drawBehind {
-        val strokeWidth = DashStrokeWidth.toPx()
-        val dash = DashLength.toPx()
+        val dash = dashLength.toPx()
         drawRoundRect(
             color = color,
-            cornerRadius = CornerRadius(CardCornerRadius.toPx()),
-            style = Stroke(width = strokeWidth, pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, dash))),
+            cornerRadius = CornerRadius(cornerRadius.toPx()),
+            style = Stroke(width = strokeWidth.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, dash))),
         )
     }
 
@@ -246,7 +256,6 @@ internal fun FlavourChips(
             FlowRow(
                 modifier = modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
-                verticalArrangement = Arrangement.spacedBy(ChipSpacing),
             ) {
                 options.forEach { name ->
                     FlavourChip(
@@ -284,33 +293,39 @@ private fun FlavourChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val background by animateColorAsState(if (isSelected) ButtonPrimary else Surface)
-    val borderColour by animateColorAsState(if (isSelected) ButtonPrimary else BorderIdle)
-    Row(
-        modifier =
-            modifier
-                .heightIn(min = ChipMinHeight)
-                .clip(ChipShape)
-                .background(background)
-                .border(width = 1.dp, color = borderColour, shape = ChipShape)
-                .selectable(selected = isSelected, role = Role.Checkbox, onClick = onClick)
-                .padding(horizontal = ChipHorizontalPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
+    val background by animateColorAsState(if (isSelected) Black else Surface)
+    val contentColour by animateColorAsState(if (isSelected) TextWhite else TextPrimary)
+    ChipTouchTarget(
+        modifier = modifier,
+        selected = isSelected,
+        role = Role.Checkbox,
+        onClick = onClick,
     ) {
-        AnimatedVisibility(visible = isSelected) {
-            Icon(
-                modifier = Modifier.size(ChipIconSize),
-                painter = painterResource(Resources.Icon.Check),
-                contentDescription = null,
-                tint = IconPrimary,
+        Row(
+            modifier =
+                Modifier
+                    .height(ChipHeight)
+                    .clip(ChipShape)
+                    .background(background)
+                    .border(width = 1.dp, color = if (isSelected) Black else BorderIdle, shape = ChipShape)
+                    .padding(horizontal = ChipHorizontalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ChipContentSpacing),
+        ) {
+            Text(
+                text = label,
+                fontSize = FontSize.REGULAR,
+                color = contentColour,
             )
+            AnimatedVisibility(visible = isSelected) {
+                Icon(
+                    modifier = Modifier.size(ChipIconSize),
+                    painter = painterResource(Resources.Icon.Close),
+                    contentDescription = null,
+                    tint = IconWhite,
+                )
+            }
         }
-        Text(
-            text = label,
-            fontSize = FontSize.REGULAR,
-            color = TextPrimary,
-        )
     }
 }
 
@@ -319,28 +334,56 @@ private fun AddFlavourChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    ChipTouchTarget(
+        modifier = modifier,
+        selected = false,
+        role = Role.Button,
+        onClick = onClick,
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .height(ChipHeight)
+                    .dashedBorder(
+                        color = TextMuted,
+                        cornerRadius = ChipHeight / 2,
+                        strokeWidth = ChipDashStrokeWidth,
+                        dashLength = ChipDashLength,
+                    ).padding(horizontal = ChipHorizontalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ChipContentSpacing),
+        ) {
+            Icon(
+                modifier = Modifier.size(ChipIconSize),
+                painter = painterResource(Resources.Icon.Plus),
+                contentDescription = null,
+                tint = IconPrimary,
+            )
+            Text(
+                text = stringResource(Res.string.manage_product_flavour_add),
+                fontSize = FontSize.REGULAR,
+                color = TextPrimary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChipTouchTarget(
+    selected: Boolean,
+    role: Role,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(
         modifier =
             modifier
-                .heightIn(min = ChipMinHeight)
-                .clip(ChipShape)
-                .border(width = 1.dp, color = Orange, shape = ChipShape)
-                .selectable(selected = false, role = Role.Button, onClick = onClick)
-                .padding(horizontal = ChipHorizontalPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
+                .heightIn(min = ChipMinTouchTarget)
+                .selectable(selected = selected, role = role, onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            modifier = Modifier.size(ChipIconSize),
-            painter = painterResource(Resources.Icon.Plus),
-            contentDescription = null,
-            tint = IconSecondary,
-        )
-        Text(
-            text = stringResource(Res.string.manage_product_flavour_add),
-            fontSize = FontSize.REGULAR,
-            color = TextSecondary,
-        )
+        content()
     }
 }
 
