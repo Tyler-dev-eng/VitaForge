@@ -56,7 +56,7 @@ fun ProductOverviewScreen() {
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             items(
-                                items = productList,
+                                items = productList.sortedBy { it.createdAt }.take(3),
                                 key = { it.id },
                             ) { product ->
                                 ProductCard(product = product, onClick = {})
