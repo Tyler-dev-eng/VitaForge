@@ -72,6 +72,20 @@
     <string name="manage_product_title_edit">Edit Product</string>
     <string name="manage_product_back">Go back</string>
     <string name="manage_product_save">Save product</string>
+    <string name="manage_product_section_media">Product media</string>
+    <string name="manage_product_section_title">Product title</string>
+    <string name="manage_product_section_category">Category</string>
+    <string name="manage_product_section_description">Description &amp; specs</string>
+    <string name="manage_product_section_weight">Net weight</string>
+    <string name="manage_product_section_price">Price</string>
+    <string name="manage_product_section_flavours">Available flavours</string>
+    <string name="manage_product_section_badges">Catalog badges &amp; status</string>
+    <string name="manage_product_badge_new_title">New release</string>
+    <string name="manage_product_badge_new_subtitle">Flags product with 'NEW' tag</string>
+    <string name="manage_product_badge_popular_title">Popular choice</string>
+    <string name="manage_product_badge_popular_subtitle">Displays athletic bestseller flag</string>
+    <string name="manage_product_badge_discounted_title">Discount active</string>
+    <string name="manage_product_badge_discounted_subtitle">Enable promotional sale pricing</string>
 
     <string name="loading_card_description">Loading</string>
     <string name="error_card_retry">Try again</string>

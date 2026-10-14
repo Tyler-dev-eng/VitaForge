@@ -25,9 +25,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchColors
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -52,9 +49,7 @@ import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
-import com.tylerdev.vitaforge.shared.SurfaceDarker
 import com.tylerdev.vitaforge.shared.SurfaceLighter
-import com.tylerdev.vitaforge.shared.SurfaceSecondary
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.AlertTextField
@@ -74,6 +69,20 @@ import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.manage_product_back
+import vitaforge.shared.generated.resources.manage_product_badge_discounted_subtitle
+import vitaforge.shared.generated.resources.manage_product_badge_discounted_title
+import vitaforge.shared.generated.resources.manage_product_badge_new_subtitle
+import vitaforge.shared.generated.resources.manage_product_badge_new_title
+import vitaforge.shared.generated.resources.manage_product_badge_popular_subtitle
+import vitaforge.shared.generated.resources.manage_product_badge_popular_title
+import vitaforge.shared.generated.resources.manage_product_section_badges
+import vitaforge.shared.generated.resources.manage_product_section_category
+import vitaforge.shared.generated.resources.manage_product_section_description
+import vitaforge.shared.generated.resources.manage_product_section_flavours
+import vitaforge.shared.generated.resources.manage_product_section_media
+import vitaforge.shared.generated.resources.manage_product_section_price
+import vitaforge.shared.generated.resources.manage_product_section_title
+import vitaforge.shared.generated.resources.manage_product_section_weight
 import vitaforge.shared.generated.resources.manage_product_title_add
 import vitaforge.shared.generated.resources.manage_product_title_edit
 
@@ -205,6 +214,7 @@ fun ManageProductScreen(
                     modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    FormSectionLabel(stringResource(Res.string.manage_product_section_media))
                     Box(
                         modifier =
                             Modifier
@@ -282,36 +292,63 @@ fun ManageProductScreen(
                             },
                         )
                     }
+                    FormSectionLabel(stringResource(Res.string.manage_product_section_title))
                     CustomTextField(
                         value = screenState.title,
                         onValueChange = viewModel::updateTitle,
-                        placeholder = "Title",
+                        placeholder = "e.g., Pure Iso-Whey Hydrolyzed",
                     )
-                    CustomTextField(
-                        modifier = Modifier.height(170.dp),
-                        value = screenState.description,
-                        onValueChange = viewModel::updateDescription,
-                        placeholder = "Description",
-                        expanded = true,
-                    )
+                    FormSectionLabel(stringResource(Res.string.manage_product_section_category))
                     AlertTextField(
                         modifier = Modifier.fillMaxWidth(),
                         text = screenState.category.title,
                         onClick = { showCategoryDialog = true },
                     )
+                    FormSectionLabel(stringResource(Res.string.manage_product_section_description))
+                    CustomTextField(
+                        modifier = Modifier.height(170.dp),
+                        value = screenState.description,
+                        onValueChange = viewModel::updateDescription,
+                        placeholder = "Enter detailed formula specs, benefits, and usage instructions...",
+                        expanded = true,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        AnimatedVisibility(
+                            modifier = Modifier.weight(1f),
+                            visible = screenState.category != ProductCategory.Accessories,
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                FormSectionLabel(stringResource(Res.string.manage_product_section_weight))
+                                CustomTextField(
+                                    value = screenState.weight?.toString() ?: "",
+                                    onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0) },
+                                    placeholder = "Weight",
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            FormSectionLabel(stringResource(Res.string.manage_product_section_price))
+                            CustomTextField(
+                                value = screenState.price.toString(),
+                                onValueChange = { value ->
+                                    if (value.isEmpty() || value.toDoubleOrNull() != null) {
+                                        viewModel.updatePrice(value.toDoubleOrNull() ?: 0.0)
+                                    }
+                                },
+                                placeholder = "Price",
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            )
+                        }
+                    }
                     AnimatedVisibility(
                         visible = screenState.category != ProductCategory.Accessories,
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            CustomTextField(
-                                value = screenState.weight?.toString() ?: "",
-                                onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0) },
-                                placeholder = "Weight",
-                                keyboardOptions =
-                                    KeyboardOptions(
-                                        keyboardType = KeyboardType.Number,
-                                    ),
-                            )
+                            FormSectionLabel(stringResource(Res.string.manage_product_section_flavours))
                             CustomTextField(
                                 value = screenState.flavors,
                                 onValueChange = viewModel::updateFlavors,
@@ -319,103 +356,30 @@ fun ManageProductScreen(
                             )
                         }
                     }
-                    CustomTextField(
-                        value = screenState.price.toString(),
-                        onValueChange = { value ->
-                            if (value.isEmpty() || value.toDoubleOrNull() != null) {
-                                viewModel.updatePrice(value.toDoubleOrNull() ?: 0.0)
-                            }
-                        },
-                        placeholder = "Price",
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType = KeyboardType.Number,
+                    FormSectionLabel(stringResource(Res.string.manage_product_section_badges))
+                    BadgeToggleCard(
+                        toggles =
+                            listOf(
+                                BadgeToggle(
+                                    title = stringResource(Res.string.manage_product_badge_new_title),
+                                    subtitle = stringResource(Res.string.manage_product_badge_new_subtitle),
+                                    isChecked = screenState.isNew,
+                                    onCheckedChange = viewModel::updateNew,
+                                ),
+                                BadgeToggle(
+                                    title = stringResource(Res.string.manage_product_badge_popular_title),
+                                    subtitle = stringResource(Res.string.manage_product_badge_popular_subtitle),
+                                    isChecked = screenState.isPopular,
+                                    onCheckedChange = viewModel::updatePopular,
+                                ),
+                                BadgeToggle(
+                                    title = stringResource(Res.string.manage_product_badge_discounted_title),
+                                    subtitle = stringResource(Res.string.manage_product_badge_discounted_subtitle),
+                                    isChecked = screenState.isDiscounted,
+                                    onCheckedChange = viewModel::updateDiscounted,
+                                ),
                             ),
                     )
-                    Column(
-                        modifier =
-                            Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                    ) {
-                        Row(
-                            modifier =
-                                Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(start = 12.dp),
-                                text = "New",
-                                fontSize = FontSize.REGULAR,
-                                color = TextPrimary,
-                            )
-                            Switch(
-                                checked = screenState.isNew,
-                                onCheckedChange = viewModel::updateNew,
-                                colors =
-                                    SwitchDefaults.colors(
-                                        checkedTrackColor = SurfaceSecondary,
-                                        uncheckedTrackColor = SurfaceDarker,
-                                        checkedThumbColor = Surface,
-                                        uncheckedThumbColor = Surface,
-                                        checkedBorderColor = SurfaceSecondary,
-                                        uncheckedBorderColor = SurfaceDarker,
-                                    ),
-                            )
-                        }
-                        Row(
-                            modifier =
-                                Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(start = 12.dp),
-                                text = "Popular",
-                                fontSize = FontSize.REGULAR,
-                                color = TextPrimary,
-                            )
-                            Switch(
-                                checked = screenState.isPopular,
-                                onCheckedChange = viewModel::updatePopular,
-                                colors =
-                                    SwitchDefaults.colors(
-                                        checkedTrackColor = SurfaceSecondary,
-                                        uncheckedTrackColor = SurfaceDarker,
-                                        checkedThumbColor = Surface,
-                                        uncheckedThumbColor = Surface,
-                                        checkedBorderColor = SurfaceSecondary,
-                                        uncheckedBorderColor = SurfaceDarker,
-                                    ),
-                            )
-                        }
-                        Row(
-                            modifier =
-                                Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(start = 12.dp),
-                                text = "Discounted",
-                                fontSize = FontSize.REGULAR,
-                                color = TextPrimary,
-                            )
-                            Switch(
-                                checked = screenState.isDiscounted,
-                                onCheckedChange = viewModel::updateDiscounted,
-                                colors =
-                                    SwitchDefaults.colors(
-                                        checkedTrackColor = SurfaceSecondary,
-                                        uncheckedTrackColor = SurfaceDarker,
-                                        checkedThumbColor = Surface,
-                                        uncheckedThumbColor = Surface,
-                                        checkedBorderColor = SurfaceSecondary,
-                                        uncheckedBorderColor = SurfaceDarker,
-                                    ),
-                            )
-                        }
-                    }
                     Spacer(Modifier.height(24.dp))
                 }
                 PrimaryButton(
