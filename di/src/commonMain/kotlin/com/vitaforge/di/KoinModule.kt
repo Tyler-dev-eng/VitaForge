@@ -4,8 +4,10 @@ import com.vitaforge.admin_panel.AdminPanelViewModel
 import com.vitaforge.auth.AuthViewModel
 import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
+import com.vitaforge.data.createFlavourRepository
 import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.CustomerRepository
+import com.vitaforge.data.domain.FlavourRepository
 import com.vitaforge.home.HomeGraphViewModel
 import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.profile.ProfileViewModel
@@ -20,6 +22,7 @@ val sharedModule =
     module {
         single<CustomerRepository> { CustomerRepositoryImpl() }
         single<AdminRepository> { AdminRepositoryImpl() }
+        single<FlavourRepository> { createFlavourRepository() }
         viewModelOf(::AuthViewModel)
         viewModelOf(::HomeGraphViewModel)
         viewModelOf(::ProfileViewModel)
