@@ -65,6 +65,9 @@ class ManageProductViewModel(
                     updateFlavors(product.flavours?.joinToString(",") ?: "")
                     updateWeight(product.weight)
                     updatePrice(product.price)
+                    updateNew(product.isNew)
+                    updatePopular(product.isPopular)
+                    updateDiscounted(product.isDiscounted)
                 }
             }
         }
@@ -212,6 +215,9 @@ class ManageProductViewModel(
                                     .filter { it.isNotEmpty() },
                             weight = screenState.weight,
                             price = screenState.price,
+                            isNew = screenState.isNew,
+                            isPopular = screenState.isPopular,
+                            isDiscounted = screenState.isDiscounted,
                         ),
                     onSuccess = onSuccess,
                     onError = onError,
