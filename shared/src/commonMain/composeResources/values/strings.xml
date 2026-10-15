@@ -117,4 +117,8 @@
     <string name="verification_sport_subtitle">WADA Compliant</string>
     <string name="verification_blends_title">Zero blends</string>
     <string name="verification_blends_subtitle">100% Disclosed</string>
+    <string name="product_card_thumbnail_description">Product thumbnail</string>
+    <string name="product_card_weight_icon_description">Weight</string>
+    <string name="product_card_weight">%1$sg</string>
+    <string name="product_card_price">R %1$s</string>
 </resources>
