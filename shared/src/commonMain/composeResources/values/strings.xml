@@ -121,4 +121,8 @@
     <string name="product_card_weight_icon_description">Weight</string>
     <string name="product_card_weight">%1$sg</string>
     <string name="product_card_price">R %1$s</string>
+    <string name="home_targeted_disciplines">Targeted Disciplines</string>
+    <string name="home_departments_count">%1$d Departments</string>
+    <string name="home_discounted_supplements">Discounted Supplements</string>
+    <string name="home_carousel_indicator_description">Featured product %1$d of %2$d</string>
 </resources>
