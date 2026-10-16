@@ -173,7 +173,7 @@ fun MainProductCard(
                 ) { category ->
                     val weight = product.weight
                     if (weight == null || ProductCategory.valueOf(category) == ProductCategory.Accessories) {
-                        Spacer(Modifier.weight(1f))
+                        Spacer(Modifier)
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -191,13 +191,13 @@ fun MainProductCard(
                         }
                     }
                 }
+                Text(
+                    text = stringResource(Res.string.product_card_price, product.price),
+                    fontSize = FontSize.EXTRA_REGULAR,
+                    color = TextBrand,
+                    fontWeight = FontWeight.Medium,
+                )
             }
-            Text(
-                text = stringResource(Res.string.product_card_price, product.price),
-                fontSize = FontSize.EXTRA_REGULAR,
-                color = TextBrand,
-                fontWeight = FontWeight.Medium,
-            )
         }
     }
 }

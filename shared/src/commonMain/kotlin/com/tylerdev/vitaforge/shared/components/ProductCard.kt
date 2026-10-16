@@ -133,8 +133,6 @@ fun ProductCard(
                 overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.height(8.dp))
-            ProductWeight(product = product)
-            Spacer(Modifier.height(8.dp))
             ProductFooter(product = product)
         }
     }
@@ -166,26 +164,18 @@ private fun ProductWeight(product: Product) {
 
 @Composable
 private fun ProductFooter(product: Product) {
-    val badge = product.badge()
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        if (badge != null) {
-            Text(
-                modifier =
-                    Modifier
-                        .clip(BadgeShape)
-                        .background(badge.containerColor)
-                        .padding(horizontal = 8.dp, vertical = 2.dp),
-                text = stringResource(badge.label).uppercase(),
-                fontSize = FontSize.EXTRA_SMALL,
-                fontWeight = FontWeight.Bold,
-                color = badge.contentColor,
-            )
-        } else {
-            Spacer(Modifier.width(0.dp))
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ProductWeight(product = product)
+            ProductBadge(badge = product.badge())
         }
         Text(
             text = "R${product.price}",
@@ -194,4 +184,20 @@ private fun ProductFooter(product: Product) {
             color = TextSecondary,
         )
     }
+}
+
+@Composable
+private fun ProductBadge(badge: ProductBadge?) {
+    if (badge == null) return
+    Text(
+        modifier =
+            Modifier
+                .clip(BadgeShape)
+                .background(badge.containerColor)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
+        text = stringResource(badge.label).uppercase(),
+        fontSize = FontSize.EXTRA_SMALL,
+        fontWeight = FontWeight.Bold,
+        color = badge.contentColor,
+    )
 }
