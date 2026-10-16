@@ -7,13 +7,14 @@ import com.vitaforge.data.domain.ProductRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 class ProductOverviewViewModel(
-    private val productRepository: ProductRepository,
+    productRepository: ProductRepository,
 ) : ViewModel() {
     private val retryCount = MutableStateFlow(0)
 
@@ -21,9 +22,22 @@ class ProductOverviewViewModel(
     val products =
         retryCount
             .flatMapLatest {
-                productRepository
-                    .readDiscountedProducts()
-                    .onStart { emit(RequestState.Loading) }
+                combine(
+                    productRepository.readNewProducts(),
+                    productRepository.readDiscountedProducts(),
+                ) { new, discounted ->
+                    when {
+                        new.isSuccess() && discounted.isSuccess() -> {
+                            RequestState.Success(new.getSuccessData() + discounted.getSuccessData())
+                        }
+
+                        new.isError() -> new
+
+                        discounted.isError() -> discounted
+
+                        else -> RequestState.Loading
+                    }
+                }.onStart { emit(RequestState.Loading) }
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
