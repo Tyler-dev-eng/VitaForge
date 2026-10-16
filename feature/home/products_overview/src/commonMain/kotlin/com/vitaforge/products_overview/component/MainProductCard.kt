@@ -43,10 +43,10 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.tylerdev.vitaforge.shared.Alpha
 import com.tylerdev.vitaforge.shared.FontSize
+import com.tylerdev.vitaforge.shared.IconWhite
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.SurfaceScrim
 import com.tylerdev.vitaforge.shared.TextBrand
-import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextWhite
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
@@ -63,7 +63,7 @@ import vitaforge.shared.generated.resources.product_card_weight_icon_description
 fun MainProductCard(
     modifier: Modifier = Modifier,
     product: Product,
-    isVisible: Boolean = false,
+    isLarge: Boolean = false,
     onClick: (String) -> Unit,
 ) {
     val infiniteTransition = rememberInfiniteTransition()
@@ -92,16 +92,16 @@ fun MainProductCard(
         modifier =
             modifier
                 .fillMaxHeight()
+                .clip(RoundedCornerShape(12.dp))
                 .clickable { onClick(product.id) },
     ) {
         AsyncImage(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
                     .animateContentSize()
                     .then(
-                        if (isVisible) {
+                        if (isLarge) {
                             Modifier
                                 .scale(animatedScale)
                                 .rotate(animatedRotation)
@@ -155,6 +155,7 @@ fun MainProductCard(
             Text(
                 text = product.description,
                 fontSize = FontSize.REGULAR,
+                lineHeight = FontSize.REGULAR * 1.3f,
                 color = TextWhite.copy(Alpha.HALF),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -179,12 +180,13 @@ fun MainProductCard(
                                 modifier = Modifier.size(14.dp),
                                 painter = painterResource(Resources.Icon.Weight),
                                 contentDescription = stringResource(Res.string.product_card_weight_icon_description),
+                                tint = IconWhite,
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
                                 text = stringResource(Res.string.product_card_weight, weight),
                                 fontSize = FontSize.EXTRA_SMALL,
-                                color = TextPrimary,
+                                color = TextWhite,
                             )
                         }
                     }
