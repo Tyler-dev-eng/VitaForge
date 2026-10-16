@@ -124,5 +124,6 @@
     <string name="home_targeted_disciplines">Targeted Disciplines</string>
     <string name="home_departments_count">%1$d Departments</string>
     <string name="home_discounted_supplements">Discounted Supplements</string>
+    <string name="home_category_no_discounts">No %1$s on discount at the moment</string>
     <string name="home_carousel_indicator_description">Featured product %1$d of %2$d</string>
 </resources>

@@ -21,6 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +47,7 @@ import com.vitaforge.products_overview.component.MainProductCard
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.home_category_no_discounts
 import vitaforge.shared.generated.resources.home_departments_count
 import vitaforge.shared.generated.resources.home_discounted_supplements
 import vitaforge.shared.generated.resources.home_targeted_disciplines
@@ -54,6 +58,7 @@ fun ProductOverviewScreen() {
     val viewModel = koinViewModel<ProductOverviewViewModel>()
     val products by viewModel.products.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
+    var selectedCategory by rememberSaveable { mutableStateOf<ProductCategory?>(null) }
 
     val centeredIndex: Int? by remember {
         derivedStateOf {
@@ -81,8 +86,11 @@ fun ProductOverviewScreen() {
                             uniqueProducts.filter { it.isNew }.sortedBy { it.createdAt }.take(MAX_NEW_PRODUCTS)
                         }
                     val discountedProducts =
-                        remember(uniqueProducts) {
-                            uniqueProducts.filter { it.isDiscounted }.sortedBy { it.createdAt }.take(MAX_DISCOUNTED_PRODUCTS)
+                        remember(uniqueProducts, selectedCategory) {
+                            uniqueProducts
+                                .filter { it.isDiscounted && (selectedCategory == null || it.category == selectedCategory?.name) }
+                                .sortedBy { it.createdAt }
+                                .take(MAX_DISCOUNTED_PRODUCTS)
                         }
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -96,7 +104,12 @@ fun ProductOverviewScreen() {
                             )
                         }
                         item(key = "categories", contentType = "categories") {
-                            CategoriesSection(onCategoryClick = {})
+                            CategoriesSection(
+                                selectedCategory = selectedCategory,
+                                onCategoryClick = { category ->
+                                    selectedCategory = category.takeUnless { it == selectedCategory }
+                                },
+                            )
                         }
                         item(key = "discounted_title", contentType = "title") {
                             Text(
@@ -106,6 +119,17 @@ fun ProductOverviewScreen() {
                                 fontFamily = robotoCondensedFontFamily(),
                                 color = TextPrimary,
                             )
+                        }
+                        val category = selectedCategory
+                        if (category != null && discountedProducts.isEmpty()) {
+                            item(key = "category_empty", contentType = "empty") {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                                    text = stringResource(Res.string.home_category_no_discounts, category.title.lowercase()),
+                                    fontSize = FontSize.REGULAR,
+                                    color = TextMuted,
+                                )
+                            }
                         }
                         items(
                             items = discountedProducts,
@@ -173,6 +197,7 @@ private fun NewProductsCarousel(
 
 @Composable
 private fun CategoriesSection(
+    selectedCategory: ProductCategory?,
     onCategoryClick: (ProductCategory) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -195,7 +220,7 @@ private fun CategoriesSection(
             )
         }
         Spacer(Modifier.height(8.dp))
-        CategoryChipRow(onCategoryClick = onCategoryClick)
+        CategoryChipRow(selectedCategory = selectedCategory, onCategoryClick = onCategoryClick)
     }
 }
 

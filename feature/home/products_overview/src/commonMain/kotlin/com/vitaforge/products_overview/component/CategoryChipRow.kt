@@ -22,7 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.SurfaceDarker
+import com.tylerdev.vitaforge.shared.SurfaceSecondary
 import com.tylerdev.vitaforge.shared.TextPrimary
+import com.tylerdev.vitaforge.shared.TextWhite
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
 
@@ -32,6 +34,7 @@ private val DotSize = 10.dp
 @Composable
 fun CategoryChipRow(
     modifier: Modifier = Modifier,
+    selectedCategory: ProductCategory?,
     onCategoryClick: (ProductCategory) -> Unit,
 ) {
     LazyRow(
@@ -44,12 +47,13 @@ fun CategoryChipRow(
             key = { it.name },
             contentType = { "chip" },
         ) { category ->
+            val isSelected = category == selectedCategory
             Row(
                 modifier =
                     Modifier
                         .height(ChipHeight)
                         .clip(CircleShape)
-                        .background(SurfaceDarker)
+                        .background(if (isSelected) SurfaceSecondary else SurfaceDarker)
                         .clickable { onCategoryClick(category) }
                         .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -65,7 +69,7 @@ fun CategoryChipRow(
                     text = category.title.uppercase(),
                     fontSize = FontSize.SMALL,
                     fontFamily = robotoCondensedFontFamily(),
-                    color = TextPrimary,
+                    color = if (isSelected) TextWhite else TextPrimary,
                 )
             }
         }
