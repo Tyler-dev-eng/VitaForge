@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.admin_panel.AdminPanelScreen
 import com.vitaforge.auth.AuthScreen
+import com.vitaforge.details.DetailsScreen
 import com.vitaforge.home.HomeGraphScreen
 import com.vitaforge.manage_product.ManageProductScreen
 import com.vitaforge.profile.ProfileScreen
@@ -38,6 +39,7 @@ fun SetupNavGraph(startDestination: Screen) {
                 },
                 navigateToProfile = { navController.navigate(Screen.Profile) },
                 navigateToAdminPanel = { navController.navigate(Screen.AdminPanel) },
+                navigateToDetails = { id -> navController.navigate(Screen.Details(id)) },
             )
         }
 
@@ -60,6 +62,10 @@ fun SetupNavGraph(startDestination: Screen) {
                 id = id,
                 navigateBack = { navController.navigateUp() },
             )
+        }
+
+        composable<Screen.Details> {
+            DetailsScreen(navigateBack = { navController.navigateUp() })
         }
     }
 }

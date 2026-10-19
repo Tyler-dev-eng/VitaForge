@@ -10,6 +10,7 @@ import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.FlavourRepository
 import com.vitaforge.data.domain.ProductRepository
+import com.vitaforge.details.DetailsViewModel
 import com.vitaforge.home.HomeGraphViewModel
 import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
@@ -38,6 +39,7 @@ val sharedModule =
         viewModelOf(::ManageProductViewModel)
         viewModelOf(::AdminPanelViewModel)
         viewModelOf(::ProductOverviewViewModel)
+        viewModelOf(::DetailsViewModel)
     }
 
 expect val targetModule: Module

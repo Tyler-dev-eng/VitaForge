@@ -51,6 +51,46 @@ class ProductRepositoryImpl : ProductRepository {
             }
         }
 
+    override fun readProductByIdFlow(id: String): Flow<RequestState<Product>> =
+        channelFlow {
+            try {
+                val userId = getCurrentUserId()
+                if (userId != null) {
+                    val database = Firebase.firestore
+                    database
+                        .collection(collectionPath = "product")
+                        .document(id)
+                        .snapshots
+                        .collectLatest { document ->
+                            if (document.exists) {
+                                val product =
+                                    Product(
+                                        id = document.id,
+                                        title = document.get(field = "title"),
+                                        createdAt = document.get(field = "createdAt"),
+                                        description = document.get(field = "description"),
+                                        thumbnail = document.get(field = "thumbnail"),
+                                        category = document.get(field = "category"),
+                                        flavours = document.get(field = "flavours"),
+                                        weight = document.get(field = "weight"),
+                                        price = document.get(field = "price"),
+                                        isPopular = document.get(field = "isPopular"),
+                                        isDiscounted = document.get(field = "isDiscounted"),
+                                        isNew = document.get(field = "isNew"),
+                                    )
+                                send(RequestState.Success(product))
+                            } else {
+                                send(RequestState.Error("Product not found."))
+                            }
+                        }
+                } else {
+                    send(RequestState.Error("User is not available."))
+                }
+            } catch (e: Exception) {
+                send(RequestState.Error(" Error while reading product ${e.message}"))
+            }
+        }
+
     override fun readDiscountedProducts(): Flow<RequestState<List<Product>>> =
         channelFlow {
             try {

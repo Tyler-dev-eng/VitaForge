@@ -22,9 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -54,7 +54,7 @@ import vitaforge.shared.generated.resources.home_targeted_disciplines
 import kotlin.math.abs
 
 @Composable
-fun ProductOverviewScreen() {
+fun ProductOverviewScreen(navigateToDetails: (String) -> Unit) {
     val viewModel = koinViewModel<ProductOverviewViewModel>()
     val products by viewModel.products.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -101,6 +101,7 @@ fun ProductOverviewScreen() {
                                 products = newProducts,
                                 listState = listState,
                                 centeredIndex = centeredIndex,
+                                navigateToDetails = navigateToDetails,
                             )
                         }
                         item(key = "categories", contentType = "categories") {
@@ -139,7 +140,7 @@ fun ProductOverviewScreen() {
                             ProductCard(
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 product = product,
-                                onClick = {},
+                                onClick = { navigateToDetails(product.id) },
                             )
                         }
                     }
@@ -160,6 +161,7 @@ private fun NewProductsCarousel(
     listState: LazyListState,
     centeredIndex: Int?,
     modifier: Modifier = Modifier,
+    navigateToDetails: (String) -> Unit,
 ) {
     Column(modifier = modifier) {
         LazyRow(
@@ -186,7 +188,7 @@ private fun NewProductsCarousel(
                             .fillParentMaxWidth(CARD_WIDTH_FRACTION),
                     product = product,
                     isLarge = isLarge,
-                    onClick = {},
+                    onClick = { navigateToDetails(product.id) },
                 )
             }
         }
