@@ -1,19 +1,20 @@
 package com.vitaforge.details
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.ProductRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 class DetailsViewModel(
-    private val productRepository: ProductRepository,
-    private val savedStateHandle: SavedStateHandle,
+    productRepository: ProductRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     val product =
         productRepository
@@ -23,10 +24,20 @@ class DetailsViewModel(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = RequestState.Idle,
             )
-    var quantity by mutableStateOf(1)
-        private set
 
-    fun updateQuantity(value: Int) {
-        quantity = value
+    private val _quantity = MutableStateFlow(MIN_QUANTITY)
+    val quantity: StateFlow<Int> = _quantity.asStateFlow()
+
+    fun incrementQuantity() {
+        _quantity.update { (it + 1).coerceAtMost(MAX_QUANTITY) }
+    }
+
+    fun decrementQuantity() {
+        _quantity.update { (it - 1).coerceAtLeast(MIN_QUANTITY) }
+    }
+
+    private companion object {
+        const val MIN_QUANTITY = 1
+        const val MAX_QUANTITY = 10
     }
 }

@@ -65,7 +65,7 @@ fun DetailsScreen(navigateBack: () -> Unit) {
     val messageBarState = rememberMessageBarState()
     val viewModel = koinViewModel<DetailsViewModel>()
     val product by viewModel.product.collectAsStateWithLifecycle()
-    val quantity = viewModel.quantity
+    val quantity by viewModel.quantity.collectAsStateWithLifecycle()
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -91,8 +91,8 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                     QuantityCounter(
                         size = QuantityCounterSize.Large,
                         value = quantity.toString(),
-                        onMinusClick = { if (quantity > 1) viewModel.updateQuantity(quantity - 1) },
-                        onPlusClick = { if (quantity < 10) viewModel.updateQuantity(quantity + 1) },
+                        onMinusClick = viewModel::decrementQuantity,
+                        onPlusClick = viewModel::incrementQuantity,
                     )
                     Spacer(Modifier.width(16.dp))
                 },
