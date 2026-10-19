@@ -1,5 +1,8 @@
 package com.vitaforge.details
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,4 +23,10 @@ class DetailsViewModel(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = RequestState.Idle,
             )
+    var quantity by mutableStateOf(1)
+        private set
+
+    fun updateQuantity(value: Int) {
+        quantity = value
+    }
 }

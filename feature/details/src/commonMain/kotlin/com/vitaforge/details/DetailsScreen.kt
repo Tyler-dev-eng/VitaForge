@@ -47,7 +47,9 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
+import com.tylerdev.vitaforge.shared.components.QuantityCounter
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
+import com.tylerdev.vitaforge.shared.domain.QuantityCounterSize
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import com.vitaforge.details.component.FlavourChip
@@ -63,6 +65,7 @@ fun DetailsScreen(navigateBack: () -> Unit) {
     val messageBarState = rememberMessageBarState()
     val viewModel = koinViewModel<DetailsViewModel>()
     val product by viewModel.product.collectAsStateWithLifecycle()
+    val quantity = viewModel.quantity
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -83,6 +86,15 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                             tint = IconPrimary,
                         )
                     }
+                },
+                actions = {
+                    QuantityCounter(
+                        size = QuantityCounterSize.Large,
+                        value = quantity.toString(),
+                        onMinusClick = { if (quantity > 1) viewModel.updateQuantity(quantity - 1) },
+                        onPlusClick = { if (quantity < 10) viewModel.updateQuantity(quantity + 1) },
+                    )
+                    Spacer(Modifier.width(16.dp))
                 },
                 colors =
                     TopAppBarDefaults.topAppBarColors(
