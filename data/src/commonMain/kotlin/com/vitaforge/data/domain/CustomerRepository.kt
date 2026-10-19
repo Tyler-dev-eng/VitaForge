@@ -1,5 +1,6 @@
 package com.vitaforge.data.domain
 
+import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.util.RequestState
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -21,6 +22,8 @@ interface CustomerRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     )
+
+    suspend fun addItemToCart(cartItem: CartItem): RequestState<Unit>
 
     suspend fun signOut(): RequestState<Unit>
 }

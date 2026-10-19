@@ -3,18 +3,25 @@ package com.vitaforge.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.util.RequestState
+import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.ProductRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class DetailsViewModel(
     productRepository: ProductRepository,
-    savedStateHandle: SavedStateHandle,
+    private val customerRepository: CustomerRepository,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     val product =
         productRepository
@@ -28,12 +35,46 @@ class DetailsViewModel(
     private val _quantity = MutableStateFlow(MIN_QUANTITY)
     val quantity: StateFlow<Int> = _quantity.asStateFlow()
 
+    private val _selectedFlavour = MutableStateFlow<String?>(null)
+    val selectedFlavour: StateFlow<String?> = _selectedFlavour.asStateFlow()
+
+    fun selectFlavour(flavour: String) {
+        _selectedFlavour.value = flavour
+    }
+
     fun incrementQuantity() {
         _quantity.update { (it + 1).coerceAtMost(MAX_QUANTITY) }
     }
 
     fun decrementQuantity() {
         _quantity.update { (it - 1).coerceAtLeast(MIN_QUANTITY) }
+    }
+
+    private val _isAddingToCart = MutableStateFlow(false)
+    val isAddingToCart: StateFlow<Boolean> = _isAddingToCart.asStateFlow()
+
+    private val eventChannel = Channel<DetailsEvent>(Channel.BUFFERED)
+    val events: Flow<DetailsEvent> = eventChannel.receiveAsFlow()
+
+    fun addItemToCart() {
+        val productId = savedStateHandle.get<String>("id")
+        if (productId == null || _isAddingToCart.value) return
+        viewModelScope.launch {
+            _isAddingToCart.value = true
+            val cartItem =
+                CartItem(
+                    productId = productId,
+                    flavour = selectedFlavour.value,
+                    quantity = quantity.value,
+                )
+            val event =
+                when (val result = customerRepository.addItemToCart(cartItem)) {
+                    is RequestState.Error -> DetailsEvent.AddToCartFailed(result.message)
+                    else -> DetailsEvent.AddedToCart
+                }
+            _isAddingToCart.value = false
+            eventChannel.send(event)
+        }
     }
 
     private companion object {

@@ -1,5 +1,6 @@
 package com.vitaforge.data
 
+import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
@@ -7,9 +8,17 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.serialization.Serializable
+import kotlin.collections.mapOf
+
+@Serializable
+private data class CartUpdate(
+    val cart: List<CartItem>,
+)
 
 class CustomerRepositoryImpl : CustomerRepository {
     override fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
@@ -124,6 +133,32 @@ class CustomerRepositoryImpl : CustomerRepository {
             }
         } catch (e: Exception) {
             onError("Error while updating a Customer information: ${e.message}")
+        }
+    }
+
+    override suspend fun addItemToCart(cartItem: CartItem): RequestState<Unit> {
+        val userId = getCurrentUserId() ?: return RequestState.Error("User is not available.")
+        return try {
+            val firestore = Firebase.firestore
+            val customerDocument = firestore.collection(collectionPath = "customer").document(userId)
+            val hasCustomer =
+                firestore.runTransaction {
+                    val snapshot = get(customerDocument)
+                    if (snapshot.exists) {
+                        val existingCart = snapshot.get<List<CartItem>?>(field = "cart").orEmpty()
+                        set(customerDocument, CartUpdate(cart = existingCart + cartItem), merge = true)
+                    }
+                    snapshot.exists
+                }
+            if (hasCustomer) {
+                RequestState.Success(Unit)
+            } else {
+                RequestState.Error("Customer document does not exist.")
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            RequestState.Error("Error while adding item to cart: ${e.message}")
         }
     }
 
