@@ -324,7 +324,7 @@ private fun PurchaseBar(
                 modifier = Modifier.weight(1f),
                 icon = Resources.Icon.Cart,
                 text = stringResource(Res.string.details_add_to_cart),
-                enabled = !isAddingToCart,
+                enabled = !isAddingToCart && (flavours.isEmpty() || selectedFlavour != null),
                 onClick = onAddToCartClick,
             )
         }
