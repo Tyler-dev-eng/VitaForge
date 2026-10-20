@@ -1,13 +1,17 @@
 package com.vitaforge.cart
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.ProductRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class CartViewModel(
     customerRepository: CustomerRepository,
@@ -62,4 +66,17 @@ class CartViewModel(
                 }
             }
         }
+
+    val cartSummary =
+        cartItemsWithProducts
+            .map { state -> state.getSuccessDataOrNull().orEmpty().toCartSummary() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = CartSummary(),
+            )
+
+    private companion object {
+        const val STOP_TIMEOUT_MILLIS = 5_000L
+    }
 }
