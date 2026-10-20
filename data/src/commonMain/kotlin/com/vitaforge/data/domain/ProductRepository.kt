@@ -12,4 +12,6 @@ interface ProductRepository {
     fun readNewProducts(): Flow<RequestState<List<Product>>>
 
     fun readProductByIdFlow(id: String): Flow<RequestState<Product>>
+
+    fun readProductByIdsFlow(ids: List<String>): Flow<RequestState<List<Product>>>
 }

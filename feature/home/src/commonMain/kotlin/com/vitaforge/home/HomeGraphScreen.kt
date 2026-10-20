@@ -50,6 +50,7 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.tylerdev.vitaforge.shared.util.getScreenWidth
+import com.vitaforge.cart.CartScreen
 import com.vitaforge.components.BottomBar
 import com.vitaforge.components.CustomDrawer
 import com.vitaforge.domain.BottomBarDestination
@@ -218,7 +219,9 @@ fun HomeGraphScreen(
                             composable<Screen.ProductsOverview> {
                                 ProductOverviewScreen(navigateToDetails = navigateToDetails)
                             }
-                            composable<Screen.Cart> { }
+                            composable<Screen.Cart> {
+                                CartScreen()
+                            }
                             composable<Screen.Categories> { }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
