@@ -81,7 +81,7 @@ class CartViewModel(
         viewModelScope.launch {
             customerRepository.updateCartItemQuantity(
                 id = id,
-                quantity = quantity,
+                quantity = quantity.coerceAtLeast(MIN_QUANTITY),
                 onSuccess = onSuccess,
                 onError = onError,
             )
@@ -113,5 +113,6 @@ class CartViewModel(
 
     private companion object {
         const val STOP_TIMEOUT_MILLIS = 5_000L
+        const val MIN_QUANTITY = 1
     }
 }
