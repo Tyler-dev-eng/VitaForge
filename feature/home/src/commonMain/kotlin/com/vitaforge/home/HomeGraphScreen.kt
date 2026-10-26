@@ -72,6 +72,7 @@ fun HomeGraphScreen(
     val viewModel = koinViewModel<HomeGraphViewModel>()
     val customer by viewModel.customer.collectAsStateWithLifecycle()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
+    val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     val messageBarState = rememberMessageBarState()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -235,6 +236,7 @@ fun HomeGraphScreen(
                         Box(modifier = Modifier.padding(start = 12.dp, top = 12.dp, end = 12.dp)) {
                             BottomBar(
                                 selected = selectedDestination,
+                                cartItemCount = cartItemCount,
                                 onSelect = { destination ->
                                     navController.navigate(destination.screen) {
                                         launchSingleTop = true

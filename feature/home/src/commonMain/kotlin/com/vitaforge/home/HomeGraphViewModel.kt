@@ -29,6 +29,21 @@ class HomeGraphViewModel(
                 initialValue = "",
             )
 
+    val cartItemCount: StateFlow<Int> =
+        customerRepository
+            .readCustomerFlow()
+            .map { state ->
+                state
+                    .getSuccessDataOrNull()
+                    ?.cart
+                    ?.sumOf { it.quantity }
+                    ?: 0
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS),
+                initialValue = 0,
+            )
+
     val customer =
         customerRepository.readCustomerFlow().stateIn(
             scope = viewModelScope,
