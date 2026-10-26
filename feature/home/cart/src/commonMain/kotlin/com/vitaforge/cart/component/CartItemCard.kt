@@ -51,6 +51,7 @@ private val CardPadding = 12.dp
 private val ThumbnailSize = 80.dp
 private val DeleteIconSize = 18.dp
 private const val GRAMS_PER_KILOGRAM = 1000
+private const val MIN_QUANTITY = 1
 private const val MAX_TITLE_LINES = 2
 
 @Composable
@@ -187,6 +188,7 @@ private fun CartItemFooter(
             value = cartItem.quantity.toString(),
             onMinusClick = onMinusClick,
             onPlusClick = onPlusClick,
+            isMinusEnabled = cartItem.quantity > MIN_QUANTITY,
         )
     }
 }

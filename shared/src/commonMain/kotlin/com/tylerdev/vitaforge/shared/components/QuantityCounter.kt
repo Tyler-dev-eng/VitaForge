@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tylerdev.vitaforge.shared.Alpha
+import com.tylerdev.vitaforge.shared.ButtonDisabled
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
@@ -32,6 +34,7 @@ fun QuantityCounter(
     value: String,
     onMinusClick: () -> Unit,
     onPlusClick: () -> Unit,
+    isMinusEnabled: Boolean = true,
 ) {
     Row(
         modifier = modifier,
@@ -42,8 +45,8 @@ fun QuantityCounter(
             modifier =
                 Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(SurfaceBrand)
-                    .clickable { onMinusClick() }
+                    .background(if (isMinusEnabled) SurfaceBrand else ButtonDisabled)
+                    .clickable(enabled = isMinusEnabled) { onMinusClick() }
                     .padding(size.padding),
             contentAlignment = Alignment.Center,
         ) {
@@ -51,7 +54,7 @@ fun QuantityCounter(
                 modifier = Modifier.size(14.dp),
                 painter = painterResource(Resources.Icon.Minus),
                 contentDescription = "",
-                tint = IconPrimary,
+                tint = if (isMinusEnabled) IconPrimary else IconPrimary.copy(alpha = Alpha.DISABLED),
             )
         }
         Box(
