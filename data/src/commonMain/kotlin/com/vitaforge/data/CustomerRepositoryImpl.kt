@@ -206,6 +206,46 @@ class CustomerRepositoryImpl : CustomerRepository {
         }
     }
 
+    override suspend fun deleteCartItemQuantity(
+        id: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        try {
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                val database = Firebase.firestore
+                val customerCollection = database.collection(collectionPath = "customer")
+
+                val existingCustomer =
+                    customerCollection
+                        .document(userId)
+                        .get()
+
+                if (existingCustomer.exists) {
+                    val existingCart = existingCustomer.get<List<CartItem>?>(field = "cart")
+                    val updatedCart = existingCart?.filterNot { it.id == id }
+                    if (updatedCart == null) {
+                        onError("Updated cart is null.")
+                        return
+                    }
+                    customerCollection
+                        .document(userId)
+                        .updateFields {
+                            "cart" to updatedCart
+                        }
+                    onSuccess()
+                } else {
+                    onError("Customer document does not exist.")
+                }
+            } else {
+                onError("User is not available.")
+            }
+        } catch (e: Exception) {
+            onError("Error while updating cart item quantity: ${e.message}")
+        }
+    }
+
     override suspend fun signOut(): RequestState<Unit> =
         try {
             Firebase.auth.signOut()

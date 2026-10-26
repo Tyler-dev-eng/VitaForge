@@ -84,6 +84,20 @@ class CartViewModel(
         }
     }
 
+    fun deleteCartItem(
+        id: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            customerRepository.deleteCartItemQuantity(
+                id = id,
+                onSuccess = onSuccess,
+                onError = onError,
+            )
+        }
+    }
+
     val cartSummary =
         cartItemsWithProducts
             .map { state -> state.getSuccessDataOrNull().orEmpty().toCartSummary() }

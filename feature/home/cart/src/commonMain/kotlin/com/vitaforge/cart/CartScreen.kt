@@ -113,7 +113,13 @@ private fun CartContent(
                         onError = { },
                     )
                 },
-                onDeleteClick = { },
+                onDeleteClick = {
+                    viewModel.deleteCartItem(
+                        id = pair.first.id,
+                        onSuccess = { },
+                        onError = { },
+                    )
+                },
             )
         }
         item(key = "summary", contentType = "summary") {
