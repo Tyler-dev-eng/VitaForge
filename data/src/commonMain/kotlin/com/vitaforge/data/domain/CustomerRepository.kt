@@ -25,5 +25,12 @@ interface CustomerRepository {
 
     suspend fun addItemToCart(cartItem: CartItem): RequestState<Unit>
 
+    suspend fun updateCartItemQuantity(
+        id: String,
+        quantity: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    )
+
     suspend fun signOut(): RequestState<Unit>
 }

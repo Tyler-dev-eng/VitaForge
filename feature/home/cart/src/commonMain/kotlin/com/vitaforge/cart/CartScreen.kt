@@ -1,5 +1,8 @@
 package com.vitaforge.cart
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,6 +37,7 @@ import com.vitaforge.cart.component.FreeShippingBanner
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.cart_checkout
 import vitaforge.shared.generated.resources.cart_guarantee
@@ -49,6 +53,7 @@ fun CartScreen() {
     val viewModel = koinViewModel<CartViewModel>()
     val cartItemsWithProducts by viewModel.cartItemsWithProducts.collectAsStateWithLifecycle(RequestState.Loading)
     val cartSummary by viewModel.cartSummary.collectAsStateWithLifecycle()
+    val messageBarState = rememberMessageBarState()
 
     cartItemsWithProducts.DisplayResult(
         onLoading = {},
@@ -58,11 +63,13 @@ fun CartScreen() {
                 CartContent(
                     items = data,
                     summary = cartSummary,
+                    viewModel = viewModel,
                 )
             } else {
                 // TODO:: Show empty cart
             }
         },
+        transitionSpec = fadeIn() togetherWith fadeOut(),
     )
 }
 
@@ -71,6 +78,7 @@ private fun CartContent(
     modifier: Modifier = Modifier,
     items: List<Pair<CartItem, Product>>,
     summary: CartSummary,
+    viewModel: CartViewModel,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -88,8 +96,23 @@ private fun CartContent(
             CartItemCard(
                 cartItem = pair.first,
                 product = pair.second,
-                onMinusClick = { },
-                onPlusClick = { },
+                onMinusClick = {
+                    viewModel.updateCartItemQuantity(
+                        id = pair.first.id,
+                        quantity = pair.first.quantity - 1,
+                        onSuccess = { },
+                        onError = {
+                        },
+                    )
+                },
+                onPlusClick = {
+                    viewModel.updateCartItemQuantity(
+                        id = pair.first.id,
+                        quantity = pair.first.quantity + 1,
+                        onSuccess = { },
+                        onError = { },
+                    )
+                },
                 onDeleteClick = { },
             )
         }
