@@ -47,10 +47,8 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
-import com.tylerdev.vitaforge.shared.components.QuantityCounter
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
-import com.tylerdev.vitaforge.shared.domain.QuantityCounterSize
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import com.vitaforge.details.component.FlavourChip
@@ -84,7 +82,6 @@ fun DetailsScreen(navigateBack: () -> Unit) {
     val messageBarState = rememberMessageBarState()
     val viewModel = koinViewModel<DetailsViewModel>()
     val product by viewModel.product.collectAsStateWithLifecycle()
-    val quantity by viewModel.quantity.collectAsStateWithLifecycle()
     val selectedFlavour by viewModel.selectedFlavour.collectAsStateWithLifecycle()
     val isAddingToCart by viewModel.isAddingToCart.collectAsStateWithLifecycle()
     val addedToCartMessage = stringResource(Res.string.details_added_to_cart)
@@ -122,12 +119,9 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                         PurchaseBar(
                             flavours = selectedProduct.flavours.orEmpty(),
                             selectedFlavour = selectedFlavour,
-                            quantity = quantity,
                             isAddingToCart = isAddingToCart,
                             onAddToCartClick = viewModel::addItemToCart,
                             onFlavourClick = viewModel::selectFlavour,
-                            onMinusClick = viewModel::decrementQuantity,
-                            onPlusClick = viewModel::incrementQuantity,
                         )
                     }
                 }
@@ -285,12 +279,9 @@ private fun WeightPill(
 private fun PurchaseBar(
     flavours: List<String>,
     selectedFlavour: String?,
-    quantity: Int,
     isAddingToCart: Boolean,
     onAddToCartClick: () -> Unit,
     onFlavourClick: (String) -> Unit,
-    onMinusClick: () -> Unit,
-    onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -310,24 +301,12 @@ private fun PurchaseBar(
                 onFlavourClick = onFlavourClick,
             )
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SectionSpacing),
-        ) {
-            QuantityCounter(
-                size = QuantityCounterSize.Large,
-                value = quantity.toString(),
-                onMinusClick = onMinusClick,
-                onPlusClick = onPlusClick,
-            )
-            PrimaryButton(
-                modifier = Modifier.weight(1f),
-                icon = Resources.Icon.Cart,
-                text = stringResource(Res.string.details_add_to_cart),
-                enabled = !isAddingToCart && (flavours.isEmpty() || selectedFlavour != null),
-                onClick = onAddToCartClick,
-            )
-        }
+        PrimaryButton(
+            icon = Resources.Icon.Cart,
+            text = stringResource(Res.string.details_add_to_cart),
+            enabled = !isAddingToCart && (flavours.isEmpty() || selectedFlavour != null),
+            onClick = onAddToCartClick,
+        )
     }
 }
 

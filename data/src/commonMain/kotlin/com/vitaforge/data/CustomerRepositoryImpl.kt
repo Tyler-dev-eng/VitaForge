@@ -20,6 +20,18 @@ private data class CartUpdate(
     val cart: List<CartItem>,
 )
 
+private fun List<CartItem>.withItemAdded(newItem: CartItem): List<CartItem> {
+    val hasMatch = any { it.productId == newItem.productId && it.flavour == newItem.flavour }
+    if (!hasMatch) return this + newItem
+    return map { item ->
+        if (item.productId == newItem.productId && item.flavour == newItem.flavour) {
+            item.copy(quantity = item.quantity + newItem.quantity)
+        } else {
+            item
+        }
+    }
+}
+
 class CustomerRepositoryImpl : CustomerRepository {
     override fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
 
@@ -146,7 +158,7 @@ class CustomerRepositoryImpl : CustomerRepository {
                     val snapshot = get(customerDocument)
                     if (snapshot.exists) {
                         val existingCart = snapshot.get<List<CartItem>?>(field = "cart").orEmpty()
-                        set(customerDocument, CartUpdate(cart = existingCart + cartItem), merge = true)
+                        set(customerDocument, CartUpdate(cart = existingCart.withItemAdded(cartItem)), merge = true)
                     }
                     snapshot.exists
                 }

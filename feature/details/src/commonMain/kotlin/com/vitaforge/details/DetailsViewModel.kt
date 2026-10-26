@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(
@@ -32,22 +31,11 @@ class DetailsViewModel(
                 initialValue = RequestState.Idle,
             )
 
-    private val _quantity = MutableStateFlow(MIN_QUANTITY)
-    val quantity: StateFlow<Int> = _quantity.asStateFlow()
-
     private val _selectedFlavour = MutableStateFlow<String?>(null)
     val selectedFlavour: StateFlow<String?> = _selectedFlavour.asStateFlow()
 
     fun selectFlavour(flavour: String) {
         _selectedFlavour.value = flavour
-    }
-
-    fun incrementQuantity() {
-        _quantity.update { (it + 1).coerceAtMost(MAX_QUANTITY) }
-    }
-
-    fun decrementQuantity() {
-        _quantity.update { (it - 1).coerceAtLeast(MIN_QUANTITY) }
     }
 
     private val _isAddingToCart = MutableStateFlow(false)
@@ -65,7 +53,7 @@ class DetailsViewModel(
                 CartItem(
                     productId = productId,
                     flavour = selectedFlavour.value,
-                    quantity = quantity.value,
+                    quantity = ADDED_QUANTITY,
                 )
             val event =
                 when (val result = customerRepository.addItemToCart(cartItem)) {
@@ -78,7 +66,6 @@ class DetailsViewModel(
     }
 
     private companion object {
-        const val MIN_QUANTITY = 1
-        const val MAX_QUANTITY = 10
+        const val ADDED_QUANTITY = 1
     }
 }
