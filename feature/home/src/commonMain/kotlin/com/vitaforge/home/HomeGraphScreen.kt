@@ -220,7 +220,14 @@ fun HomeGraphScreen(
                                 ProductOverviewScreen(navigateToDetails = navigateToDetails)
                             }
                             composable<Screen.Cart> {
-                                CartScreen()
+                                CartScreen(
+                                    onStartShoppingClick = {
+                                        navController.navigate(BottomBarDestination.ProductsOverview.screen) {
+                                            launchSingleTop = true
+                                            popUpTo<Screen.ProductsOverview> { inclusive = false }
+                                        }
+                                    },
+                                )
                             }
                             composable<Screen.Categories> { }
                         }

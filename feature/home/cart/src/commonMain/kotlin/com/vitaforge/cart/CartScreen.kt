@@ -33,6 +33,7 @@ import com.tylerdev.vitaforge.shared.util.DisplayResult
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.cart.component.CartItemCard
 import com.vitaforge.cart.component.CartOrderSummary
+import com.vitaforge.cart.component.EmptyCartState
 import com.vitaforge.cart.component.FreeShippingBanner
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -49,7 +50,7 @@ private val SectionSpacing = 12.dp
 private val GuaranteeIconSize = 16.dp
 
 @Composable
-fun CartScreen() {
+fun CartScreen(onStartShoppingClick: () -> Unit) {
     val viewModel = koinViewModel<CartViewModel>()
     val cartItemsWithProducts by viewModel.cartItemsWithProducts.collectAsStateWithLifecycle(RequestState.Loading)
     val cartSummary by viewModel.cartSummary.collectAsStateWithLifecycle()
@@ -66,7 +67,7 @@ fun CartScreen() {
                     viewModel = viewModel,
                 )
             } else {
-                // TODO:: Show empty cart
+                EmptyCartState(onStartShoppingClick = onStartShoppingClick)
             }
         },
         transitionSpec = fadeIn() togetherWith fadeOut(),
