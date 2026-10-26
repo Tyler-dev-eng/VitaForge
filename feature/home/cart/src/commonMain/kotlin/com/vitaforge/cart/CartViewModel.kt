@@ -30,7 +30,11 @@ class CartViewModel(
                         .cart
                         .map { it.productId }
                         .toSet()
-                productRepository.readProductByIdsFlow(productIds.toList())
+                if (productIds.isEmpty()) {
+                    flowOf(RequestState.Success(emptyList()))
+                } else {
+                    productRepository.readProductByIdsFlow(productIds.toList())
+                }
             } else if (customerState.isError()) {
                 flowOf(RequestState.Error(customerState.getErrorMessage()))
             } else {
