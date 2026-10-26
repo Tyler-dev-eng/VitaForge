@@ -206,7 +206,7 @@ class CustomerRepositoryImpl : CustomerRepository {
         }
     }
 
-    override suspend fun deleteCartItemQuantity(
+    override suspend fun deleteCartItem(
         id: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
@@ -242,7 +242,7 @@ class CustomerRepositoryImpl : CustomerRepository {
                 onError("User is not available.")
             }
         } catch (e: Exception) {
-            onError("Error while updating cart item quantity: ${e.message}")
+            onError("Error while deleting cart item: ${e.message}")
         }
     }
 

@@ -90,7 +90,7 @@ class CartViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            customerRepository.deleteCartItemQuantity(
+            customerRepository.deleteCartItem(
                 id = id,
                 onSuccess = onSuccess,
                 onError = onError,
