@@ -1,5 +1,6 @@
 package com.vitaforge.cart
 
+import ContentWithMessageBar
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -25,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconOlive
 import com.tylerdev.vitaforge.shared.Resources
+import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextMuted
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
 import com.tylerdev.vitaforge.shared.domain.CartItem
@@ -56,22 +58,30 @@ fun CartScreen(onStartShoppingClick: () -> Unit) {
     val cartSummary by viewModel.cartSummary.collectAsStateWithLifecycle()
     val messageBarState = rememberMessageBarState()
 
-    cartItemsWithProducts.DisplayResult(
-        onLoading = {},
-        onError = {},
-        onSuccess = { data ->
-            if (data.isNotEmpty()) {
-                CartContent(
-                    items = data,
-                    summary = cartSummary,
-                    viewModel = viewModel,
-                )
-            } else {
-                EmptyCartState(onStartShoppingClick = onStartShoppingClick)
-            }
-        },
-        transitionSpec = fadeIn() togetherWith fadeOut(),
-    )
+    ContentWithMessageBar(
+        modifier = Modifier.fillMaxSize(),
+        messageBarState = messageBarState,
+        errorMaxLines = 2,
+        contentBackgroundColor = Surface,
+    ) {
+        cartItemsWithProducts.DisplayResult(
+            onLoading = {},
+            onError = {},
+            onSuccess = { data ->
+                if (data.isNotEmpty()) {
+                    CartContent(
+                        items = data,
+                        summary = cartSummary,
+                        viewModel = viewModel,
+                        onError = messageBarState::addError,
+                    )
+                } else {
+                    EmptyCartState(onStartShoppingClick = onStartShoppingClick)
+                }
+            },
+            transitionSpec = fadeIn() togetherWith fadeOut(),
+        )
+    }
 }
 
 @Composable
@@ -80,6 +90,7 @@ private fun CartContent(
     items: List<Pair<CartItem, Product>>,
     summary: CartSummary,
     viewModel: CartViewModel,
+    onError: (String) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -102,8 +113,7 @@ private fun CartContent(
                         id = pair.first.id,
                         quantity = pair.first.quantity - 1,
                         onSuccess = { },
-                        onError = {
-                        },
+                        onError = onError,
                     )
                 },
                 onPlusClick = {
@@ -111,14 +121,14 @@ private fun CartContent(
                         id = pair.first.id,
                         quantity = pair.first.quantity + 1,
                         onSuccess = { },
-                        onError = { },
+                        onError = onError,
                     )
                 },
                 onDeleteClick = {
                     viewModel.deleteCartItem(
                         id = pair.first.id,
                         onSuccess = { },
-                        onError = { },
+                        onError = onError,
                     )
                 },
             )

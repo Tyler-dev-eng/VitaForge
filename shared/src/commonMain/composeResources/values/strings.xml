@@ -157,7 +157,7 @@
     <string name="cart_empty_illustration">Cat looking at an empty shopping cart</string>
     <string name="cart_empty_status">Stack Status: Idle</string>
     <string name="cart_empty_title">Your Cart is Empty</string>
-    <string name="cart_empty_message">Looks like you haven\'t added any clinical formulas or supplements to your stack yet.</string>
+    <string name="cart_empty_message">Looks like you haven't added any clinical formulas or supplements to your stack yet.</string>
     <string name="cart_empty_start_shopping">Start Shopping</string>
     <string name="cart_empty_shipping_title">Free Shipping on R75+</string>
     <string name="cart_empty_shipping_subtitle">Dispatched within 24h via Express</string>
