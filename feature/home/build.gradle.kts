@@ -64,6 +64,7 @@ kotlin {
             implementation(project(path = ":data"))
             implementation(project(path = ":feature:home:products_overview"))
             implementation(project(path = ":feature:home:cart"))
+            implementation(project(path = ":feature:home:categories"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

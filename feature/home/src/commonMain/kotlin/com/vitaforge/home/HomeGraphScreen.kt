@@ -51,6 +51,7 @@ import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.tylerdev.vitaforge.shared.util.getScreenWidth
 import com.vitaforge.cart.CartScreen
+import com.vitaforge.categories.CategoryScreen
 import com.vitaforge.components.BottomBar
 import com.vitaforge.components.CustomDrawer
 import com.vitaforge.domain.BottomBarDestination
@@ -230,7 +231,9 @@ fun HomeGraphScreen(
                                     },
                                 )
                             }
-                            composable<Screen.Categories> { }
+                            composable<Screen.Categories> {
+                                CategoryScreen()
+                            }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Box(modifier = Modifier.padding(start = 12.dp, top = 12.dp, end = 12.dp)) {
