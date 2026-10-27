@@ -20,7 +20,10 @@ private val ListCornerRadius = 16.dp
 private val DividerThickness = 1.dp
 
 @Composable
-fun CategoryScreen(modifier: Modifier = Modifier) {
+fun CategoryScreen(
+    modifier: Modifier = Modifier,
+    navigateToCategoriesSearch: (String) -> Unit,
+) {
     Column(modifier = modifier.fillMaxSize().padding(ScreenPadding)) {
         Column(
             modifier =
@@ -32,7 +35,7 @@ fun CategoryScreen(modifier: Modifier = Modifier) {
                 if (index > 0) {
                     HorizontalDivider(thickness = DividerThickness, color = SurfaceDarker)
                 }
-                CategoryCard(category = category, onClick = {})
+                CategoryCard(category = category, onClick = { navigateToCategoriesSearch(category.name) })
             }
         }
     }

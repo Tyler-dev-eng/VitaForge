@@ -22,7 +22,6 @@ import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
 import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.SurfaceDarker
-import com.tylerdev.vitaforge.shared.TextMuted
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.domain.ProductCategory

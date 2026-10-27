@@ -232,7 +232,11 @@ fun HomeGraphScreen(
                                 )
                             }
                             composable<Screen.Categories> {
-                                CategoryScreen()
+                                CategoryScreen(
+                                    navigateToCategoriesSearch = { categoryName ->
+                                        navController.navigate(Screen.CategorySearch(category = categoryName))
+                                    },
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
