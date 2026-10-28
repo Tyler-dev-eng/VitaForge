@@ -34,6 +34,9 @@ import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.SurfaceLighter
 import com.tylerdev.vitaforge.shared.TextMuted
 import com.tylerdev.vitaforge.shared.TextPrimary
+import com.tylerdev.vitaforge.shared.components.ConnectionErrorState
+import com.tylerdev.vitaforge.shared.components.EmptyProductsState
+import com.tylerdev.vitaforge.shared.components.LoadingCard
 import com.tylerdev.vitaforge.shared.components.ProductCard
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
@@ -126,8 +129,8 @@ fun CategorySearchScreen(
                         top = padding.calculateTopPadding(),
                         bottom = padding.calculateBottomPadding(),
                     ),
-            onLoading = {},
-            onError = {},
+            onLoading = { LoadingCard() },
+            onError = { ConnectionErrorState(onRetryClick = viewModel::retry) },
             onSuccess = { categoryProducts ->
                 AnimatedContent(
                     targetState = categoryProducts,
@@ -151,7 +154,7 @@ fun CategorySearchScreen(
                             }
                         }
                     } else {
-                        // TODO:: Empty state
+                        EmptyProductsState(onRefreshClick = viewModel::retry)
                     }
                 }
             },
