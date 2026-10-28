@@ -1,6 +1,7 @@
 package com.vitaforge.data
 
 import com.tylerdev.vitaforge.shared.domain.Product
+import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.ProductRepository
 import dev.gitlive.firebase.Firebase
@@ -130,6 +131,44 @@ class ProductRepositoryImpl : ProductRepository {
                                 }
                             }
                     }
+                } else {
+                    send(RequestState.Error("User is not available."))
+                }
+            } catch (e: Exception) {
+                send(RequestState.Error(" Error while reading product ${e.message}"))
+            }
+        }
+
+    override fun readProductsByCategoryFlow(category: ProductCategory): Flow<RequestState<List<Product>>> =
+        channelFlow {
+            try {
+                val userId = getCurrentUserId()
+                if (userId != null) {
+                    val database = Firebase.firestore
+                    database
+                        .collection(collectionPath = "product")
+                        .where { "category" equalTo category.name }
+                        .snapshots
+                        .collectLatest { query ->
+                            val products =
+                                query.documents.map {
+                                    Product(
+                                        id = it.id,
+                                        title = it.get(field = "title"),
+                                        createdAt = it.get(field = "createdAt"),
+                                        description = it.get(field = "description"),
+                                        thumbnail = it.get(field = "thumbnail"),
+                                        category = it.get(field = "category"),
+                                        flavours = it.get(field = "flavours"),
+                                        weight = it.get(field = "weight"),
+                                        price = it.get(field = "price"),
+                                        isPopular = it.get(field = "isPopular"),
+                                        isDiscounted = it.get(field = "isDiscounted"),
+                                        isNew = it.get(field = "isNew"),
+                                    )
+                                }
+                            send(RequestState.Success(products.map { it.copy(title = it.title.uppercase()) }))
+                        }
                 } else {
                     send(RequestState.Error("User is not available."))
                 }

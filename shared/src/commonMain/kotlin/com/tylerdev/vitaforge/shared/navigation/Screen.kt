@@ -21,7 +21,7 @@ sealed class Screen {
 
     @Serializable
     data class CategorySearch(
-        val category: String? = null,
+        val category: String,
     ) : Screen()
 
     @Serializable
