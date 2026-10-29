@@ -1,0 +1,38 @@
+package com.vitaforge.data
+
+import com.tylerdev.vitaforge.shared.domain.Order
+import com.vitaforge.data.domain.CustomerRepository
+import com.vitaforge.data.domain.OrderRepository
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.firestore.firestore
+
+class OrderRepositoryImpl(
+    private val customerRepository: CustomerRepository,
+) : OrderRepository {
+    override fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
+
+    override suspend fun createOrder(
+        order: Order,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        try {
+            val currentUserId = getCurrentUserId()
+            if (currentUserId != null) {
+                val database = Firebase.firestore
+                val orderCollection = database.collection(collectionPath = "order")
+                orderCollection.document(order.id).set(order)
+                customerRepository.deleteAllCartItems(
+                    onSuccess = {},
+                    onError = {},
+                )
+                onSuccess()
+            } else {
+                onError("User is not available.")
+            }
+        } catch (e: Exception) {
+            onError("Error creating order: ${e.message}")
+        }
+    }
+}

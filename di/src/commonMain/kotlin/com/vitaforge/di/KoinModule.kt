@@ -7,11 +7,13 @@ import com.vitaforge.category_search.CategorySearchViewModel
 import com.vitaforge.checkout.CheckoutViewModel
 import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
+import com.vitaforge.data.OrderRepositoryImpl
 import com.vitaforge.data.ProductRepositoryImpl
 import com.vitaforge.data.createFlavourRepository
 import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.FlavourRepository
+import com.vitaforge.data.domain.OrderRepository
 import com.vitaforge.data.domain.ProductRepository
 import com.vitaforge.details.DetailsViewModel
 import com.vitaforge.home.HomeGraphViewModel
@@ -34,6 +36,7 @@ val sharedModule =
         single<AdminRepository> { AdminRepositoryImpl() }
         single<ProductRepository> { ProductRepositoryImpl() }
         single<FlavourRepository> { createFlavourRepository() }
+        single<OrderRepository> { OrderRepositoryImpl(get()) }
         factoryOf(::ObserveFlavoursUseCase)
         factoryOf(::AddFlavourUseCase)
         viewModelOf(::AuthViewModel)
