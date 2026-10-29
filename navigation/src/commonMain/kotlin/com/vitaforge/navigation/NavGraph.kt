@@ -79,5 +79,8 @@ fun SetupNavGraph(startDestination: Screen) {
                 navigateToDetails = { id -> navController.navigate(Screen.Details(id)) },
             )
         }
+
+        composable<Screen.Checkout> {
+        }
     }
 }

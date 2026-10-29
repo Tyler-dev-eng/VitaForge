@@ -4,6 +4,7 @@ import com.vitaforge.admin_panel.AdminPanelViewModel
 import com.vitaforge.auth.AuthViewModel
 import com.vitaforge.cart.CartViewModel
 import com.vitaforge.category_search.CategorySearchViewModel
+import com.vitaforge.checkout.CheckoutViewModel
 import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
 import com.vitaforge.data.ProductRepositoryImpl
@@ -44,6 +45,7 @@ val sharedModule =
         viewModelOf(::DetailsViewModel)
         viewModelOf(::CartViewModel)
         viewModelOf(::CategorySearchViewModel)
+        viewModelOf(::CheckoutViewModel)
     }
 
 expect val targetModule: Module
