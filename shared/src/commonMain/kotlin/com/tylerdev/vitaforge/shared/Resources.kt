@@ -8,6 +8,7 @@ import vitaforge.shared.generated.resources.back
 import vitaforge.shared.generated.resources.blog
 import vitaforge.shared.generated.resources.bug_report
 import vitaforge.shared.generated.resources.camera
+import vitaforge.shared.generated.resources.card
 import vitaforge.shared.generated.resources.cart
 import vitaforge.shared.generated.resources.cash
 import vitaforge.shared.generated.resources.cat_sleep
@@ -74,6 +75,7 @@ object Resources {
         val Blog = Res.drawable.blog
         val BugReport = Res.drawable.bug_report
         val Camera = Res.drawable.camera
+        val Card = Res.drawable.card
         val Cart = Res.drawable.cart
         val Cash = Res.drawable.cash
         val CatSleep = Res.drawable.cat_sleep

@@ -168,4 +168,5 @@
 
     <string name="checkout_title">Checkout</string>
     <string name="checkout_back">Go back</string>
+    <string name="checkout_pay_with_card">PAY WITH CARD</string>
 </resources>
