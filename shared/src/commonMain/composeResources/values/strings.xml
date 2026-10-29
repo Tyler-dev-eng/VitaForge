@@ -165,4 +165,7 @@
     <string name="cart_empty_hplc_subtitle">100% purity &amp; zero proprietary blends</string>
     <string name="cart_empty_guarantee_title">30-Day Guarantee</string>
     <string name="cart_empty_guarantee_subtitle">Full refund if not fully satisfied</string>
+
+    <string name="checkout_title">Checkout</string>
+    <string name="checkout_back">Go back</string>
 </resources>

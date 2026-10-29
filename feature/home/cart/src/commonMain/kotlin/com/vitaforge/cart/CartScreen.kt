@@ -33,6 +33,7 @@ import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import com.tylerdev.vitaforge.shared.util.RequestState
+import com.tylerdev.vitaforge.shared.util.formatAmount
 import com.vitaforge.cart.component.CartItemCard
 import com.vitaforge.cart.component.CartOrderSummary
 import com.vitaforge.cart.component.EmptyCartState
@@ -52,7 +53,10 @@ private val SectionSpacing = 12.dp
 private val GuaranteeIconSize = 16.dp
 
 @Composable
-fun CartScreen(onStartShoppingClick: () -> Unit) {
+fun CartScreen(
+    onStartShoppingClick: () -> Unit,
+    onCheckoutClick: (Double) -> Unit,
+) {
     val viewModel = koinViewModel<CartViewModel>()
     val cartItemsWithProducts by viewModel.cartItemsWithProducts.collectAsStateWithLifecycle(RequestState.Loading)
     val cartSummary by viewModel.cartSummary.collectAsStateWithLifecycle()
@@ -74,6 +78,7 @@ fun CartScreen(onStartShoppingClick: () -> Unit) {
                         summary = cartSummary,
                         viewModel = viewModel,
                         onError = messageBarState::addError,
+                        onCheckoutClick = onCheckoutClick,
                     )
                 } else {
                     EmptyCartState(onStartShoppingClick = onStartShoppingClick)
@@ -91,6 +96,7 @@ private fun CartContent(
     summary: CartSummary,
     viewModel: CartViewModel,
     onError: (String) -> Unit,
+    onCheckoutClick: (Double) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -137,7 +143,10 @@ private fun CartContent(
             CartOrderSummary(summary = summary)
         }
         item(key = "checkout", contentType = "checkout") {
-            CartCheckout(total = summary.total)
+            CartCheckout(
+                total = summary.total,
+                onCheckoutClick = { onCheckoutClick(summary.total) },
+            )
         }
     }
 }
@@ -146,6 +155,7 @@ private fun CartContent(
 private fun CartCheckout(
     modifier: Modifier = Modifier,
     total: Double,
+    onCheckoutClick: () -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -157,7 +167,7 @@ private fun CartCheckout(
                     Res.string.cart_checkout,
                     stringResource(Res.string.cart_price, formatAmount(total)),
                 ),
-            onClick = { },
+            onClick = onCheckoutClick,
         )
         Row(
             modifier = Modifier.fillMaxWidth(),

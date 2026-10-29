@@ -24,8 +24,8 @@ import com.tylerdev.vitaforge.shared.TextOlive
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
+import com.tylerdev.vitaforge.shared.util.formatAmount
 import com.vitaforge.cart.CartSummary
-import com.vitaforge.cart.formatAmount
 import org.jetbrains.compose.resources.stringResource
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.cart_price

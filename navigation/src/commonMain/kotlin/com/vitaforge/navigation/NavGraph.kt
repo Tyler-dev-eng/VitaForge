@@ -10,6 +10,7 @@ import com.tylerdev.vitaforge.shared.navigation.Screen
 import com.vitaforge.admin_panel.AdminPanelScreen
 import com.vitaforge.auth.AuthScreen
 import com.vitaforge.category_search.CategorySearchScreen
+import com.vitaforge.checkout.CheckoutScreen
 import com.vitaforge.details.DetailsScreen
 import com.vitaforge.home.HomeGraphScreen
 import com.vitaforge.manage_product.ManageProductScreen
@@ -43,6 +44,7 @@ fun SetupNavGraph(startDestination: Screen) {
                 navigateToAdminPanel = { navController.navigate(Screen.AdminPanel) },
                 navigateToDetails = { id -> navController.navigate(Screen.Details(id)) },
                 navigateToCategorySearch = { category -> navController.navigate(Screen.CategorySearch(category)) },
+                navigateToCheckout = { total -> navController.navigate(Screen.Checkout(total.toString())) },
             )
         }
 
@@ -81,6 +83,11 @@ fun SetupNavGraph(startDestination: Screen) {
         }
 
         composable<Screen.Checkout> {
+            val totalAmount = it.toRoute<Screen.Checkout>().totalAmount
+            CheckoutScreen(
+                totalAmount = totalAmount.toDoubleOrNull() ?: 0.00,
+                navigateBack = { navController.navigateUp() },
+            )
         }
     }
 }

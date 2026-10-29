@@ -70,6 +70,7 @@ fun HomeGraphScreen(
     navigateToAdminPanel: () -> Unit,
     navigateToDetails: (String) -> Unit,
     navigateToCategorySearch: (String) -> Unit,
+    navigateToCheckout: (Double) -> Unit,
 ) {
     val viewModel = koinViewModel<HomeGraphViewModel>()
     val customer by viewModel.customer.collectAsStateWithLifecycle()
@@ -224,6 +225,7 @@ fun HomeGraphScreen(
                             }
                             composable<Screen.Cart> {
                                 CartScreen(
+                                    onCheckoutClick = navigateToCheckout,
                                     onStartShoppingClick = {
                                         navController.navigate(BottomBarDestination.ProductsOverview.screen) {
                                             launchSingleTop = true

@@ -34,7 +34,7 @@ import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.QuantityCounterSize
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
-import com.vitaforge.cart.formatAmount
+import com.tylerdev.vitaforge.shared.util.formatAmount
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vitaforge.shared.generated.resources.Res

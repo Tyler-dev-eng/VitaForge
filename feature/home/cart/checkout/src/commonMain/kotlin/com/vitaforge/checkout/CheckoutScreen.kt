@@ -18,7 +18,13 @@ import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
+import com.tylerdev.vitaforge.shared.util.formatAmount
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.cart_price
+import vitaforge.shared.generated.resources.checkout_back
+import vitaforge.shared.generated.resources.checkout_title
 
 @Composable
 fun CheckoutScreen(
@@ -31,7 +37,7 @@ fun CheckoutScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Checkout",
+                        text = stringResource(Res.string.checkout_title),
                         fontFamily = bebasNeueFontFamily(),
                         fontSize = FontSize.LARGE,
                         color = TextPrimary,
@@ -39,7 +45,7 @@ fun CheckoutScreen(
                 },
                 actions = {
                     Text(
-                        text = "$$totalAmount",
+                        text = stringResource(Res.string.cart_price, formatAmount(totalAmount)),
                         fontSize = FontSize.EXTRA_MEDIUM,
                         fontWeight = FontWeight.Medium,
                         color = TextPrimary,
@@ -50,7 +56,7 @@ fun CheckoutScreen(
                     IconButton(onClick = navigateBack) {
                         Icon(
                             painter = painterResource(Resources.Icon.Back),
-                            contentDescription = "Back arrow icon",
+                            contentDescription = stringResource(Res.string.checkout_back),
                             tint = IconPrimary,
                         )
                     }
