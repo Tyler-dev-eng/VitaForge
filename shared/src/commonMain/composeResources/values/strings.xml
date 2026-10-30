@@ -169,4 +169,12 @@
     <string name="checkout_title">Checkout</string>
     <string name="checkout_back">Go back</string>
     <string name="checkout_pay_with_card">PAY WITH CARD</string>
+    <string name="checkout_pay_on_delivery">PAY ON DELIVERY</string>
+
+    <string name="payment_completed_success_title">Order placed</string>
+    <string name="payment_completed_success_message">Thank you for your order. We'll get it to you as soon as possible.</string>
+    <string name="payment_completed_error_title">Something went wrong</string>
+    <string name="payment_completed_error_message">We couldn't complete your order. Please try again.</string>
+    <string name="payment_completed_continue">CONTINUE SHOPPING</string>
+    <string name="payment_completed_try_again">GO BACK</string>
 </resources>

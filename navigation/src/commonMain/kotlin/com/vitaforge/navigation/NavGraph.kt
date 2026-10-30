@@ -14,6 +14,7 @@ import com.vitaforge.checkout.CheckoutScreen
 import com.vitaforge.details.DetailsScreen
 import com.vitaforge.home.HomeGraphScreen
 import com.vitaforge.manage_product.ManageProductScreen
+import com.vitaforge.payment_completed.PaymentCompletedScreen
 import com.vitaforge.profile.ProfileScreen
 
 @Suppress("ktlint:standard:function-naming")
@@ -87,6 +88,25 @@ fun SetupNavGraph(startDestination: Screen) {
             CheckoutScreen(
                 totalAmount = totalAmount.toDoubleOrNull() ?: 0.00,
                 navigateBack = { navController.navigateUp() },
+                navigateToPaymentCompleted = {
+                    navController.navigate(Screen.PaymentCompleted(isSuccess = true)) {
+                        popUpTo<Screen.Checkout> { inclusive = true }
+                    }
+                },
+            )
+        }
+
+        composable<Screen.PaymentCompleted> {
+            val args = it.toRoute<Screen.PaymentCompleted>()
+            PaymentCompletedScreen(
+                isSuccess = args.isSuccess == true,
+                errorMessage = args.error,
+                onDone = {
+                    navController.navigate(Screen.HomeGraph) {
+                        launchSingleTop = true
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
             )
         }
     }

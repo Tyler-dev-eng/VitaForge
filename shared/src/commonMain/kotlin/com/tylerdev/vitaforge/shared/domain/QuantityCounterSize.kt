@@ -1,7 +1,6 @@
 package com.tylerdev.vitaforge.shared.domain
 
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
 enum class QuantityCounterSize(

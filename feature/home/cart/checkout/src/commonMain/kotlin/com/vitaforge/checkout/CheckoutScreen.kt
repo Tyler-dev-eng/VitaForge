@@ -35,13 +35,14 @@ import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.cart_price
 import vitaforge.shared.generated.resources.checkout_back
-import vitaforge.shared.generated.resources.checkout_pay_with_card
+import vitaforge.shared.generated.resources.checkout_pay_on_delivery
 import vitaforge.shared.generated.resources.checkout_title
 
 @Composable
 fun CheckoutScreen(
     totalAmount: Double,
     navigateBack: () -> Unit,
+    navigateToPaymentCompleted: () -> Unit,
 ) {
     val messageBarState = rememberMessageBarState()
     val viewModel = koinViewModel<CheckoutViewModel>()
@@ -127,12 +128,12 @@ fun CheckoutScreen(
                     onCountrySelect = viewModel::updateCountry,
                 )
                 PrimaryButton(
-                    text = stringResource(Res.string.checkout_pay_with_card),
+                    text = stringResource(Res.string.checkout_pay_on_delivery),
                     icon = Resources.Icon.Card,
                     enabled = isFormValid,
                     onClick = {
-                        viewModel.updateCustomer(
-                            onSuccess = {},
+                        viewModel.payOnDelivery(
+                            onSuccess = navigateToPaymentCompleted,
                             onError = { message -> messageBarState.addError(message) },
                         )
                     },
