@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
@@ -46,6 +47,12 @@ kotlin {
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.ktor.android.client)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.darwin.client)
+        }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -65,6 +72,11 @@ kotlin {
             implementation(libs.coil3.compose.core)
             implementation(libs.coil3.network.ktor)
             implementation(libs.messagebar.kmp)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization)
             implementation(project(path = ":shared"))
             implementation(project(path = ":data"))
         }

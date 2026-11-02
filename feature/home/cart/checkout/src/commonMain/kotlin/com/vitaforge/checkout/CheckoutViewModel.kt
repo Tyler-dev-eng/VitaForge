@@ -12,6 +12,7 @@ import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.domain.Order
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
+import com.vitaforge.checkout.domain.PaypalApi
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.OrderRepository
 import kotlinx.coroutines.Job
@@ -35,6 +36,7 @@ class CheckoutViewModel(
     private val customerRepository: CustomerRepository,
     private val orderRepository: OrderRepository,
     private val savedStateHandle: SavedStateHandle,
+    private val paypalApi: PaypalApi,
 ) : ViewModel() {
     var screenReady: RequestState<Unit> by mutableStateOf(RequestState.Loading)
     var screenState: CheckoutScreenState by mutableStateOf(CheckoutScreenState())
@@ -54,6 +56,14 @@ class CheckoutViewModel(
     private var loadJob: Job? = null
 
     init {
+        viewModelScope.launch {
+            paypalApi.fetchAccessToken(
+                onSuccess = { },
+                onError = { message ->
+                    println(message)
+                },
+            )
+        }
         loadCustomer()
     }
 

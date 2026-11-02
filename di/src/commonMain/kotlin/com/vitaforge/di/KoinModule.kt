@@ -5,6 +5,7 @@ import com.vitaforge.auth.AuthViewModel
 import com.vitaforge.cart.CartViewModel
 import com.vitaforge.category_search.CategorySearchViewModel
 import com.vitaforge.checkout.CheckoutViewModel
+import com.vitaforge.checkout.domain.PaypalApi
 import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
 import com.vitaforge.data.OrderRepositoryImpl
@@ -37,6 +38,7 @@ val sharedModule =
         single<ProductRepository> { ProductRepositoryImpl() }
         single<FlavourRepository> { createFlavourRepository() }
         single<OrderRepository> { OrderRepositoryImpl(get()) }
+        single<PaypalApi> { PaypalApi() }
         factoryOf(::ObserveFlavoursUseCase)
         factoryOf(::AddFlavourUseCase)
         viewModelOf(::AuthViewModel)
