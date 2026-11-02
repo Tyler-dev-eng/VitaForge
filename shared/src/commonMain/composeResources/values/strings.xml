@@ -170,6 +170,9 @@
     <string name="checkout_back">Go back</string>
     <string name="checkout_pay_with_card">PAY WITH CARD</string>
     <string name="checkout_pay_on_delivery">PAY ON DELIVERY</string>
+    <string name="checkout_pay_with_paypal">PAY WITH PAYPAL</string>
+    <string name="checkout_payment_method">PAYMENT METHOD</string>
+    <string name="checkout_or">OR</string>
 
     <string name="payment_completed_success_title">Order placed</string>
     <string name="payment_completed_success_message">Thank you for your order. We'll get it to you as soon as possible.</string>

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -26,7 +25,6 @@ import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
-import com.tylerdev.vitaforge.shared.components.PrimaryButton
 import com.tylerdev.vitaforge.shared.components.ProfileForm
 import com.tylerdev.vitaforge.shared.util.formatAmount
 import org.jetbrains.compose.resources.painterResource
@@ -36,7 +34,6 @@ import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.cart_price
 import vitaforge.shared.generated.resources.checkout_back
-import vitaforge.shared.generated.resources.checkout_pay_on_delivery
 import vitaforge.shared.generated.resources.checkout_title
 
 @Composable
@@ -128,31 +125,21 @@ fun CheckoutScreen(
                     country = screenState.country,
                     onCountrySelect = viewModel::updateCountry,
                 )
-                Column {
-                    PrimaryButton(
-                        text = "PAY WITH PAYPAL",
-                        icon = Resources.Image.PayPalLogo,
-                        enabled = isFormValid,
-                        onClick = {
-                            viewModel.payWithPayPal(
-                                onSuccess = navigateToPaymentCompleted,
-                                onError = { message -> messageBarState.addError(message) },
-                            )
-                        },
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    PrimaryButton(
-                        text = stringResource(Res.string.checkout_pay_on_delivery),
-                        icon = Resources.Icon.Card,
-                        enabled = isFormValid,
-                        onClick = {
-                            viewModel.payOnDelivery(
-                                onSuccess = navigateToPaymentCompleted,
-                                onError = { message -> messageBarState.addError(message) },
-                            )
-                        },
-                    )
-                }
+                PaymentOptions(
+                    isEnabled = isFormValid,
+                    onPayWithPayPal = {
+                        viewModel.payWithPayPal(
+                            onSuccess = navigateToPaymentCompleted,
+                            onError = { message -> messageBarState.addError(message) },
+                        )
+                    },
+                    onPayOnDelivery = {
+                        viewModel.payOnDelivery(
+                            onSuccess = navigateToPaymentCompleted,
+                            onError = { message -> messageBarState.addError(message) },
+                        )
+                    },
+                )
             }
         }
     }
