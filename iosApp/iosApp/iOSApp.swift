@@ -1,5 +1,6 @@
 import SwiftUI
 import GoogleSignIn
+import navigation
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -17,7 +18,9 @@ struct iOSApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView().onOpenURL(perform: { url in
-                GIDSignIn.sharedInstance.handle(url)
+                if !GIDSignIn.sharedInstance.handle(url) {
+                    MainViewControllerKt.handlePaypalReturn(url: url.absoluteString)
+                }
             })
         }
     }

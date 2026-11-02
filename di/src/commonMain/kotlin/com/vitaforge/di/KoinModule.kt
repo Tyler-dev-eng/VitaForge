@@ -67,3 +67,10 @@ fun isUserSignedIn(): Boolean =
         .getKoin()
         .get<CustomerRepository>()
         .getCurrentUserId() != null
+
+fun handlePaypalReturn(url: String) {
+    KoinPlatform
+        .getKoin()
+        .get<PaypalApi>()
+        .handleReturnUrl(url)
+}

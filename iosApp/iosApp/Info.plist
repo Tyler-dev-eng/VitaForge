@@ -12,6 +12,12 @@
 				<string>com.googleusercontent.apps.903209547720-j8666hh2qtvvvd7hn0f4o8uoem0i0qcj</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.tylerdev.vitaforge</string>
+			</array>
+		</dict>
 	</array>
 	<key>GIDClientID</key>
 	<string>903209547720-j8666hh2qtvvvd7hn0f4o8uoem0i0qcj.apps.googleusercontent.com</string>

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -127,17 +128,31 @@ fun CheckoutScreen(
                     country = screenState.country,
                     onCountrySelect = viewModel::updateCountry,
                 )
-                PrimaryButton(
-                    text = stringResource(Res.string.checkout_pay_on_delivery),
-                    icon = Resources.Icon.Card,
-                    enabled = isFormValid,
-                    onClick = {
-                        viewModel.payOnDelivery(
-                            onSuccess = navigateToPaymentCompleted,
-                            onError = { message -> messageBarState.addError(message) },
-                        )
-                    },
-                )
+                Column {
+                    PrimaryButton(
+                        text = "PAY WITH PAYPAL",
+                        icon = Resources.Image.PayPalLogo,
+                        enabled = isFormValid,
+                        onClick = {
+                            viewModel.payWithPayPal(
+                                onSuccess = navigateToPaymentCompleted,
+                                onError = { message -> messageBarState.addError(message) },
+                            )
+                        },
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    PrimaryButton(
+                        text = stringResource(Res.string.checkout_pay_on_delivery),
+                        icon = Resources.Icon.Card,
+                        enabled = isFormValid,
+                        onClick = {
+                            viewModel.payOnDelivery(
+                                onSuccess = navigateToPaymentCompleted,
+                                onError = { message -> messageBarState.addError(message) },
+                            )
+                        },
+                    )
+                }
             }
         }
     }

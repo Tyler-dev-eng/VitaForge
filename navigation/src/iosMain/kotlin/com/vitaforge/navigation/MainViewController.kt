@@ -26,3 +26,5 @@ fun MainViewController(): UIViewController {
         }
     }
 }
+
+fun handlePaypalReturn(url: String) = com.vitaforge.di.handlePaypalReturn(url)

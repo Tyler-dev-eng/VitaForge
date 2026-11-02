@@ -7,4 +7,6 @@ object Constants {
     const val PAYPAL_AUTH_KEY = "${PaypalCredentials.CLIENT_ID}:${PaypalCredentials.SECRET_ID}"
     const val PAYPAL_AUTH_ENDPOINT = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
     const val PAYPAL_CHECKOUT_ENDPOINT = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
+    const val RETURN_URL = "com.tylerdev.vitaforge://paypalpay?success=true"
+    const val CANCEL_URL = "com.tylerdev.vitaforge://paypalpay?cancel=true"
 }

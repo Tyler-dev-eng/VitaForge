@@ -1,6 +1,7 @@
 package com.tylerdev.vitaforge
 
 import android.graphics.Color
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -11,6 +12,7 @@ import com.mmk.kmpauth.core.KMPAuth
 import com.mmk.kmpauth.google.google
 import com.tylerdev.vitaforge.shared.Constants.GOOGLE_WEB_CLIENT_ID
 import com.tylerdev.vitaforge.shared.navigation.Screen
+import com.vitaforge.di.handlePaypalReturn
 import com.vitaforge.di.isUserSignedIn
 import com.vitaforge.navigation.SetupNavGraph
 
@@ -35,6 +37,8 @@ class MainActivity : ComponentActivity() {
             google(serverId = GOOGLE_WEB_CLIENT_ID)
         }
 
+        if (savedInstanceState == null) handleDeepLink(intent)
+
         val startDestination = if (isUserSignedIn()) Screen.HomeGraph else Screen.Auth
 
         setContent {
@@ -42,5 +46,14 @@ class MainActivity : ComponentActivity() {
                 SetupNavGraph(startDestination = startDestination)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        intent?.data?.toString()?.let(::handlePaypalReturn)
     }
 }

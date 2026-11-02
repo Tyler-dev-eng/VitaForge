@@ -12,11 +12,17 @@ import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.domain.Order
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
+import com.vitaforge.checkout.domain.Amount
 import com.vitaforge.checkout.domain.PaypalApi
+import com.vitaforge.checkout.domain.PaypalReturn
+import com.vitaforge.checkout.domain.ShippingAddress
+import com.vitaforge.checkout.domain.formatPaypalAmount
+import com.vitaforge.checkout.domain.roundToCents
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.OrderRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 data class CheckoutScreenState(
@@ -182,6 +188,54 @@ class CheckoutViewModel(
         }
     }
 
+    fun payWithPayPal(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        val totalAmount = savedStateHandle.get<String>("totalAmount")?.toDoubleOrNull()
+        if (totalAmount == null) {
+            onError("Total amount couldn't be calculated.")
+            return
+        }
+        viewModelScope.launch {
+            var isBrowserOpened = false
+            paypalApi.beginCheckout(
+                amount = Amount(currencyCode = "USD", value = formatPaypalAmount(totalAmount)),
+                fullName = "${screenState.firstName} ${screenState.lastName}",
+                shippingAddress =
+                    ShippingAddress(
+                        addressLine1 = screenState.address ?: "Unknown address",
+                        city = screenState.city ?: "Unknown city",
+                        state = screenState.country.name,
+                        postalCode = screenState.postalCode.toString(),
+                        countryCode = screenState.country.code,
+                    ),
+                onSuccess = { isBrowserOpened = true },
+                onError = onError,
+            )
+            if (isBrowserOpened) awaitPayPalReturn(onSuccess, onError)
+        }
+    }
+
+    private suspend fun awaitPayPalReturn(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        when (val payPalReturn = paypalApi.paymentReturns.first()) {
+            is PaypalReturn.Approved -> {
+                paypalApi.captureOrder(
+                    orderId = payPalReturn.orderId,
+                    onSuccess = { createOrder(onSuccess = onSuccess, onError = onError) },
+                    onError = onError,
+                )
+            }
+
+            PaypalReturn.Cancelled -> {
+                onError("The PayPal payment was cancelled.")
+            }
+        }
+    }
+
     private fun createOrder(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
@@ -192,7 +246,7 @@ class CheckoutViewModel(
                     Order(
                         customerId = screenState.id,
                         items = screenState.cart,
-                        totalAmount = savedStateHandle.get<String>("totalAmount")?.toDoubleOrNull() ?: 0.0,
+                        totalAmount = roundToCents(savedStateHandle.get<String>("totalAmount")?.toDoubleOrNull() ?: 0.0),
                     ),
                 onSuccess = onSuccess,
                 onError = onError,
