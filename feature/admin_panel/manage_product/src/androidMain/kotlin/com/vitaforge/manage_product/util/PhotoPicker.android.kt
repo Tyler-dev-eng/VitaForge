@@ -6,19 +6,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import dev.gitlive.firebase.storage.File
+import com.tylerdev.vitaforge.shared.domain.ImageFile
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class PhotoPicker {
     private var openPhotoPicker = mutableStateOf(false)
 
     @Composable
-    actual fun InitialisePhotoPicker(onImageSelect: (File?) -> Unit) {
+    actual fun InitialisePhotoPicker(onImageSelect: (ImageFile?) -> Unit) {
         val pickMedia =
             rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.PickVisualMedia(),
             ) { uri ->
-                uri?.let { onImageSelect(File(it)) } ?: onImageSelect(null)
+                uri?.let { onImageSelect(ImageFile(it.toString())) } ?: onImageSelect(null)
                 openPhotoPicker.value = false
             }
 

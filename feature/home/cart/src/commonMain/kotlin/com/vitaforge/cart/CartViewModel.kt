@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.ProductRepository
+import com.vitaforge.data.domain.errorMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -79,12 +80,12 @@ class CartViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            customerRepository.updateCartItemQuantity(
-                id = id,
-                quantity = quantity.coerceAtLeast(MIN_QUANTITY),
-                onSuccess = onSuccess,
-                onError = onError,
-            )
+            val result =
+                customerRepository.updateCartItemQuantity(
+                    id = id,
+                    quantity = quantity.coerceAtLeast(MIN_QUANTITY),
+                )
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 
@@ -94,11 +95,8 @@ class CartViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            customerRepository.deleteCartItem(
-                id = id,
-                onSuccess = onSuccess,
-                onError = onError,
-            )
+            val result = customerRepository.deleteCartItem(id = id)
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 

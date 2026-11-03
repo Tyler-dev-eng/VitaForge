@@ -7,6 +7,7 @@ import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.ProductRepository
+import com.vitaforge.data.domain.errorMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,11 +56,9 @@ class DetailsViewModel(
                     flavour = selectedFlavour.value,
                     quantity = ADDED_QUANTITY,
                 )
+            val result = customerRepository.addItemToCart(cartItem)
             val event =
-                when (val result = customerRepository.addItemToCart(cartItem)) {
-                    is RequestState.Error -> DetailsEvent.AddToCartFailed(result.message)
-                    else -> DetailsEvent.AddedToCart
-                }
+                if (result.isSuccess) DetailsEvent.AddedToCart else DetailsEvent.AddToCartFailed(result.errorMessage())
             _isAddingToCart.value = false
             eventChannel.send(event)
         }

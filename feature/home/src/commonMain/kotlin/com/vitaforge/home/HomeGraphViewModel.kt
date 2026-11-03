@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
+import com.vitaforge.data.domain.errorMessage
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -58,11 +59,7 @@ class HomeGraphViewModel(
         viewModelScope.launch {
             val result = customerRepository.signOut()
 
-            if (result.isSuccess()) {
-                onSuccess()
-            } else {
-                onError(result.getErrorMessage())
-            }
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 }

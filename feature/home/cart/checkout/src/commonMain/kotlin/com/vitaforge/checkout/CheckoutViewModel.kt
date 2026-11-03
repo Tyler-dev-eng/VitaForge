@@ -17,6 +17,7 @@ import com.vitaforge.checkout.domain.PaypalReturn
 import com.vitaforge.checkout.domain.ShippingAddress
 import com.vitaforge.checkout.domain.formatPaypalAmount
 import com.vitaforge.data.domain.CustomerRepository
+import com.vitaforge.data.domain.errorMessage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -161,21 +162,21 @@ class CheckoutViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            customerRepository.updateCustomer(
-                customer =
-                    Customer(
-                        id = screenState.id,
-                        firstName = screenState.firstName,
-                        lastName = screenState.lastName,
-                        email = screenState.email,
-                        city = screenState.city,
-                        postalCode = screenState.postalCode,
-                        address = screenState.address,
-                        phoneNumber = screenState.phoneNumber,
-                    ),
-                onSuccess = onSuccess,
-                onError = onError,
-            )
+            val result =
+                customerRepository.updateCustomer(
+                    customer =
+                        Customer(
+                            id = screenState.id,
+                            firstName = screenState.firstName,
+                            lastName = screenState.lastName,
+                            email = screenState.email,
+                            city = screenState.city,
+                            postalCode = screenState.postalCode,
+                            address = screenState.address,
+                            phoneNumber = screenState.phoneNumber,
+                        ),
+                )
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 

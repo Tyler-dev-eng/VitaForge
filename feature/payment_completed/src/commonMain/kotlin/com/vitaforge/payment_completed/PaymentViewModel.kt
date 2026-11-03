@@ -13,6 +13,7 @@ import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.OrderRepository
 import com.vitaforge.data.domain.ProductRepository
+import com.vitaforge.data.domain.errorMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
@@ -119,17 +120,17 @@ class PaymentViewModel(
         if (customer.value.isSuccess()) {
             val customerId = customer.value.getSuccessData().id
             viewModelScope.launch(Dispatchers.IO) {
-                orderRepository.createTheOrder(
-                    order =
-                        Order(
-                            customerId = customerId,
-                            items = customer.value.getSuccessData().cart,
-                            totalAmount = totalAmount,
-                            token = token,
-                        ),
-                    onSuccess = { println("ORDER SUCCESSFULLY CREATED!") },
-                    onError = { message -> onError(message) },
-                )
+                val result =
+                    orderRepository.createTheOrder(
+                        order =
+                            Order(
+                                customerId = customerId,
+                                items = customer.value.getSuccessData().cart,
+                                totalAmount = totalAmount,
+                                token = token,
+                            ),
+                    )
+                result.onFailure { onError(result.errorMessage()) }
             }
         } else if (customer.value.isError()) {
             onError(customer.value.getErrorMessage())

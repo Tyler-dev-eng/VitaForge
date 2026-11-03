@@ -10,6 +10,7 @@ import com.tylerdev.vitaforge.shared.domain.Customer
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.CustomerRepository
+import com.vitaforge.data.domain.errorMessage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -148,21 +149,21 @@ class ProfileViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            customerRepository.updateCustomer(
-                customer =
-                    Customer(
-                        id = screenState.id,
-                        firstName = screenState.firstName,
-                        lastName = screenState.lastName,
-                        email = screenState.email,
-                        city = screenState.city,
-                        postalCode = screenState.postalCode,
-                        address = screenState.address,
-                        phoneNumber = screenState.phoneNumber,
-                    ),
-                onSuccess = onSuccess,
-                onError = onError,
-            )
+            val result =
+                customerRepository.updateCustomer(
+                    customer =
+                        Customer(
+                            id = screenState.id,
+                            firstName = screenState.firstName,
+                            lastName = screenState.lastName,
+                            email = screenState.email,
+                            city = screenState.city,
+                            postalCode = screenState.postalCode,
+                            address = screenState.address,
+                            phoneNumber = screenState.phoneNumber,
+                        ),
+                )
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 }

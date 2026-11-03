@@ -1,5 +1,6 @@
 package com.vitaforge.data
 
+import com.tylerdev.vitaforge.shared.domain.ImageFile
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
@@ -7,79 +8,52 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.Direction
 import dev.gitlive.firebase.firestore.firestore
-import dev.gitlive.firebase.storage.File
 import dev.gitlive.firebase.storage.storage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.uuid.Uuid
+
+private const val UPLOAD_TIMEOUT_MILLIS = 20_000L
 
 class AdminRepositoryImpl : AdminRepository {
     override fun getCurrentUserId() = Firebase.auth.currentUser?.uid
 
-    override suspend fun createNewProduct(
-        product: Product,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
-        try {
-            val currentUserId = getCurrentUserId()
-            if (currentUserId != null) {
-                val firestore = Firebase.firestore
-                val productCollection = firestore.collection(collectionPath = "product")
-                productCollection
-                    .document(product.id)
-                    .set(product.copy(title = product.title.lowercase()))
-                onSuccess()
-            } else {
-                onError("User is not available.")
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            onError("Error while creating a new product: ${e.message}")
-        }
-    }
+    private fun requireUserId(): String = getCurrentUserId() ?: throw RepositoryException(USER_NOT_AVAILABLE)
 
-    override suspend fun uploadImageToStorage(file: File): String? =
-        if (getCurrentUserId() != null) {
-            val storage = Firebase.storage.reference
-            val imagePath = storage.child(path = "images/${Uuid.random().toHexString()}")
-            try {
-                withTimeout(timeMillis = 20000L) {
-                    imagePath.putFile(file)
+    override suspend fun createNewProduct(product: Product): Result<Unit> =
+        runRepository(errorPrefix = "Error while creating a new product") {
+            requireUserId()
+            Firebase.firestore
+                .collection(collectionPath = "product")
+                .document(product.id)
+                .set(product.copy(title = product.title.lowercase()))
+        }
+
+    override suspend fun uploadImageToStorage(file: ImageFile): Result<String> =
+        runRepository(errorPrefix = "Error while uploading the image") {
+            requireUserId()
+            val imagePath = Firebase.storage.reference.child(path = "images/${Uuid.random().toHexString()}")
+            val downloadUrl =
+                withTimeoutOrNull(timeMillis = UPLOAD_TIMEOUT_MILLIS) {
+                    imagePath.putFile(file.toStorageFile())
                     imagePath.getDownloadUrl()
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                null
+            if (downloadUrl.isNullOrEmpty()) {
+                throw RepositoryException("Failed to retrieve a download URL for the image after upload.")
             }
-        } else {
-            null
+            downloadUrl
         }
 
-    override suspend fun deleteImageFromStorage(
-        downloadUrl: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
-        try {
-            val storagePath = extractFirebaseStoragePath(downloadUrl)
-            if (storagePath != null) {
-                Firebase.storage.reference(storagePath).delete()
-                onSuccess()
-            } else {
-                onError("Storage Path is null.")
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            onError("Error while deleting a thumbnail: $e")
+    override suspend fun deleteImageFromStorage(downloadUrl: String): Result<Unit> =
+        runRepository(errorPrefix = "Error while deleting a thumbnail") {
+            val storagePath =
+                extractFirebaseStoragePath(downloadUrl)
+                    ?: throw RepositoryException("Storage Path is null.")
+            Firebase.storage.reference(storagePath).delete()
         }
-    }
 
     override fun readLastTenProducts(): Flow<RequestState<List<Product>>> =
         channelFlow {
@@ -122,135 +96,68 @@ class AdminRepositoryImpl : AdminRepository {
             }
         }
 
-    override suspend fun readProductById(id: String): RequestState<Product> =
-        try {
-            val userId = getCurrentUserId()
-            if (userId != null) {
-                val database = Firebase.firestore
-                val productDocument =
-                    database
-                        .collection(collectionPath = "product")
-                        .document(id)
-                        .get()
-                if (productDocument.exists) {
-                    val product =
-                        Product(
-                            id = productDocument.id,
-                            title = productDocument.get(field = "title"),
-                            createdAt = productDocument.get(field = "createdAt"),
-                            description = productDocument.get(field = "description"),
-                            thumbnail = productDocument.get(field = "thumbnail"),
-                            category = productDocument.get(field = "category"),
-                            flavours = productDocument.get(field = "flavours"),
-                            weight = productDocument.get(field = "weight"),
-                            price = productDocument.get(field = "price"),
-                            isPopular = productDocument.get(field = "isPopular"),
-                            isDiscounted = productDocument.get(field = "isDiscounted"),
-                            isNew = productDocument.get(field = "isNew"),
-                        )
-                    RequestState.Success(product.copy(title = product.title.uppercase()))
-                } else {
-                    RequestState.Error("Selected product not found.")
-                }
-            } else {
-                RequestState.Error("User is not available.")
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            RequestState.Error("Error while reading a selected product: ${e.message}")
+    override suspend fun readProductById(id: String): Result<Product> =
+        runRepository(errorPrefix = "Error while reading a selected product") {
+            requireUserId()
+            val productDocument =
+                Firebase.firestore
+                    .collection(collectionPath = "product")
+                    .document(id)
+                    .get()
+            if (!productDocument.exists) throw RepositoryException("Selected product not found.")
+            val product =
+                Product(
+                    id = productDocument.id,
+                    title = productDocument.get(field = "title"),
+                    createdAt = productDocument.get(field = "createdAt"),
+                    description = productDocument.get(field = "description"),
+                    thumbnail = productDocument.get(field = "thumbnail"),
+                    category = productDocument.get(field = "category"),
+                    flavours = productDocument.get(field = "flavours"),
+                    weight = productDocument.get(field = "weight"),
+                    price = productDocument.get(field = "price"),
+                    isPopular = productDocument.get(field = "isPopular"),
+                    isDiscounted = productDocument.get(field = "isDiscounted"),
+                    isNew = productDocument.get(field = "isNew"),
+                )
+            product.copy(title = product.title.uppercase())
         }
 
     override suspend fun updateProductThumbnail(
         productId: String,
         downloadUrl: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
-        try {
-            val userId = getCurrentUserId()
-
-            if (userId != null) {
-                val firestore = Firebase.firestore
-                val productDocument = firestore.collection(collectionPath = "product")
-                val existingProduct = productDocument.document(documentPath = productId).get()
-
-                if (existingProduct.exists) {
-                    productDocument
-                        .document(documentPath = productId)
-                        .updateFields { "thumbnail" to downloadUrl }
-                    onSuccess()
-                } else {
-                    onError("Product does not exist.")
-                }
-            } else {
-                onError("User is not available.")
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            onError("Error while updating thumbnail: $e")
+    ): Result<Unit> =
+        runRepository(errorPrefix = "Error while updating thumbnail") {
+            requireUserId()
+            val productDocument =
+                Firebase.firestore
+                    .collection(collectionPath = "product")
+                    .document(documentPath = productId)
+            if (!productDocument.get().exists) throw RepositoryException("Product does not exist.")
+            productDocument.updateFields { "thumbnail" to downloadUrl }
         }
-    }
 
-    override suspend fun updateProduct(
-        product: Product,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
-        try {
-            val userId = getCurrentUserId()
-            if (userId != null) {
-                val database = Firebase.firestore
-                val productCollection = database.collection(collectionPath = "product")
-                val existingProduct =
-                    productCollection
-                        .document(product.id)
-                        .get()
-                if (existingProduct.exists) {
-                    productCollection
-                        .document(product.id)
-                        .update(product.copy(title = product.title.lowercase()))
-                    onSuccess()
-                } else {
-                    onError("Selected Product not found.")
-                }
-            } else {
-                onError("User is not available.")
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            onError("Error while updating a thumbnail image: ${e.message}")
+    override suspend fun updateProduct(product: Product): Result<Unit> =
+        runRepository(errorPrefix = "Error while updating a product") {
+            requireUserId()
+            val productDocument =
+                Firebase.firestore
+                    .collection(collectionPath = "product")
+                    .document(product.id)
+            if (!productDocument.get().exists) throw RepositoryException("Selected Product not found.")
+            productDocument.update(product.copy(title = product.title.lowercase()))
         }
-    }
 
-    override suspend fun deleteProduct(
-        productId: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
-        try {
-            val userId = getCurrentUserId()
-            if (userId != null) {
-                val firestore = Firebase.firestore
-                val productDocument = firestore.collection(collectionPath = "product")
-                val existingProduct = productDocument.document(documentPath = productId).get()
-                if (existingProduct.exists) {
-                    productDocument.document(documentPath = productId).delete()
-                    onSuccess()
-                } else {
-                    onError("Product does not exist.")
-                }
-            } else {
-                onError("User is not available.")
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            onError("Error while deleting product: $e")
+    override suspend fun deleteProduct(productId: String): Result<Unit> =
+        runRepository(errorPrefix = "Error while deleting product") {
+            requireUserId()
+            val productDocument =
+                Firebase.firestore
+                    .collection(collectionPath = "product")
+                    .document(documentPath = productId)
+            if (!productDocument.get().exists) throw RepositoryException("Product does not exist.")
+            productDocument.delete()
         }
-    }
 
     override fun searchProductByTitle(searchQuery: String): Flow<RequestState<List<Product>>> =
         channelFlow {

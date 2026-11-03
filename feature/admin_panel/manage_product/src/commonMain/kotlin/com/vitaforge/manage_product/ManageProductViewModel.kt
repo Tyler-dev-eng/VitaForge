@@ -7,14 +7,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.domain.Flavour
+import com.tylerdev.vitaforge.shared.domain.ImageFile
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
+import com.vitaforge.data.domain.errorMessage
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
-import dev.gitlive.firebase.storage.File
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -64,30 +64,30 @@ class ManageProductViewModel(
         observeAvailableFlavours()
         productId.takeIf { it.isNotEmpty() }?.let { id ->
             viewModelScope.launch {
-                val selectedProduct = adminRepository.readProductById(id)
-                if (selectedProduct.isSuccess()) {
-                    val product = selectedProduct.getSuccessData()
-                    updateId(product.id)
-                    updateCreatedAt(product.createdAt)
-                    updateTitle(product.title)
-                    updateDescription(product.description)
-                    updateThumbnail(product.thumbnail)
-                    updateThumbnailUploaderState(RequestState.Success(Unit))
-                    updateCategory(ProductCategory.valueOf(product.category))
-                    updateSelectedFlavours(
-                        product.flavours
-                            .orEmpty()
-                            .map { it.trim() }
-                            .filter { it.isNotEmpty() },
-                    )
-                    updateWeight(product.weight)
-                    updatePrice(product.price)
-                    updateNew(product.isNew)
-                    updatePopular(product.isPopular)
-                    updateDiscounted(product.isDiscounted)
-                }
+                adminRepository.readProductById(id).onSuccess { product -> loadProduct(product) }
             }
         }
+    }
+
+    private fun loadProduct(product: Product) {
+        updateId(product.id)
+        updateCreatedAt(product.createdAt)
+        updateTitle(product.title)
+        updateDescription(product.description)
+        updateThumbnail(product.thumbnail)
+        updateThumbnailUploaderState(RequestState.Success(Unit))
+        updateCategory(ProductCategory.valueOf(product.category))
+        updateSelectedFlavours(
+            product.flavours
+                .orEmpty()
+                .map { it.trim() }
+                .filter { it.isNotEmpty() },
+        )
+        updateWeight(product.weight)
+        updatePrice(product.price)
+        updateNew(product.isNew)
+        updatePopular(product.isPopular)
+        updateDiscounted(product.isDiscounted)
     }
 
     fun updateId(value: String) {
@@ -179,29 +179,29 @@ class ManageProductViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            adminRepository.createNewProduct(
-                product =
-                    Product(
-                        id = screenState.id,
-                        title = screenState.title,
-                        description = screenState.description,
-                        thumbnail = screenState.thumbnail,
-                        category = screenState.category.name,
-                        flavours = productFlavours(),
-                        weight = screenState.weight,
-                        price = screenState.price,
-                        isNew = screenState.isNew,
-                        isPopular = screenState.isPopular,
-                        isDiscounted = screenState.isDiscounted,
-                    ),
-                onSuccess = onSuccess,
-                onError = onError,
-            )
+            val result =
+                adminRepository.createNewProduct(
+                    product =
+                        Product(
+                            id = screenState.id,
+                            title = screenState.title,
+                            description = screenState.description,
+                            thumbnail = screenState.thumbnail,
+                            category = screenState.category.name,
+                            flavours = productFlavours(),
+                            weight = screenState.weight,
+                            price = screenState.price,
+                            isNew = screenState.isNew,
+                            isPopular = screenState.isPopular,
+                            isDiscounted = screenState.isDiscounted,
+                        ),
+                )
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 
     fun uploadThumbnailToStorage(
-        file: File?,
+        file: ImageFile?,
         onSuccess: () -> Unit,
     ) {
         if (file == null) {
@@ -212,44 +212,41 @@ class ManageProductViewModel(
         updateThumbnailUploaderState(RequestState.Loading)
 
         viewModelScope.launch {
-            try {
-                val downloadUrl = adminRepository.uploadImageToStorage(file)
-                if (downloadUrl.isNullOrEmpty()) {
-                    throw Exception("Failed to retrieve a download URL for the image after upload.")
-                }
-
-                productId.takeIf { it.isNotEmpty() }?.let { id ->
-                    adminRepository.updateProductThumbnail(
-                        productId = id,
-                        downloadUrl = downloadUrl,
-                        onError = { message ->
-                            updateThumbnailUploaderState(RequestState.Error(message))
-                        },
-                        onSuccess = {
-                            onSuccess()
-                            updateThumbnailUploaderState(RequestState.Success(Unit))
-                            updateThumbnail(downloadUrl)
-                        },
-                    )
-                } ?: run {
+            val uploadResult = adminRepository.uploadImageToStorage(file)
+            val downloadUrl = uploadResult.getOrNull()
+            if (downloadUrl == null) {
+                updateThumbnailUploaderState(RequestState.Error(uploadResult.errorMessage()))
+                return@launch
+            }
+            persistThumbnail(downloadUrl).fold(
+                onSuccess = {
                     onSuccess()
                     updateThumbnailUploaderState(RequestState.Success(Unit))
                     updateThumbnail(downloadUrl)
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                updateThumbnailUploaderState(RequestState.Error("Error while uploading thumbnail: ${e.message}"))
-            }
+                },
+                onFailure = { error ->
+                    updateThumbnailUploaderState(RequestState.Error(error.message.orEmpty()))
+                },
+            )
         }
     }
+
+    /** Saves [downloadUrl] on the stored product; a product that is not saved yet has nothing to update. */
+    private suspend fun persistThumbnail(downloadUrl: String): Result<Unit> =
+        productId.takeIf { it.isNotEmpty() }?.let { id ->
+            adminRepository.updateProductThumbnail(productId = id, downloadUrl = downloadUrl)
+        } ?: Result.success(Unit)
 
     fun updateProduct(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) {
-        if (isFormValid) {
-            viewModelScope.launch {
+        if (!isFormValid) {
+            onError("Form is not valid.")
+            return
+        }
+        viewModelScope.launch {
+            val result =
                 adminRepository.updateProduct(
                     product =
                         Product(
@@ -266,12 +263,8 @@ class ManageProductViewModel(
                             isPopular = screenState.isPopular,
                             isDiscounted = screenState.isDiscounted,
                         ),
-                    onSuccess = onSuccess,
-                    onError = onError,
                 )
-            }
-        } else {
-            onError("Form is not valid.")
+            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
         }
     }
 
@@ -280,31 +273,20 @@ class ManageProductViewModel(
         onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
-            adminRepository.deleteImageFromStorage(
-                downloadUrl = screenState.thumbnail,
+            val deleteResult = adminRepository.deleteImageFromStorage(downloadUrl = screenState.thumbnail)
+            if (deleteResult.isFailure) {
+                onError(deleteResult.errorMessage())
+                return@launch
+            }
+            persistThumbnail(downloadUrl = "").fold(
                 onSuccess = {
-                    productId.takeIf { it.isNotEmpty() }?.let { id ->
-                        viewModelScope.launch {
-                            adminRepository.updateProductThumbnail(
-                                productId = id,
-                                downloadUrl = "",
-                                onError = { message ->
-                                    updateThumbnailUploaderState(RequestState.Error(message))
-                                },
-                                onSuccess = {
-                                    updateThumbnail("")
-                                    updateThumbnailUploaderState(RequestState.Idle)
-                                    onSuccess()
-                                },
-                            )
-                        }
-                    } ?: run {
-                        updateThumbnail("")
-                        updateThumbnailUploaderState(RequestState.Idle)
-                        onSuccess()
-                    }
+                    updateThumbnail("")
+                    updateThumbnailUploaderState(RequestState.Idle)
+                    onSuccess()
                 },
-                onError = onError,
+                onFailure = { error ->
+                    updateThumbnailUploaderState(RequestState.Error(error.message.orEmpty()))
+                },
             )
         }
     }
@@ -315,16 +297,13 @@ class ManageProductViewModel(
     ) {
         productId.takeIf { it.isNotEmpty() }?.let { id ->
             viewModelScope.launch {
-                adminRepository.deleteProduct(
-                    productId = id,
+                val result = adminRepository.deleteProduct(productId = id)
+                result.fold(
                     onSuccess = {
-                        deleteThumbnailFromStorage(
-                            onSuccess = {},
-                            onError = { },
-                        )
+                        deleteThumbnailFromStorage(onSuccess = {}, onError = {})
                         onSuccess()
                     },
-                    onError = { message -> onError(message) },
+                    onFailure = { onError(result.errorMessage()) },
                 )
             }
         }

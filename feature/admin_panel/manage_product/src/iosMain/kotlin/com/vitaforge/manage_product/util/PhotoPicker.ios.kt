@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import dev.gitlive.firebase.storage.File
+import com.tylerdev.vitaforge.shared.domain.ImageFile
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIImagePickerController
@@ -27,7 +27,7 @@ actual class PhotoPicker {
     private var pickerDelegate: PickerDelegate? = null
 
     @Composable
-    actual fun InitialisePhotoPicker(onImageSelect: (File?) -> Unit) {
+    actual fun InitialisePhotoPicker(onImageSelect: (ImageFile?) -> Unit) {
         val openPhotoPickerState by remember { openPhotoPicker }
 
         LaunchedEffect(openPhotoPickerState) {
@@ -91,7 +91,7 @@ actual class PhotoPicker {
 
     // Delegate class implementing the necessary protocols
     private class PickerDelegate(
-        private val callback: (File?) -> Unit,
+        private val callback: (ImageFile?) -> Unit,
     ) : NSObject(),
         UIImagePickerControllerDelegateProtocol,
         UINavigationControllerDelegateProtocol {
@@ -102,11 +102,7 @@ actual class PhotoPicker {
         ) {
             // Extract the URL of the picked media
             val url = didFinishPickingMediaWithInfo[UIImagePickerControllerImageURL] as? NSURL
-            if (url != null) {
-                callback(File(url))
-            } else {
-                callback(null)
-            }
+            callback(url?.absoluteString?.let { ImageFile(it) })
             picker.dismissViewControllerAnimated(true, completion = null)
         }
 

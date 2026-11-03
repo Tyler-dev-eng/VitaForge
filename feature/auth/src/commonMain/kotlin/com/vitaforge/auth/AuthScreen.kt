@@ -37,7 +37,6 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.White
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.vitaforge.auth.component.GoogleButton
-import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -108,17 +107,23 @@ fun AuthScreen(navigateToHome: () -> Unit) {
                     onResult = { result ->
                         result
                             .onSuccess { user ->
-                                viewModel.createCustomer(
-                                    user = user.raw as? FirebaseUser,
-                                    onSuccess = {
-                                        scope.launch {
-                                            messageBarState.addSuccess("Authentication successful!")
-                                            delay(timeMillis = 2000)
-                                            navigateToHome()
-                                        }
-                                    },
-                                    onError = { message -> messageBarState.addError(message) },
-                                )
+                                if (user == null) {
+                                    messageBarState.addError("User is null")
+                                } else {
+                                    viewModel.createCustomer(
+                                        id = user.uid,
+                                        displayName = user.displayName,
+                                        email = user.email,
+                                        onSuccess = {
+                                            scope.launch {
+                                                messageBarState.addSuccess("Authentication successful!")
+                                                delay(timeMillis = 2000)
+                                                navigateToHome()
+                                            }
+                                        },
+                                        onError = { message -> messageBarState.addError(message) },
+                                    )
+                                }
                                 loadingState = false
                             }.onFailure { error ->
                                 loadingState = false

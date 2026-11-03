@@ -5,9 +5,5 @@ import com.tylerdev.vitaforge.shared.domain.Order
 interface OrderRepository {
     fun getCurrentUserId(): String?
 
-    suspend fun createTheOrder(
-        order: Order,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    )
+    suspend fun createTheOrder(order: Order): Result<Unit>
 }
