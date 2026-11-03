@@ -36,7 +36,6 @@ firebase-bom = "34.17.0"
 google = "4.5.0"
 
 # Notifications
-notifier = "2.0.0"
 
 # Dependency Injection
 koin = "4.2.2"
@@ -49,6 +48,7 @@ ktor = "3.6.0"
 
 # UI Extras
 messagebar = "1.0.10"
+kmpnotifier = "2.0.2"
 browser = "1.0.5"
 
 # Local Storage / Settings
@@ -91,7 +91,6 @@ auth-kmp = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "auth
 auth-firebase-kmp = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "auth" }
 
 # Notifications
-kmp-notifier = { module = "io.github.mirzemehdi:kmpnotifier", version.ref = "notifier" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
@@ -120,6 +119,7 @@ ktor-darwin-client = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 ktor-android-client = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 
 # UI Extras
+kmpnotifier-push-firebase = { module = "io.github.mirzemehdi:kmpnotifier-push-firebase", version.ref = "kmpnotifier" }
 messagebar-kmp = { module = "com.stevdza-san:messagebarkmp", version.ref = "messagebar" }
 browser-kmp = { module = "com.stevdza-san:browser-kmp", version.ref = "browser" }
 

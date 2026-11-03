@@ -58,6 +58,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.kotlinx.serialization)
             implementation(libs.compose.navigation)
+            implementation(libs.kmpnotifier.push.firebase)
             implementation(project(path = ":feature:auth"))
             implementation(project(path = ":feature:home"))
             implementation(project(path = ":feature:home:cart:checkout"))

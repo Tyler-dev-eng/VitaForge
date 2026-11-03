@@ -12,31 +12,32 @@ plugins {
 val generatedCredentialsDir = layout.buildDirectory.dir("generated/credentials/commonMain")
 
 // Generates PaypalCredentials from local.properties so secrets stay out of version control.
-val generatePaypalCredentials = tasks.register("generatePaypalCredentials") {
-    val localProperties = rootProject.layout.projectDirectory.file("local.properties")
-    val outputDir = generatedCredentialsDir
-    inputs.files(localProperties).optional()
-    outputs.dir(outputDir)
-    doLast {
-        val properties = Properties()
-        val file = localProperties.asFile
-        if (file.exists()) file.inputStream().use(properties::load)
-        val clientId = properties.getProperty("paypal.clientId").orEmpty()
-        val secretId = properties.getProperty("paypal.secretId").orEmpty()
-        val target = outputDir.get().asFile.resolve("com/tylerdev/vitaforge/shared/PaypalCredentials.kt")
-        target.parentFile.mkdirs()
-        target.writeText(
-            """
-            package com.tylerdev.vitaforge.shared
+val generatePaypalCredentials =
+    tasks.register("generatePaypalCredentials") {
+        val localProperties = rootProject.layout.projectDirectory.file("local.properties")
+        val outputDir = generatedCredentialsDir
+        inputs.files(localProperties).optional()
+        outputs.dir(outputDir)
+        doLast {
+            val properties = Properties()
+            val file = localProperties.asFile
+            if (file.exists()) file.inputStream().use(properties::load)
+            val clientId = properties.getProperty("paypal.clientId").orEmpty()
+            val secretId = properties.getProperty("paypal.secretId").orEmpty()
+            val target = outputDir.get().asFile.resolve("com/tylerdev/vitaforge/shared/PaypalCredentials.kt")
+            target.parentFile.mkdirs()
+            target.writeText(
+                """
+                package com.tylerdev.vitaforge.shared
 
-            object PaypalCredentials {
-                const val CLIENT_ID = "$clientId"
-                const val SECRET_ID = "$secretId"
-            }
-            """.trimIndent() + "\n",
-        )
+                object PaypalCredentials {
+                    const val CLIENT_ID = "$clientId"
+                    const val SECRET_ID = "$secretId"
+                }
+                """.trimIndent() + "\n",
+            )
+        }
     }
-}
 
 kotlin {
     listOf(

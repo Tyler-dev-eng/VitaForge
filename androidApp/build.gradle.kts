@@ -25,6 +25,8 @@ dependencies {
 
     implementation(libs.koin.android)
 
+    implementation(libs.kmpnotifier.push.firebase)
+
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
 }
