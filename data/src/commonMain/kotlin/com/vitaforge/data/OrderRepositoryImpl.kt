@@ -6,6 +6,7 @@ import com.vitaforge.data.domain.OrderRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
+import kotlinx.coroutines.CancellationException
 
 class OrderRepositoryImpl(
     private val customerRepository: CustomerRepository,
@@ -31,6 +32,8 @@ class OrderRepositoryImpl(
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while adding a product to cart: ${e.message}")
         }
