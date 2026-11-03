@@ -62,6 +62,7 @@ kotlin {
             implementation(project(":feature:details"))
             implementation(project(":data"))
             implementation(project(":feature:home"))
+            implementation(project(":feature:payment_completed"))
             implementation(project(":feature:home:cart"))
             implementation(project(":feature:home:cart:checkout"))
             implementation(project(":feature:home:products_overview"))

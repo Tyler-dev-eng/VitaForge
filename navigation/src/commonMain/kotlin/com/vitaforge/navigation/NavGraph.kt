@@ -88,8 +88,8 @@ fun SetupNavGraph(startDestination: Screen) {
             CheckoutScreen(
                 totalAmount = totalAmount.toDoubleOrNull() ?: 0.00,
                 navigateBack = { navController.navigateUp() },
-                navigateToPaymentCompleted = {
-                    navController.navigate(Screen.PaymentCompleted(isSuccess = true)) {
+                navigateToPaymentCompleted = { token ->
+                    navController.navigate(Screen.PaymentCompleted(isSuccess = true, token = token)) {
                         popUpTo<Screen.Checkout> { inclusive = true }
                     }
                 },
@@ -97,10 +97,7 @@ fun SetupNavGraph(startDestination: Screen) {
         }
 
         composable<Screen.PaymentCompleted> {
-            val args = it.toRoute<Screen.PaymentCompleted>()
             PaymentCompletedScreen(
-                isSuccess = args.isSuccess == true,
-                errorMessage = args.error,
                 onDone = {
                     navController.navigate(Screen.HomeGraph) {
                         launchSingleTop = true

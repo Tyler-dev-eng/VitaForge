@@ -40,7 +40,7 @@ import vitaforge.shared.generated.resources.checkout_title
 fun CheckoutScreen(
     totalAmount: Double,
     navigateBack: () -> Unit,
-    navigateToPaymentCompleted: () -> Unit,
+    navigateToPaymentCompleted: (token: String?) -> Unit,
 ) {
     val messageBarState = rememberMessageBarState()
     val viewModel = koinViewModel<CheckoutViewModel>()
@@ -129,13 +129,13 @@ fun CheckoutScreen(
                     isEnabled = isFormValid,
                     onPayWithPayPal = {
                         viewModel.payWithPayPal(
-                            onSuccess = navigateToPaymentCompleted,
+                            onSuccess = { token -> navigateToPaymentCompleted(token) },
                             onError = { message -> messageBarState.addError(message) },
                         )
                     },
                     onPayOnDelivery = {
                         viewModel.payOnDelivery(
-                            onSuccess = navigateToPaymentCompleted,
+                            onSuccess = { navigateToPaymentCompleted(null) },
                             onError = { message -> messageBarState.addError(message) },
                         )
                     },

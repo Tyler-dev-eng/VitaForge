@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.tylerdev.vitaforge.shared.domain.CartItem
 import com.tylerdev.vitaforge.shared.domain.Country
 import com.tylerdev.vitaforge.shared.domain.Customer
-import com.tylerdev.vitaforge.shared.domain.Order
 import com.tylerdev.vitaforge.shared.domain.PhoneNumber
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.checkout.domain.Amount
@@ -17,9 +16,7 @@ import com.vitaforge.checkout.domain.PaypalApi
 import com.vitaforge.checkout.domain.PaypalReturn
 import com.vitaforge.checkout.domain.ShippingAddress
 import com.vitaforge.checkout.domain.formatPaypalAmount
-import com.vitaforge.checkout.domain.roundToCents
 import com.vitaforge.data.domain.CustomerRepository
-import com.vitaforge.data.domain.OrderRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -40,7 +37,6 @@ data class CheckoutScreenState(
 
 class CheckoutViewModel(
     private val customerRepository: CustomerRepository,
-    private val orderRepository: OrderRepository,
     private val savedStateHandle: SavedStateHandle,
     private val paypalApi: PaypalApi,
 ) : ViewModel() {
@@ -155,12 +151,7 @@ class CheckoutViewModel(
         onError: (String) -> Unit,
     ) {
         updateCustomer(
-            onSuccess = {
-                createOrder(
-                    onSuccess = onSuccess,
-                    onError = onError,
-                )
-            },
+            onSuccess = onSuccess,
             onError = onError,
         )
     }
@@ -189,7 +180,7 @@ class CheckoutViewModel(
     }
 
     fun payWithPayPal(
-        onSuccess: () -> Unit,
+        onSuccess: (token: String) -> Unit,
         onError: (String) -> Unit,
     ) {
         val totalAmount = savedStateHandle.get<String>("totalAmount")?.toDoubleOrNull()
@@ -218,14 +209,14 @@ class CheckoutViewModel(
     }
 
     private suspend fun awaitPayPalReturn(
-        onSuccess: () -> Unit,
+        onSuccess: (token: String) -> Unit,
         onError: (String) -> Unit,
     ) {
         when (val payPalReturn = paypalApi.paymentReturns.first()) {
             is PaypalReturn.Approved -> {
                 paypalApi.captureOrder(
                     orderId = payPalReturn.orderId,
-                    onSuccess = { createOrder(onSuccess = onSuccess, onError = onError) },
+                    onSuccess = { onSuccess(payPalReturn.orderId) },
                     onError = onError,
                 )
             }
@@ -233,24 +224,6 @@ class CheckoutViewModel(
             PaypalReturn.Cancelled -> {
                 onError("The PayPal payment was cancelled.")
             }
-        }
-    }
-
-    private fun createOrder(
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
-        viewModelScope.launch {
-            orderRepository.createOrder(
-                order =
-                    Order(
-                        customerId = screenState.id,
-                        items = screenState.cart,
-                        totalAmount = roundToCents(savedStateHandle.get<String>("totalAmount")?.toDoubleOrNull() ?: 0.0),
-                    ),
-                onSuccess = onSuccess,
-                onError = onError,
-            )
         }
     }
 }

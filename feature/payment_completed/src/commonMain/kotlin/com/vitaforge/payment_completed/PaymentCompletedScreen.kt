@@ -21,39 +21,64 @@ import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.Surface
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
+import com.tylerdev.vitaforge.shared.components.LoadingCard
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
+import com.tylerdev.vitaforge.shared.util.DisplayResult
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.payment_completed_continue
-import vitaforge.shared.generated.resources.payment_completed_error_message
 import vitaforge.shared.generated.resources.payment_completed_error_title
 import vitaforge.shared.generated.resources.payment_completed_success_message
 import vitaforge.shared.generated.resources.payment_completed_success_title
 import vitaforge.shared.generated.resources.payment_completed_try_again
 
 private val StatusIconSize = 96.dp
+private val ScreenPadding = 24.dp
+private val ContentSpacing = 16.dp
 
 @Composable
 fun PaymentCompletedScreen(
     modifier: Modifier = Modifier,
-    isSuccess: Boolean,
-    errorMessage: String? = null,
     onDone: () -> Unit,
 ) {
-    Column(
+    val viewModel = koinViewModel<PaymentViewModel>()
+    viewModel.screenState.DisplayResult(
         modifier =
             modifier
                 .fillMaxSize()
                 .background(Surface)
-                .systemBarsPadding()
-                .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+                .systemBarsPadding(),
+        onLoading = { LoadingCard() },
+        onError = { message ->
+            PaymentStatusContent(isSuccess = false, message = message, onDone = onDone)
+        },
+        onSuccess = {
+            PaymentStatusContent(
+                isSuccess = true,
+                message = stringResource(Res.string.payment_completed_success_message),
+                onDone = onDone,
+            )
+        },
+    )
+}
+
+@Composable
+private fun PaymentStatusContent(
+    isSuccess: Boolean,
+    message: String,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxSize().padding(ScreenPadding),
+        verticalArrangement = Arrangement.spacedBy(ContentSpacing),
     ) {
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(ContentSpacing, Alignment.CenterVertically),
         ) {
             Icon(
                 modifier = Modifier.size(StatusIconSize),
@@ -76,12 +101,7 @@ fun PaymentCompletedScreen(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text =
-                    if (isSuccess) {
-                        stringResource(Res.string.payment_completed_success_message)
-                    } else {
-                        errorMessage ?: stringResource(Res.string.payment_completed_error_message)
-                    },
+                text = message,
                 fontSize = FontSize.EXTRA_REGULAR,
                 color = TextPrimary,
                 textAlign = TextAlign.Center,

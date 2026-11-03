@@ -12,7 +12,7 @@ class OrderRepositoryImpl(
 ) : OrderRepository {
     override fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
 
-    override suspend fun createOrder(
+    override suspend fun createTheOrder(
         order: Order,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
@@ -32,7 +32,7 @@ class OrderRepositoryImpl(
                 onError("User is not available.")
             }
         } catch (e: Exception) {
-            onError("Error creating order: ${e.message}")
+            onError("Error while adding a product to cart: ${e.message}")
         }
     }
 }

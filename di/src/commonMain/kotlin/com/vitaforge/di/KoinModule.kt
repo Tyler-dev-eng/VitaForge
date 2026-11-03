@@ -21,6 +21,7 @@ import com.vitaforge.home.HomeGraphViewModel
 import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
+import com.vitaforge.payment_completed.PaymentViewModel
 import com.vitaforge.products_overview.ProductOverviewViewModel
 import com.vitaforge.profile.ProfileViewModel
 import org.koin.core.KoinApplication
@@ -51,6 +52,7 @@ val sharedModule =
         viewModelOf(::CartViewModel)
         viewModelOf(::CategorySearchViewModel)
         viewModelOf(::CheckoutViewModel)
+        viewModelOf(::PaymentViewModel)
     }
 
 expect val targetModule: Module
