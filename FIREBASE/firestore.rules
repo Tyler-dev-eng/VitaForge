@@ -1,0 +1,262 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: customer
+    // Document ID: Firebase Auth uid
+    // Fields:
+    //   - id: string (required, immutable, == document ID)
+    //   - firstName: string (required, <= 100 chars)
+    //   - lastName: string (required, <= 100 chars)
+    //   - email: string (required, immutable, <= 254 chars)
+    //   - city: string | null (optional, <= 100 chars)
+    //   - postalCode: int | null (optional, 0..99999999)
+    //   - address: string | null (optional, <= 200 chars)
+    //   - phoneNumber: map {dialCode: int, number: string <= 30} | null (optional)
+    //   - cart: list (required, <= 100 items, empty on create)
+    //   - isAdmin: bool (optional, immutable, only ever false)
+    //
+    // Collection: customer/{uid}/privateData
+    // Document ID: "role" (only)
+    // Fields:
+    //   - isAdmin: bool (required; the owner can only create it as false,
+    //     and it drives the admin UI only. Promote via console/Admin SDK.)
+    //
+    // Collection: product
+    // Document ID: product id
+    // Fields:
+    //   - id: string (required, == document ID)
+    //   - createdAt: int (required, epoch millis)
+    //   - title: string (required, 1..200 chars)
+    //   - description: string (required, <= 5000 chars)
+    //   - thumbnail: string (required, "" or https URL <= 2048 chars)
+    //   - category: string (required, a ProductCategory name)
+    //   - flavours: list | null (optional, <= 50 items)
+    //   - weight: int | null (optional, 0..100000)
+    //   - price: number (required, 0..100000)
+    //   - isPopular, isDiscounted, isNew: bool (required)
+    //
+    // Collection: flavours
+    // Document ID: flavour id
+    // Fields:
+    //   - id: string (required, == document ID)
+    //   - name: string (required, 1..50 chars)
+    //
+    // Collection: order
+    // Document ID: order id
+    // Fields:
+    //   - id: string (required, == document ID)
+    //   - customerId: string (required, == creator uid)
+    //   - items: list (required, 1..100 items)
+    //   - totalAmount: number (required, 0..1000000)
+    //   - token: string | null (optional, <= 200 chars, PayPal order id)
+    //
+    // Admin for product/flavours writes = any user with privateData/role.isAdmin
+    // == true (plus the bootstrap UID in isAdmin()). Orders are create-only from
+    // clients; the backend (Admin SDK) reads them.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function rolePath() {
+      return /databases/$(database)/documents/customer/$(request.auth.uid)/privateData/role;
+    }
+
+    // Admins are users whose server-managed role document says isAdmin: true.
+    // Clients can only ever create that document as false (see privateData
+    // rules), so promoting someone is done in the console or Admin SDK.
+    // The bootstrap UID below keeps the project owner an admin even if their
+    // role document isn't set yet; remove it once your role doc is true.
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.uid == "phNICPfLdEU5G9bnr8TDBWY4hLm1" ||
+         (exists(rolePath()) && get(rolePath()).data.isAdmin == true));
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function isStringWithin(value, minLen, maxLen) {
+      return value is string && value.size() >= minLen && value.size() <= maxLen;
+    }
+
+    function isNumberWithin(value, minValue, maxValue) {
+      return value is number && value >= minValue && value <= maxValue;
+    }
+
+    // String field that may be missing or null, but if set must fit the limit.
+    function isValidOptionalString(data, field, maxLen) {
+      return data.get(field, null) == null ||
+        (data.get(field, null) is string && data.get(field, null).size() <= maxLen);
+    }
+
+    function isValidThumbnail(url) {
+      return url is string && url.size() <= 2048 &&
+        (url == '' || url.matches('^https://.*'));
+    }
+
+    // ===============================================================
+    // Domain Validators (used by BOTH create and update)
+    // ===============================================================
+
+    function isValidPhoneNumber(phone) {
+      return phone == null ||
+        (phone is map &&
+         phone.keys().hasOnly(['dialCode', 'number']) &&
+         phone.keys().hasAll(['dialCode', 'number']) &&
+         phone.dialCode is int &&
+         isStringWithin(phone.number, 0, 30));
+    }
+
+    function isValidCustomer(data, userId) {
+      return hasOnlyAllowedFields(data, [
+               'id', 'firstName', 'lastName', 'email', 'city', 'postalCode',
+               'address', 'phoneNumber', 'cart', 'isAdmin'
+             ]) &&
+             hasRequiredFields(data, ['id', 'firstName', 'lastName', 'email', 'cart']) &&
+             data.id == userId &&
+             isStringWithin(data.firstName, 0, 100) &&
+             isStringWithin(data.lastName, 0, 100) &&
+             isStringWithin(data.email, 0, 254) &&
+             isValidOptionalString(data, 'city', 100) &&
+             isValidOptionalString(data, 'address', 200) &&
+             (data.get('postalCode', null) == null ||
+              (data.get('postalCode', null) is int &&
+               isNumberWithin(data.get('postalCode', null), 0, 99999999))) &&
+             isValidPhoneNumber(data.get('phoneNumber', null)) &&
+             data.cart is list && data.cart.size() <= 100 &&
+             data.get('isAdmin', false) == false;
+    }
+
+    function isValidProduct(data, productId) {
+      return hasOnlyAllowedFields(data, [
+               'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
+               'flavours', 'weight', 'price', 'isPopular', 'isDiscounted', 'isNew'
+             ]) &&
+             hasRequiredFields(data, [
+               'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
+               'price', 'isPopular', 'isDiscounted', 'isNew'
+             ]) &&
+             data.id == productId &&
+             data.createdAt is int && data.createdAt >= 0 &&
+             isStringWithin(data.title, 1, 200) &&
+             isStringWithin(data.description, 0, 5000) &&
+             isValidThumbnail(data.thumbnail) &&
+             data.category in ['Protein', 'Creatine', 'PreWorkout', 'Gainers', 'Accessories'] &&
+             (data.get('flavours', null) == null ||
+              (data.get('flavours', null) is list && data.get('flavours', null).size() <= 50)) &&
+             (data.get('weight', null) == null ||
+              (data.get('weight', null) is int && isNumberWithin(data.get('weight', null), 0, 100000))) &&
+             isNumberWithin(data.price, 0, 100000) &&
+             data.isPopular is bool &&
+             data.isDiscounted is bool &&
+             data.isNew is bool;
+    }
+
+    function isValidFlavour(data, flavourId) {
+      return hasOnlyAllowedFields(data, ['id', 'name']) &&
+             hasRequiredFields(data, ['id', 'name']) &&
+             data.id == flavourId &&
+             isStringWithin(data.name, 1, 50);
+    }
+
+    function isValidOrder(data, orderId) {
+      return hasOnlyAllowedFields(data, ['id', 'customerId', 'items', 'totalAmount', 'token']) &&
+             hasRequiredFields(data, ['id', 'customerId', 'items', 'totalAmount']) &&
+             data.id == orderId &&
+             data.customerId == request.auth.uid &&
+             data.items is list && data.items.size() >= 1 && data.items.size() <= 100 &&
+             isNumberWithin(data.totalAmount, 0, 1000000) &&
+             isValidOptionalString(data, 'token', 200);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Customers: private profile + cart, owner only (contains PII).
+    match /customer/{userId} {
+      allow read: if isOwner(userId);
+
+      // The stored email must be the signed-in account's own email (or the
+      // app's "Unknown" fallback), so nobody can plant someone else's address
+      // that the order-confirmation function would later email.
+      allow create: if isOwner(userId) &&
+                       isValidCustomer(request.resource.data, userId) &&
+                       request.resource.data.cart.size() == 0 &&
+                       (request.resource.data.email == request.auth.token.get('email', '') ||
+                        request.resource.data.email == 'Unknown');
+
+      allow update: if isOwner(userId) &&
+                       isValidCustomer(request.resource.data, userId) &&
+                       areImmutableFieldsUnchanged(['id', 'email', 'isAdmin']);
+
+      allow delete: if false;
+
+      // Role document: readable by its owner; the owner may only ever create
+      // it as non-admin. Nobody can update or delete it from a client.
+      match /privateData/{docId} {
+        allow read: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         docId == 'role' &&
+                         hasOnlyAllowedFields(request.resource.data, ['isAdmin']) &&
+                         request.resource.data.isAdmin == false;
+
+        allow update, delete: if false;
+      }
+    }
+
+    // Products: any signed-in user can browse; only admins can change.
+    match /product/{productId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() && isValidProduct(request.resource.data, productId);
+      allow delete: if isAdmin();
+    }
+
+    // Flavours: any signed-in user can read; only admins can add.
+    match /flavours/{flavourId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidFlavour(request.resource.data, flavourId);
+      allow update, delete: if false;
+    }
+
+    // Orders: a customer can place their own; nothing reads or changes them
+    // from a client.
+    match /order/{orderId} {
+      allow read: if false;
+      allow create: if isAuthenticated() && isValidOrder(request.resource.data, orderId);
+      allow update, delete: if false;
+    }
+
+    // Default deny for everything else.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
