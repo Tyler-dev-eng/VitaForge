@@ -65,6 +65,8 @@ class CustomerRepositoryImpl : CustomerRepository {
             } else {
                 onError("User is null")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error creating customer: ${e.message}")
         }
@@ -110,6 +112,8 @@ class CustomerRepositoryImpl : CustomerRepository {
                 } else {
                     send(RequestState.Error("User is not available."))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 send(RequestState.Error("Error while reading a Customer information: ${e.message}"))
             }
@@ -143,6 +147,8 @@ class CustomerRepositoryImpl : CustomerRepository {
                     onSuccess()
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while updating a Customer information: ${e.message}")
         }
@@ -213,6 +219,8 @@ class CustomerRepositoryImpl : CustomerRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while updating cart item quantity: ${e.message}")
         }
@@ -253,6 +261,8 @@ class CustomerRepositoryImpl : CustomerRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while deleting cart item: ${e.message}")
         }
@@ -283,6 +293,8 @@ class CustomerRepositoryImpl : CustomerRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while deleting all products from cart: ${e.message}")
         }
@@ -292,6 +304,8 @@ class CustomerRepositoryImpl : CustomerRepository {
         try {
             Firebase.auth.signOut()
             RequestState.Success(Unit)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             RequestState.Error("Error signing out: ${e.message}")
         }

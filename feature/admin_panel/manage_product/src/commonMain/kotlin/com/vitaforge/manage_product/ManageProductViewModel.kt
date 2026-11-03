@@ -14,6 +14,7 @@ import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
 import dev.gitlive.firebase.storage.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -235,6 +236,8 @@ class ManageProductViewModel(
                     updateThumbnailUploaderState(RequestState.Success(Unit))
                     updateThumbnail(downloadUrl)
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 updateThumbnailUploaderState(RequestState.Error("Error while uploading thumbnail: ${e.message}"))
             }

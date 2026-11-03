@@ -9,6 +9,7 @@ import dev.gitlive.firebase.firestore.Direction
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.storage.File
 import dev.gitlive.firebase.storage.storage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -35,6 +36,8 @@ class AdminRepositoryImpl : AdminRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while creating a new product: ${e.message}")
         }
@@ -49,6 +52,8 @@ class AdminRepositoryImpl : AdminRepository {
                     imagePath.putFile(file)
                     imagePath.getDownloadUrl()
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 null
             }
@@ -69,6 +74,8 @@ class AdminRepositoryImpl : AdminRepository {
             } else {
                 onError("Storage Path is null.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while deleting a thumbnail: $e")
         }
@@ -108,6 +115,8 @@ class AdminRepositoryImpl : AdminRepository {
                 } else {
                     send(RequestState.Error("User is not available."))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 send(RequestState.Error("Error while reading the last 10 items from the database: ${e.message}"))
             }
@@ -146,6 +155,8 @@ class AdminRepositoryImpl : AdminRepository {
             } else {
                 RequestState.Error("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             RequestState.Error("Error while reading a selected product: ${e.message}")
         }
@@ -175,6 +186,8 @@ class AdminRepositoryImpl : AdminRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while updating thumbnail: $e")
         }
@@ -205,6 +218,8 @@ class AdminRepositoryImpl : AdminRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while updating a thumbnail image: ${e.message}")
         }
@@ -230,6 +245,8 @@ class AdminRepositoryImpl : AdminRepository {
             } else {
                 onError("User is not available.")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while deleting product: $e")
         }
@@ -274,6 +291,8 @@ class AdminRepositoryImpl : AdminRepository {
                 } else {
                     send(RequestState.Error("User is not available."))
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 send(RequestState.Error("Error while searching products: ${e.message}"))
             }

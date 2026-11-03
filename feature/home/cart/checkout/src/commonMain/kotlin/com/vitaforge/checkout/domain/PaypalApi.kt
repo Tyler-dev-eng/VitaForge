@@ -87,6 +87,8 @@ class PaypalApi {
     ) {
         try {
             onSuccess(requestAccessToken())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while fetching an Access Token: ${e.message}")
         }
@@ -142,6 +144,8 @@ class PaypalApi {
             } else {
                 onError("Error while starting the checkout: ${response.status} - ${response.bodyAsText()}")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             onError("Error while starting the checkout: ${e.message}")
         }
