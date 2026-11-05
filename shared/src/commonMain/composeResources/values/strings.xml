@@ -79,6 +79,7 @@
     <string name="manage_product_section_title">Product title</string>
     <string name="manage_product_section_category">Category</string>
     <string name="manage_product_section_description">Description &amp; specs</string>
+    <string name="manage_product_add_bullet">• Add bullet</string>
     <string name="manage_product_section_weight">Net weight (G)</string>
     <string name="manage_product_section_price">Price (R)</string>
     <string name="manage_product_section_flavours">Available flavours</string>

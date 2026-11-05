@@ -103,7 +103,11 @@ class ManageProductViewModel(
     }
 
     fun updateDescription(value: String) {
-        screenState = screenState.copy(description = value)
+        screenState = screenState.copy(description = formatBullets(screenState.description, value))
+    }
+
+    fun addDescriptionBullet() {
+        screenState = screenState.copy(description = appendBullet(screenState.description))
     }
 
     fun updateThumbnail(value: String) {

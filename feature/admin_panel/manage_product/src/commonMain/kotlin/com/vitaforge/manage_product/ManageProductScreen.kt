@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -68,6 +69,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.manage_product_add_bullet
 import vitaforge.shared.generated.resources.manage_product_back
 import vitaforge.shared.generated.resources.manage_product_badge_discounted_subtitle
 import vitaforge.shared.generated.resources.manage_product_badge_discounted_title
@@ -314,7 +316,16 @@ fun ManageProductScreen(
                         text = screenState.category.title,
                         onClick = { showCategoryDialog = true },
                     )
-                    FormSectionLabel(stringResource(Res.string.manage_product_section_description))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        FormSectionLabel(stringResource(Res.string.manage_product_section_description))
+                        TextButton(onClick = viewModel::addDescriptionBullet) {
+                            Text(stringResource(Res.string.manage_product_add_bullet))
+                        }
+                    }
                     CustomTextField(
                         modifier = Modifier.height(170.dp),
                         value = screenState.description,
