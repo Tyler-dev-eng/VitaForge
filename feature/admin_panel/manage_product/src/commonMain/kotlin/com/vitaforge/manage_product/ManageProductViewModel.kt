@@ -20,6 +20,7 @@ import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 private const val ADD_FLAVOUR_ERROR = "Could not add flavour."
+private const val INVALID_FORM_ERROR = "Please fill in the highlighted fields."
 
 data class ManageProductState(
     val id: String = Uuid.random().toHexString(),
@@ -53,10 +54,33 @@ class ManageProductViewModel(
     var availableFlavours: RequestState<List<Flavour>> by mutableStateOf(RequestState.Loading)
         private set
 
+    var isSaving by mutableStateOf(false)
+        private set
+
+    var isValidationVisible by mutableStateOf(false)
+        private set
+
+    private var savedState = screenState
+
+    val hasUnsavedChanges: Boolean
+        get() = screenState != savedState
+
+    val isTitleInvalid: Boolean
+        get() = isValidationVisible && screenState.title.isBlank()
+
+    val isDescriptionInvalid: Boolean
+        get() = isValidationVisible && screenState.description.isBlank()
+
+    val isPriceInvalid: Boolean
+        get() = isValidationVisible && screenState.price == 0.0
+
+    val isThumbnailInvalid: Boolean
+        get() = isValidationVisible && screenState.thumbnail.isEmpty()
+
     val isFormValid: Boolean
         get() =
-            screenState.title.isNotEmpty() &&
-                screenState.description.isNotEmpty() &&
+            screenState.title.isNotBlank() &&
+                screenState.description.isNotBlank() &&
                 screenState.thumbnail.isNotEmpty() &&
                 screenState.price != 0.0
 
@@ -73,7 +97,7 @@ class ManageProductViewModel(
         updateId(product.id)
         updateCreatedAt(product.createdAt)
         updateTitle(product.title)
-        updateDescription(product.description)
+        screenState = screenState.copy(description = product.description)
         updateThumbnail(product.thumbnail)
         updateThumbnailUploaderState(RequestState.Success(Unit))
         updateCategory(ProductCategory.valueOf(product.category))
@@ -88,6 +112,7 @@ class ManageProductViewModel(
         updateNew(product.isNew)
         updatePopular(product.isPopular)
         updateDiscounted(product.isDiscounted)
+        savedState = screenState
     }
 
     fun updateId(value: String) {
@@ -182,7 +207,9 @@ class ManageProductViewModel(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) {
+        if (!canSubmit(onError)) return
         viewModelScope.launch {
+            isSaving = true
             val result =
                 adminRepository.createNewProduct(
                     product =
@@ -200,8 +227,21 @@ class ManageProductViewModel(
                             isDiscounted = screenState.isDiscounted,
                         ),
                 )
-            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
+            isSaving = false
+            result.fold(onSuccess = { onSaved(onSuccess) }, onFailure = { onError(result.errorMessage()) })
         }
+    }
+
+    private fun canSubmit(onError: (String) -> Unit): Boolean {
+        if (isSaving) return false
+        isValidationVisible = true
+        if (!isFormValid) onError(INVALID_FORM_ERROR)
+        return isFormValid
+    }
+
+    private fun onSaved(onSuccess: () -> Unit) {
+        savedState = screenState
+        onSuccess()
     }
 
     fun uploadThumbnailToStorage(
@@ -227,12 +267,17 @@ class ManageProductViewModel(
                     onSuccess()
                     updateThumbnailUploaderState(RequestState.Success(Unit))
                     updateThumbnail(downloadUrl)
+                    markThumbnailSaved()
                 },
                 onFailure = { error ->
                     updateThumbnailUploaderState(RequestState.Error(error.message.orEmpty()))
                 },
             )
         }
+    }
+
+    private fun markThumbnailSaved() {
+        if (productId.isNotEmpty()) savedState = savedState.copy(thumbnail = screenState.thumbnail)
     }
 
     /** Saves [downloadUrl] on the stored product; a product that is not saved yet has nothing to update. */
@@ -245,11 +290,9 @@ class ManageProductViewModel(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) {
-        if (!isFormValid) {
-            onError("Form is not valid.")
-            return
-        }
+        if (!canSubmit(onError)) return
         viewModelScope.launch {
+            isSaving = true
             val result =
                 adminRepository.updateProduct(
                     product =
@@ -268,7 +311,8 @@ class ManageProductViewModel(
                             isDiscounted = screenState.isDiscounted,
                         ),
                 )
-            result.fold(onSuccess = { onSuccess() }, onFailure = { onError(result.errorMessage()) })
+            isSaving = false
+            result.fold(onSuccess = { onSaved(onSuccess) }, onFailure = { onError(result.errorMessage()) })
         }
     }
 
@@ -285,6 +329,7 @@ class ManageProductViewModel(
             persistThumbnail(downloadUrl = "").fold(
                 onSuccess = {
                     updateThumbnail("")
+                    markThumbnailSaved()
                     updateThumbnailUploaderState(RequestState.Idle)
                     onSuccess()
                 },

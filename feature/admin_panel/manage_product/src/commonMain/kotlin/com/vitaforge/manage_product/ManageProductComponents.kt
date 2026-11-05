@@ -437,3 +437,36 @@ internal fun AddFlavourDialog(
         },
     )
 }
+
+@Composable
+internal fun ConfirmDialog(
+    title: String,
+    message: String,
+    confirmText: String,
+    dismissText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        containerColor = Surface,
+        onDismissRequest = onDismiss,
+        title = { Text(text = title, fontSize = FontSize.EXTRA_MEDIUM, color = TextPrimary) },
+        text = { Text(text = message, fontSize = FontSize.REGULAR, color = TextPrimary) },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary),
+            ) {
+                Text(text = confirmText, fontSize = FontSize.REGULAR, fontWeight = FontWeight.Medium)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = TextPrimary),
+            ) {
+                Text(text = dismissText, fontSize = FontSize.REGULAR, fontWeight = FontWeight.Medium)
+            }
+        },
+    )
+}

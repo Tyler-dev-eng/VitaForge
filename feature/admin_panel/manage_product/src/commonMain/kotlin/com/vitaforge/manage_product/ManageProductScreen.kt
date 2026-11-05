@@ -4,6 +4,7 @@ import ContentWithMessageBar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,13 +38,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.tylerdev.vitaforge.shared.BorderError
 import com.tylerdev.vitaforge.shared.BorderIdle
 import com.tylerdev.vitaforge.shared.ButtonPrimary
 import com.tylerdev.vitaforge.shared.FontSize
@@ -71,6 +77,14 @@ import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.manage_product_add_bullet
 import vitaforge.shared.generated.resources.manage_product_back
+import vitaforge.shared.generated.resources.manage_product_delete_confirm
+import vitaforge.shared.generated.resources.manage_product_delete_message
+import vitaforge.shared.generated.resources.manage_product_delete_title
+import vitaforge.shared.generated.resources.manage_product_discard_confirm
+import vitaforge.shared.generated.resources.manage_product_discard_message
+import vitaforge.shared.generated.resources.manage_product_discard_title
+import vitaforge.shared.generated.resources.manage_product_flavour_add_cancel
+import vitaforge.shared.generated.resources.manage_product_keep_editing
 import vitaforge.shared.generated.resources.manage_product_badge_discounted_subtitle
 import vitaforge.shared.generated.resources.manage_product_badge_discounted_title
 import vitaforge.shared.generated.resources.manage_product_badge_new_subtitle
@@ -96,11 +110,13 @@ fun ManageProductScreen(
     val messageBarState = rememberMessageBarState()
     val viewModel = koinViewModel<ManageProductViewModel>()
     val screenState = viewModel.screenState
-    val isFormValid = viewModel.isFormValid
+    val focusManager = LocalFocusManager.current
     val thumbnailUploaderState = viewModel.thumbnailUploaderState
     var showCategoryDialog by remember { mutableStateOf(false) }
     var dropDownMenuOpened by remember { mutableStateOf(false) }
     var showAddFlavourDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDiscardDialog by remember { mutableStateOf(false) }
     val photoPicker = koinInject<PhotoPicker>()
     var priceText by remember { mutableStateOf("") }
 
@@ -108,6 +124,10 @@ fun ManageProductScreen(
         if (priceText.toDoubleOrNull() != screenState.price) {
             priceText = screenState.price.toPriceText()
         }
+    }
+
+    val requestBack = {
+        if (viewModel.hasUnsavedChanges) showDiscardDialog = true else navigateBack()
     }
 
     photoPicker.InitialisePhotoPicker(
@@ -124,6 +144,35 @@ fun ManageProductScreen(
             onConfirm = { name ->
                 showAddFlavourDialog = false
                 viewModel.addFlavour(name = name, onError = { message -> messageBarState.addError(message) })
+            },
+        )
+    }
+    if (showDeleteDialog) {
+        ConfirmDialog(
+            title = stringResource(Res.string.manage_product_delete_title),
+            message = stringResource(Res.string.manage_product_delete_message),
+            confirmText = stringResource(Res.string.manage_product_delete_confirm),
+            dismissText = stringResource(Res.string.manage_product_flavour_add_cancel),
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                showDeleteDialog = false
+                viewModel.deleteProduct(
+                    onSuccess = navigateBack,
+                    onError = { message -> messageBarState.addError(message) },
+                )
+            },
+        )
+    }
+    if (showDiscardDialog) {
+        ConfirmDialog(
+            title = stringResource(Res.string.manage_product_discard_title),
+            message = stringResource(Res.string.manage_product_discard_message),
+            confirmText = stringResource(Res.string.manage_product_discard_confirm),
+            dismissText = stringResource(Res.string.manage_product_keep_editing),
+            onDismiss = { showDiscardDialog = false },
+            onConfirm = {
+                showDiscardDialog = false
+                navigateBack()
             },
         )
     }
@@ -160,7 +209,7 @@ fun ManageProductScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigateBack) {
+                    IconButton(onClick = requestBack) {
                         Icon(
                             painter = painterResource(Resources.Icon.Back),
                             contentDescription = stringResource(Res.string.manage_product_back),
@@ -195,10 +244,7 @@ fun ManageProductScreen(
                                 },
                                 onClick = {
                                     dropDownMenuOpened = false
-                                    viewModel.deleteProduct(
-                                        onSuccess = navigateBack,
-                                        onError = { message -> messageBarState.addError(message) },
-                                    )
+                                    showDeleteDialog = true
                                 },
                                 text = { Text(text = "Delete", color = TextPrimary) },
                             )
@@ -230,7 +276,11 @@ fun ManageProductScreen(
                         .imePadding(),
             ) {
                 Column(
-                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }
+                            .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     FormSectionLabel(stringResource(Res.string.manage_product_section_media))
@@ -241,7 +291,7 @@ fun ManageProductScreen(
                                 .height(300.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(SurfaceLighter)
-                                .dashedBorder(color = BorderIdle)
+                                .dashedBorder(color = if (viewModel.isThumbnailInvalid) BorderError else BorderIdle)
                                 .clickable(enabled = thumbnailUploaderState.isIdle()) {
                                     photoPicker.open()
                                 },
@@ -309,6 +359,12 @@ fun ManageProductScreen(
                         value = screenState.title,
                         onValueChange = viewModel::updateTitle,
                         placeholder = "e.g., Pure Iso-Whey Hydrolyzed",
+                        error = viewModel.isTitleInvalid,
+                        keyboardOptions =
+                            KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Words,
+                                imeAction = ImeAction.Next,
+                            ),
                     )
                     FormSectionLabel(stringResource(Res.string.manage_product_section_category))
                     AlertTextField(
@@ -332,6 +388,8 @@ fun ManageProductScreen(
                         onValueChange = viewModel::updateDescription,
                         placeholder = "Enter detailed formula specs, benefits, and usage instructions...",
                         expanded = true,
+                        error = viewModel.isDescriptionInvalid,
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         AnimatedVisibility(
@@ -341,10 +399,14 @@ fun ManageProductScreen(
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 FormSectionLabel(stringResource(Res.string.manage_product_section_weight))
                                 CustomTextField(
-                                    value = screenState.weight?.toString() ?: "",
-                                    onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0) },
+                                    value = screenState.weight?.toString().orEmpty(),
+                                    onValueChange = { viewModel.updateWeight(parseWeightInput(it)) },
                                     placeholder = "Weight",
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    keyboardOptions =
+                                        KeyboardOptions(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Next,
+                                        ),
                                 )
                             }
                         }
@@ -356,13 +418,18 @@ fun ManageProductScreen(
                             CustomTextField(
                                 value = priceText,
                                 onValueChange = { value ->
-                                    if (value.isEmpty() || value.toDoubleOrNull() != null) {
+                                    if (isValidPriceInput(value)) {
                                         priceText = value
                                         viewModel.updatePrice(value.toDoubleOrNull() ?: 0.0)
                                     }
                                 },
                                 placeholder = "Price",
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                error = viewModel.isPriceInvalid,
+                                keyboardOptions =
+                                    KeyboardOptions(
+                                        keyboardType = KeyboardType.Decimal,
+                                        imeAction = ImeAction.Done,
+                                    ),
                             )
                         }
                     }
@@ -415,6 +482,7 @@ fun ManageProductScreen(
                             "Update product"
                         },
                     onClick = {
+                        focusManager.clearFocus()
                         if (id != null) {
                             viewModel.updateProduct(
                                 onSuccess = { messageBarState.addSuccess("Product successfully updated!") },
@@ -428,7 +496,7 @@ fun ManageProductScreen(
                         }
                     },
                     icon = if (id == null) Resources.Icon.Plus else Resources.Icon.Check,
-                    enabled = isFormValid,
+                    isLoading = viewModel.isSaving,
                 )
             }
         }

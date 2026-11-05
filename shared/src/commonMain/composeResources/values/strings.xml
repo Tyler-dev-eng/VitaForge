@@ -80,6 +80,13 @@
     <string name="manage_product_section_category">Category</string>
     <string name="manage_product_section_description">Description &amp; specs</string>
     <string name="manage_product_add_bullet">• Add bullet</string>
+    <string name="manage_product_delete_title">Delete product?</string>
+    <string name="manage_product_delete_message">This permanently removes the product and its image. This can\'t be undone.</string>
+    <string name="manage_product_delete_confirm">Delete</string>
+    <string name="manage_product_discard_title">Discard changes?</string>
+    <string name="manage_product_discard_message">You have unsaved changes that will be lost.</string>
+    <string name="manage_product_discard_confirm">Discard</string>
+    <string name="manage_product_keep_editing">Keep editing</string>
     <string name="manage_product_section_weight">Net weight (G)</string>
     <string name="manage_product_section_price">Price (R)</string>
     <string name="manage_product_section_flavours">Available flavours</string>
