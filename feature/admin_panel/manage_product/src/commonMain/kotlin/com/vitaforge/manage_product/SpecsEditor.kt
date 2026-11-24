@@ -15,7 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,13 +60,13 @@ internal fun SpecsEditor(
 ) {
     val newRowRequester = remember { BringIntoViewRequester() }
     val newRowFocusRequester = remember { FocusRequester() }
-    var previousCount by remember { mutableIntStateOf(specs.size) }
+    var isNewRowRequested by remember { mutableStateOf(false) }
     LaunchedEffect(specs.size) {
-        if (specs.size > previousCount) {
+        if (isNewRowRequested) {
+            isNewRowRequested = false
             newRowRequester.bringIntoView()
             newRowFocusRequester.requestFocus()
         }
-        previousCount = specs.size
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SectionSpacing)) {
         Row(
@@ -75,7 +75,12 @@ internal fun SpecsEditor(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FormSectionLabel(stringResource(Res.string.manage_product_section_specs))
-            TextButton(onClick = onAddSpec) { Text(stringResource(Res.string.manage_product_specs_add)) }
+            TextButton(
+                onClick = {
+                    isNewRowRequested = true
+                    onAddSpec()
+                },
+            ) { Text(stringResource(Res.string.manage_product_specs_add)) }
         }
         if (specs.isNotEmpty()) {
             CustomTextField(
