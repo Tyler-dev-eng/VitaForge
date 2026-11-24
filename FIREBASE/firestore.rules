@@ -38,6 +38,8 @@ service cloud.firestore {
     //   - category: string (required, a ProductCategory name)
     //   - flavours: list | null (optional, <= 50 items)
     //   - weight: int | null (optional, 0..100000)
+    //   - specsServing: string | null (optional, <= 100 chars)
+    //   - specs: list | null (optional, <= 10 items of map {label, value: string <= 100})
     //   - price: number (required, 0..100000)
     //   - isPopular, isDiscounted, isNew: bool (required)
     //
@@ -153,10 +155,35 @@ service cloud.firestore {
              data.get('isAdmin', false) == false;
     }
 
+    function isValidSpec(spec) {
+      return spec is map &&
+             spec.keys().hasOnly(['label', 'value']) &&
+             spec.keys().hasAll(['label', 'value']) &&
+             isStringWithin(spec.label, 1, 100) &&
+             isStringWithin(spec.value, 1, 100);
+    }
+
+    // Rules have no loops, so the list is checked up to its 10-item cap.
+    function isValidSpecs(specs) {
+      return specs == null ||
+        (specs is list && specs.size() <= 10 &&
+         (specs.size() < 1 || isValidSpec(specs[0])) &&
+         (specs.size() < 2 || isValidSpec(specs[1])) &&
+         (specs.size() < 3 || isValidSpec(specs[2])) &&
+         (specs.size() < 4 || isValidSpec(specs[3])) &&
+         (specs.size() < 5 || isValidSpec(specs[4])) &&
+         (specs.size() < 6 || isValidSpec(specs[5])) &&
+         (specs.size() < 7 || isValidSpec(specs[6])) &&
+         (specs.size() < 8 || isValidSpec(specs[7])) &&
+         (specs.size() < 9 || isValidSpec(specs[8])) &&
+         (specs.size() < 10 || isValidSpec(specs[9])));
+    }
+
     function isValidProduct(data, productId) {
       return hasOnlyAllowedFields(data, [
                'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
-               'flavours', 'weight', 'price', 'isPopular', 'isDiscounted', 'isNew'
+               'flavours', 'weight', 'specsServing', 'specs', 'price', 'isPopular',
+               'isDiscounted', 'isNew'
              ]) &&
              hasRequiredFields(data, [
                'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
@@ -172,6 +199,8 @@ service cloud.firestore {
               (data.get('flavours', null) is list && data.get('flavours', null).size() <= 50)) &&
              (data.get('weight', null) == null ||
               (data.get('weight', null) is int && isNumberWithin(data.get('weight', null), 0, 100000))) &&
+             isValidOptionalString(data, 'specsServing', 100) &&
+             isValidSpecs(data.get('specs', null)) &&
              isNumberWithin(data.price, 0, 100000) &&
              data.isPopular is bool &&
              data.isDiscounted is bool &&

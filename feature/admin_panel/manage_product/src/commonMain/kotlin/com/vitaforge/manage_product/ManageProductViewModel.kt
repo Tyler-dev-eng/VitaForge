@@ -10,6 +10,7 @@ import com.tylerdev.vitaforge.shared.domain.Flavour
 import com.tylerdev.vitaforge.shared.domain.ImageFile
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
+import com.tylerdev.vitaforge.shared.domain.ProductSpec
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.errorMessage
@@ -31,6 +32,8 @@ data class ManageProductState(
     val category: ProductCategory = ProductCategory.Protein,
     val selectedFlavours: List<String> = emptyList(),
     val weight: Int? = null,
+    val specsServing: String = "",
+    val specs: List<ProductSpec> = emptyList(),
     val price: Double = 0.0,
     val isNew: Boolean = false,
     val isPopular: Boolean = false,
@@ -108,6 +111,8 @@ class ManageProductViewModel(
                 .filter { it.isNotEmpty() },
         )
         updateWeight(product.weight)
+        screenState =
+            screenState.copy(specsServing = product.specsServing.orEmpty(), specs = product.specs.orEmpty())
         updatePrice(product.price)
         updateNew(product.isNew)
         updatePopular(product.isPopular)
@@ -187,6 +192,32 @@ class ManageProductViewModel(
         screenState = screenState.copy(weight = value)
     }
 
+    fun updateSpecsServing(value: String) {
+        screenState = screenState.copy(specsServing = value)
+    }
+
+    fun addSpec() {
+        screenState = screenState.copy(specs = screenState.specs + ProductSpec(label = "", value = ""))
+    }
+
+    fun updateSpec(
+        index: Int,
+        spec: ProductSpec,
+    ) {
+        screenState = screenState.copy(specs = screenState.specs.mapIndexed { i, old -> if (i == index) spec else old })
+    }
+
+    fun removeSpec(index: Int) {
+        screenState = screenState.copy(specs = screenState.specs.filterIndexed { i, _ -> i != index })
+    }
+
+    private fun productSpecs(): List<ProductSpec>? =
+        screenState.specs
+            .filter { it.label.isNotBlank() && it.value.isNotBlank() }
+            .takeIf { it.isNotEmpty() }
+
+    private fun productSpecsServing(): String? = screenState.specsServing.takeIf { it.isNotBlank() && productSpecs() != null }
+
     fun updatePrice(value: Double) {
         screenState = screenState.copy(price = value)
     }
@@ -221,6 +252,8 @@ class ManageProductViewModel(
                             category = screenState.category.name,
                             flavours = productFlavours(),
                             weight = screenState.weight,
+                            specsServing = productSpecsServing(),
+                            specs = productSpecs(),
                             price = screenState.price,
                             isNew = screenState.isNew,
                             isPopular = screenState.isPopular,
@@ -305,6 +338,8 @@ class ManageProductViewModel(
                             category = screenState.category.name,
                             flavours = productFlavours(),
                             weight = screenState.weight,
+                            specsServing = productSpecsServing(),
+                            specs = productSpecs(),
                             price = screenState.price,
                             isNew = screenState.isNew,
                             isPopular = screenState.isPopular,

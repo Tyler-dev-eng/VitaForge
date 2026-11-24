@@ -434,6 +434,14 @@ fun ManageProductScreen(
                             )
                         }
                     }
+                    SpecsEditor(
+                        servingText = screenState.specsServing,
+                        specs = screenState.specs,
+                        onServingChange = viewModel::updateSpecsServing,
+                        onSpecChange = viewModel::updateSpec,
+                        onAddSpec = viewModel::addSpec,
+                        onRemoveSpec = viewModel::removeSpec,
+                    )
                     AnimatedVisibility(
                         visible = screenState.category != ProductCategory.Accessories,
                     ) {

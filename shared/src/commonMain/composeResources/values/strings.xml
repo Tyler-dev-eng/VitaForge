@@ -87,6 +87,12 @@
     <string name="manage_product_discard_message">You have unsaved changes that will be lost.</string>
     <string name="manage_product_discard_confirm">Discard</string>
     <string name="manage_product_keep_editing">Keep editing</string>
+    <string name="manage_product_section_specs">Specifications</string>
+    <string name="manage_product_specs_serving_placeholder">Per 30 g serving</string>
+    <string name="manage_product_specs_label_placeholder">Label (e.g. Protein)</string>
+    <string name="manage_product_specs_value_placeholder">Value (e.g. 24 g)</string>
+    <string name="manage_product_specs_add">+ Add spec</string>
+    <string name="manage_product_specs_remove">Remove spec</string>
     <string name="manage_product_section_weight">Net weight (G)</string>
     <string name="manage_product_section_price">Price (R)</string>
     <string name="manage_product_section_flavours">Available flavours</string>
@@ -137,6 +143,7 @@
     <string name="details_title">Details</string>
     <string name="details_product_image">Product image</string>
     <string name="details_weight_icon">Weight</string>
+    <string name="details_specs_title">Specifications</string>
     <string name="details_flavour_label">Flavour</string>
     <string name="details_add_to_cart">Add to Cart</string>
     <string name="details_added_to_cart">Added to cart</string>

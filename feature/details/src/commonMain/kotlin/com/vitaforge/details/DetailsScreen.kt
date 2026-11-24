@@ -186,6 +186,7 @@ private fun ProductContent(
             lineHeight = FontSize.REGULAR * DESCRIPTION_LINE_HEIGHT_MULTIPLIER,
             color = TextSecondary,
         )
+        SpecsTable(product = product)
     }
 }
 

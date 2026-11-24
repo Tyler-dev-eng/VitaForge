@@ -19,10 +19,18 @@ data class Product(
     val category: String,
     val flavours: List<String>? = null,
     val weight: Int? = null,
+    val specsServing: String? = null,
+    val specs: List<ProductSpec>? = null,
     val price: Double,
     val isPopular: Boolean = false,
     val isDiscounted: Boolean = false,
     val isNew: Boolean = false,
+)
+
+@Serializable
+data class ProductSpec(
+    val label: String,
+    val value: String,
 )
 
 enum class ProductCategory(
