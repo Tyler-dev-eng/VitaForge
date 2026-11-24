@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.IconPrimary
@@ -41,6 +42,11 @@ import vitaforge.shared.generated.resources.manage_product_specs_value_placehold
 private val SpecRowSpacing = 8.dp
 private val SectionSpacing = 12.dp
 private val RemoveIconSize = 20.dp
+private val SpecKeyboardOptions =
+    KeyboardOptions(
+        capitalization = KeyboardCapitalization.Sentences,
+        imeAction = ImeAction.Done,
+    )
 
 @Composable
 internal fun SpecsEditor(
@@ -76,7 +82,7 @@ internal fun SpecsEditor(
                 value = servingText,
                 onValueChange = onServingChange,
                 placeholder = stringResource(Res.string.manage_product_specs_serving_placeholder),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                keyboardOptions = SpecKeyboardOptions,
             )
         }
         specs.forEachIndexed { index, spec ->
@@ -110,13 +116,14 @@ private fun SpecRow(
             value = spec.label,
             onValueChange = { onSpecChange(spec.copy(label = it)) },
             placeholder = stringResource(Res.string.manage_product_specs_label_placeholder),
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            keyboardOptions = SpecKeyboardOptions,
         )
         CustomTextField(
             modifier = Modifier.weight(1f),
             value = spec.value,
             onValueChange = { onSpecChange(spec.copy(value = it)) },
             placeholder = stringResource(Res.string.manage_product_specs_value_placeholder),
+            keyboardOptions = SpecKeyboardOptions,
         )
         IconButton(onClick = onRemove) {
             Icon(

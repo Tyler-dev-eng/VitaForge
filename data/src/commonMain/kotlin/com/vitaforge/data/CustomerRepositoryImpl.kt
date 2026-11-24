@@ -103,7 +103,7 @@ class CustomerRepositoryImpl : CustomerRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error("Error while reading a Customer information: ${e.message}"))
+                send(RequestState.Error("Error while reading a Customer information. ${e.toFriendlyReason()}"))
             }
         }
 

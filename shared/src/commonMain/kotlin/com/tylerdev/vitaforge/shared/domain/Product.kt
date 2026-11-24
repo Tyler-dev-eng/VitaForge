@@ -32,12 +32,21 @@ data class Product(
     val discountedFromPrice: Double?
         get() = oldPrice?.takeIf { isDiscounted && it > price }
 
-    /** The image for [flavour], falling back to the main thumbnail when it has none. */
+    /** The main image: the thumbnail, or the first flavour's image when no thumbnail was added. */
+    val coverImage: String
+        get() =
+            thumbnail.takeIf { it.isNotBlank() }
+                ?: flavours
+                    .orEmpty()
+                    .firstNotNullOfOrNull { flavourImages?.get(it)?.takeIf(String::isNotBlank) }
+                ?: ""
+
+    /** The image for [flavour], falling back to [coverImage] when it has none. */
     fun imageFor(flavour: String?): String =
         flavour
             ?.let { flavourImages?.get(it) }
             ?.takeIf { it.isNotBlank() }
-            ?: thumbnail
+            ?: coverImage
 }
 
 @Serializable

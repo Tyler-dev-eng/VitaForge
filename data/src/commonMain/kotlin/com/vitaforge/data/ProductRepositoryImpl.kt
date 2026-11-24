@@ -55,7 +55,7 @@ class ProductRepositoryImpl : ProductRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error("Error while reading new and discounted products: ${e.message}"))
+                send(RequestState.Error("Error while reading new and discounted products. ${e.toFriendlyReason()}"))
             }
         }
 
@@ -101,7 +101,7 @@ class ProductRepositoryImpl : ProductRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error(" Error while reading product ${e.message}"))
+                send(RequestState.Error("Error while reading the product. ${e.toFriendlyReason()}"))
             }
         }
 
@@ -154,7 +154,7 @@ class ProductRepositoryImpl : ProductRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error(" Error while reading product ${e.message}"))
+                send(RequestState.Error("Error while reading the product. ${e.toFriendlyReason()}"))
             }
         }
 
@@ -198,7 +198,7 @@ class ProductRepositoryImpl : ProductRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error(" Error while reading product ${e.message}"))
+                send(RequestState.Error("Error while reading the product. ${e.toFriendlyReason()}"))
             }
         }
 
@@ -242,7 +242,7 @@ class ProductRepositoryImpl : ProductRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error("Error while reading new and discounted products: ${e.message}"))
+                send(RequestState.Error("Error while reading new and discounted products. ${e.toFriendlyReason()}"))
             }
         }
 }

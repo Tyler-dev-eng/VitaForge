@@ -96,7 +96,7 @@ class AdminRepositoryImpl : AdminRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error("Error while reading the last 10 items from the database: ${e.message}"))
+                send(RequestState.Error("Error while reading the last 10 items from the database. ${e.toFriendlyReason()}"))
             }
         }
 
@@ -213,7 +213,7 @@ class AdminRepositoryImpl : AdminRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error("Error while searching products: ${e.message}"))
+                send(RequestState.Error("Error while searching products. ${e.toFriendlyReason()}"))
             }
         }
 

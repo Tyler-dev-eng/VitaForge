@@ -113,7 +113,7 @@ fun MainProductCard(
             model =
                 ImageRequest
                     .Builder(LocalPlatformContext.current)
-                    .data(product.thumbnail)
+                    .data(product.coverImage)
                     .crossfade(true)
                     .build(),
             contentDescription = stringResource(Res.string.product_card_thumbnail_description),

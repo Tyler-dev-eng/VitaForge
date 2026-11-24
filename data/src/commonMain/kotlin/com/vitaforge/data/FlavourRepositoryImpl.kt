@@ -25,7 +25,7 @@ internal class FlavourRepositoryImpl : FlavourRepository {
                         .map { document -> Flavour(id = document.id, name = document.get(field = FIELD_NAME)) }
                         .sortedBy { it.name.lowercase() }
                 RequestState.Success(flavours)
-            }.catch { emit(RequestState.Error("Error while loading flavours: ${it.message}")) }
+            }.catch { emit(RequestState.Error("Error while loading flavours. ${it.toFriendlyReason()}")) }
 
     override suspend fun addFlavour(name: String): Result<Flavour> {
         val trimmedName = name.trim()

@@ -29,7 +29,7 @@ data class ManageProductState(
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val title: String = "",
     val description: String = "",
-    val thumbnail: String = "thumbnail image",
+    val thumbnail: String = "",
     val category: ProductCategory = ProductCategory.Protein,
     val selectedFlavours: List<String> = emptyList(),
     val flavourImages: Map<String, String> = emptyMap(),
@@ -87,10 +87,13 @@ class ManageProductViewModel(
         get() = isValidationVisible && screenState.price == 0.0
 
     val isThumbnailInvalid: Boolean
-        get() = isValidationVisible && screenState.thumbnail.isEmpty()
+        get() = isValidationVisible && !hasProductImage()
 
     val isOldPriceInvalid: Boolean
         get() = isValidationVisible && isOldPriceMissing()
+
+    /** A product needs a thumbnail, or at least one flavour image that can stand in for it. */
+    private fun hasProductImage(): Boolean = screenState.thumbnail.isNotEmpty() || productFlavourImages() != null
 
     private fun isOldPriceMissing(): Boolean {
         val oldPrice = screenState.oldPrice
@@ -102,7 +105,7 @@ class ManageProductViewModel(
             !isOldPriceMissing() &&
                 screenState.title.isNotBlank() &&
                 screenState.description.isNotBlank() &&
-                screenState.thumbnail.isNotEmpty() &&
+                hasProductImage() &&
                 screenState.price != 0.0
 
     init {
@@ -120,7 +123,7 @@ class ManageProductViewModel(
         updateTitle(product.title)
         screenState = screenState.copy(description = product.description)
         updateThumbnail(product.thumbnail)
-        updateThumbnailUploaderState(RequestState.Success(Unit))
+        if (product.thumbnail.isNotEmpty()) updateThumbnailUploaderState(RequestState.Success(Unit))
         updateCategory(ProductCategory.valueOf(product.category))
         updateSelectedFlavours(
             product.flavours
