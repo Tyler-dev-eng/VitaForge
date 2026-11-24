@@ -210,7 +210,8 @@ private fun ProductImage(
                 .crossfade(true)
                 .build(),
         contentDescription = stringResource(Res.string.details_product_image),
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.Fit,
+        alignment = Alignment.Center,
     )
 }
 

@@ -89,8 +89,8 @@
     <string name="manage_product_keep_editing">Keep editing</string>
     <string name="manage_product_section_specs">Specifications</string>
     <string name="manage_product_specs_serving_placeholder">Per 30 g serving</string>
-    <string name="manage_product_specs_label_placeholder">Label (e.g. Protein)</string>
-    <string name="manage_product_specs_value_placeholder">Value (e.g. 24 g)</string>
+    <string name="manage_product_specs_label_placeholder">Label</string>
+    <string name="manage_product_specs_value_placeholder">Value</string>
     <string name="manage_product_specs_add">+ Add spec</string>
     <string name="manage_product_specs_remove">Remove spec</string>
     <string name="manage_product_section_weight">Net weight (G)</string>
