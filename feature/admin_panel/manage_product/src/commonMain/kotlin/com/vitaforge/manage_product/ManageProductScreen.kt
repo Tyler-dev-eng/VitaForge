@@ -314,7 +314,8 @@ fun ManageProductScreen(
                                                 .crossfade(true)
                                                 .build(),
                                         contentDescription = "Product thumbnail",
-                                        contentScale = ContentScale.Crop,
+                                        contentScale = ContentScale.Fit,
+                                        alignment = Alignment.Center,
                                     )
 
                                     Box(

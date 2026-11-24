@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -110,6 +111,7 @@ fun ProductCard(
             modifier =
                 Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .padding(12.dp),
         ) {
             Text(
@@ -132,7 +134,7 @@ fun ProductCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.weight(1f))
             ProductFooter(product = product)
         }
     }
