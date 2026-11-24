@@ -112,11 +112,8 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                                 bottom = paddingValues.calculateBottomPadding(),
                             ),
                 ) {
-                    Column {
-                        ProductContent(
-                            modifier = Modifier.weight(1f),
-                            product = selectedProduct,
-                        )
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        ProductContent(product = selectedProduct)
                         PurchaseBar(
                             flavours = selectedProduct.flavours.orEmpty(),
                             selectedFlavour = selectedFlavour,
@@ -174,7 +171,6 @@ private fun ProductContent(
     Column(
         modifier =
             modifier
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = ContentPadding)
                 .padding(top = ItemSpacing, bottom = SectionSpacing),
         verticalArrangement = Arrangement.spacedBy(SectionSpacing),
@@ -297,8 +293,7 @@ private fun PurchaseBar(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = ImageCornerRadius, topEnd = ImageCornerRadius))
-                .background(SurfaceLighter)
+                .background(Surface)
                 .navigationBarsPadding()
                 .padding(ContentPadding),
         verticalArrangement = Arrangement.spacedBy(SectionSpacing),
