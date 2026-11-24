@@ -140,9 +140,10 @@ fun ManageProductScreen(
 
     photoPicker.InitialisePhotoPicker(
         onImageSelect = { file ->
-            viewModel.uploadThumbnailToStorage(
+            viewModel.onPhotoSelected(
                 file = file,
                 onSuccess = { messageBarState.addSuccess("Image successfully uploaded!") },
+                onError = { message -> messageBarState.addError(message) },
             )
         },
     )
@@ -301,6 +302,7 @@ fun ManageProductScreen(
                                 .background(SurfaceLighter)
                                 .dashedBorder(color = if (viewModel.isThumbnailInvalid) BorderError else BorderIdle)
                                 .clickable(enabled = thumbnailUploaderState.isIdle()) {
+                                    viewModel.setImageTarget(null)
                                     photoPicker.open()
                                 },
                         contentAlignment = Alignment.Center,
@@ -357,6 +359,7 @@ fun ManageProductScreen(
                                     message = message,
                                     onRetryClick = {
                                         viewModel.updateThumbnailUploaderState(RequestState.Idle)
+                                        viewModel.setImageTarget(null)
                                         photoPicker.open()
                                     },
                                 )
@@ -482,6 +485,18 @@ fun ManageProductScreen(
                                 onToggleFlavour = viewModel::toggleFlavour,
                                 onAddClick = { showAddFlavourDialog = true },
                             )
+                            if (screenState.selectedFlavours.isNotEmpty()) {
+                                FlavourImagesEditor(
+                                    flavours = screenState.selectedFlavours,
+                                    images = screenState.flavourImages,
+                                    uploadingFlavour = viewModel.uploadingFlavour,
+                                    onPickImage = { flavour ->
+                                        viewModel.setImageTarget(flavour)
+                                        photoPicker.open()
+                                    },
+                                    onRemoveImage = viewModel::removeFlavourImage,
+                                )
+                            }
                         }
                     }
                     FormSectionLabel(stringResource(Res.string.manage_product_section_badges))

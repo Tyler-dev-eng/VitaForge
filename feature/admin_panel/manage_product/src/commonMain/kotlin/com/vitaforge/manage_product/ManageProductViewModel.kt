@@ -22,6 +22,7 @@ import kotlin.uuid.Uuid
 
 private const val ADD_FLAVOUR_ERROR = "Could not add flavour."
 private const val INVALID_FORM_ERROR = "Please fill in the highlighted fields."
+private const val NO_IMAGE_ERROR = "No image selected"
 
 data class ManageProductState(
     val id: String = Uuid.random().toHexString(),
@@ -31,6 +32,7 @@ data class ManageProductState(
     val thumbnail: String = "thumbnail image",
     val category: ProductCategory = ProductCategory.Protein,
     val selectedFlavours: List<String> = emptyList(),
+    val flavourImages: Map<String, String> = emptyMap(),
     val weight: Int? = null,
     val specsServing: String = "",
     val specs: List<ProductSpec> = emptyList(),
@@ -60,6 +62,12 @@ class ManageProductViewModel(
 
     var isSaving by mutableStateOf(false)
         private set
+
+    var uploadingFlavour: String? by mutableStateOf(null)
+        private set
+
+    /** Which flavour the next picked photo belongs to; null means the product thumbnail. */
+    private var imageTarget: String? = null
 
     var isValidationVisible by mutableStateOf(false)
         private set
@@ -121,6 +129,7 @@ class ManageProductViewModel(
                 .filter { it.isNotEmpty() },
         )
         updateWeight(product.weight)
+        screenState = screenState.copy(flavourImages = product.flavourImages.orEmpty())
         screenState =
             screenState.copy(specsServing = product.specsServing.orEmpty(), specs = product.specs.orEmpty())
         updatePrice(product.price)
@@ -189,6 +198,61 @@ class ManageProductViewModel(
                 }
         }
     }
+
+    fun setImageTarget(flavour: String?) {
+        imageTarget = flavour
+    }
+
+    fun onPhotoSelected(
+        file: ImageFile?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        val flavour = imageTarget
+        imageTarget = null
+        if (flavour == null) uploadThumbnailToStorage(file, onSuccess) else uploadFlavourImage(flavour, file, onSuccess, onError)
+    }
+
+    private fun uploadFlavourImage(
+        flavour: String,
+        file: ImageFile?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        if (file == null) {
+            onError(NO_IMAGE_ERROR)
+            return
+        }
+        viewModelScope.launch {
+            uploadingFlavour = flavour
+            val result = adminRepository.uploadImageToStorage(file)
+            uploadingFlavour = null
+            result.fold(
+                onSuccess = { url ->
+                    discardUnsavedImage(screenState.flavourImages[flavour])
+                    screenState = screenState.copy(flavourImages = screenState.flavourImages + (flavour to url))
+                    onSuccess()
+                },
+                onFailure = { onError(result.errorMessage()) },
+            )
+        }
+    }
+
+    fun removeFlavourImage(flavour: String) {
+        discardUnsavedImage(screenState.flavourImages[flavour])
+        screenState = screenState.copy(flavourImages = screenState.flavourImages - flavour)
+    }
+
+    /** Deletes an uploaded image straight away when it was never saved on the product, so it isn't orphaned. */
+    private fun discardUnsavedImage(url: String?) {
+        if (url == null || url in savedState.flavourImages.values) return
+        viewModelScope.launch { adminRepository.deleteImageFromStorage(downloadUrl = url) }
+    }
+
+    private fun productFlavourImages(): Map<String, String>? =
+        screenState.flavourImages
+            .filter { (flavour, url) -> url.isNotBlank() && productFlavours().any { it.equals(flavour, ignoreCase = true) } }
+            .takeIf { it.isNotEmpty() }
 
     private fun productFlavours(): List<String> =
         if (screenState.category == ProductCategory.Accessories) emptyList() else screenState.selectedFlavours
@@ -266,6 +330,7 @@ class ManageProductViewModel(
                             thumbnail = screenState.thumbnail,
                             category = screenState.category.name,
                             flavours = productFlavours(),
+                            flavourImages = productFlavourImages(),
                             weight = screenState.weight,
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
@@ -288,7 +353,11 @@ class ManageProductViewModel(
         return isFormValid
     }
 
-    private fun onSaved(onSuccess: () -> Unit) {
+    private suspend fun onSaved(onSuccess: () -> Unit) {
+        val keptImages = productFlavourImages().orEmpty()
+        val staleImages = (savedState.flavourImages.values + screenState.flavourImages.values).toSet() - keptImages.values.toSet()
+        staleImages.forEach { adminRepository.deleteImageFromStorage(downloadUrl = it) }
+        screenState = screenState.copy(flavourImages = keptImages)
         savedState = screenState
         onSuccess()
     }
@@ -353,6 +422,7 @@ class ManageProductViewModel(
                             thumbnail = screenState.thumbnail,
                             category = screenState.category.name,
                             flavours = productFlavours(),
+                            flavourImages = productFlavourImages(),
                             weight = screenState.weight,
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
@@ -402,6 +472,7 @@ class ManageProductViewModel(
                 result.fold(
                     onSuccess = {
                         deleteThumbnailFromStorage(onSuccess = {}, onError = {})
+                        screenState.flavourImages.values.forEach { adminRepository.deleteImageFromStorage(downloadUrl = it) }
                         onSuccess()
                     },
                     onFailure = { onError(result.errorMessage()) },

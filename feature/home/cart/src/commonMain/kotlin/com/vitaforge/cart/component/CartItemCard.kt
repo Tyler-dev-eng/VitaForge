@@ -73,7 +73,7 @@ fun CartItemCard(
                 .padding(CardPadding),
         horizontalArrangement = Arrangement.spacedBy(CardPadding),
     ) {
-        CartItemThumbnail(product = product)
+        CartItemThumbnail(product = product, flavour = cartItem.flavour)
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -94,7 +94,10 @@ fun CartItemCard(
 }
 
 @Composable
-private fun CartItemThumbnail(product: Product) {
+private fun CartItemThumbnail(
+    product: Product,
+    flavour: String?,
+) {
     AsyncImage(
         modifier =
             Modifier
@@ -103,7 +106,7 @@ private fun CartItemThumbnail(product: Product) {
         model =
             ImageRequest
                 .Builder(LocalPlatformContext.current)
-                .data(product.thumbnail)
+                .data(product.imageFor(flavour))
                 .crossfade(true)
                 .build(),
         contentDescription = stringResource(Res.string.cart_item_thumbnail_description, product.title),

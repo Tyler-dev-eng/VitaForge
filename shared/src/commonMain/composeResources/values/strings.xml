@@ -99,6 +99,10 @@
     <string name="manage_product_section_flavours">Available flavours</string>
     <string name="manage_product_flavours_show_all">Show all flavours (%1$d)</string>
     <string name="manage_product_flavours_show_less">Show less</string>
+    <string name="manage_product_section_flavour_images">Flavour images (optional)</string>
+    <string name="manage_product_flavour_image_add">Tap to add an image</string>
+    <string name="manage_product_flavour_image_description">Image for %1$s</string>
+    <string name="manage_product_flavour_image_remove">Remove image for %1$s</string>
     <string name="manage_product_flavours_loading">Loading flavours…</string>
     <string name="manage_product_flavour_add">Add flavour</string>
     <string name="manage_product_flavour_add_title">New flavour</string>

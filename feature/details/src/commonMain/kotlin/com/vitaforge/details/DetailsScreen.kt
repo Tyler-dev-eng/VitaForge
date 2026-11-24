@@ -113,7 +113,7 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                             ),
                 ) {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        ProductContent(product = selectedProduct)
+                        ProductContent(product = selectedProduct, selectedFlavour = selectedFlavour)
                         PurchaseBar(
                             flavours = selectedProduct.flavours.orEmpty(),
                             selectedFlavour = selectedFlavour,
@@ -166,6 +166,7 @@ private fun DetailsTopBar(
 @Composable
 private fun ProductContent(
     product: Product,
+    selectedFlavour: String?,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -175,7 +176,7 @@ private fun ProductContent(
                 .padding(top = ItemSpacing, bottom = SectionSpacing),
         verticalArrangement = Arrangement.spacedBy(SectionSpacing),
     ) {
-        ProductImage(thumbnail = product.thumbnail)
+        ProductImage(imageUrl = product.imageFor(selectedFlavour))
         ProductHeader(product = product)
         Text(
             text = product.description,
@@ -189,7 +190,7 @@ private fun ProductContent(
 
 @Composable
 private fun ProductImage(
-    thumbnail: String,
+    imageUrl: String,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(size = ImageCornerRadius)
@@ -203,7 +204,7 @@ private fun ProductImage(
         model =
             ImageRequest
                 .Builder(LocalPlatformContext.current)
-                .data(thumbnail)
+                .data(imageUrl)
                 .crossfade(true)
                 .build(),
         contentDescription = stringResource(Res.string.details_product_image),

@@ -18,6 +18,7 @@ data class Product(
     val thumbnail: String,
     val category: String,
     val flavours: List<String>? = null,
+    val flavourImages: Map<String, String>? = null,
     val weight: Int? = null,
     val specsServing: String? = null,
     val specs: List<ProductSpec>? = null,
@@ -30,6 +31,13 @@ data class Product(
     /** The pre-discount price to show struck through, or null when the product isn't on sale. */
     val discountedFromPrice: Double?
         get() = oldPrice?.takeIf { isDiscounted && it > price }
+
+    /** The image for [flavour], falling back to the main thumbnail when it has none. */
+    fun imageFor(flavour: String?): String =
+        flavour
+            ?.let { flavourImages?.get(it) }
+            ?.takeIf { it.isNotBlank() }
+            ?: thumbnail
 }
 
 @Serializable
