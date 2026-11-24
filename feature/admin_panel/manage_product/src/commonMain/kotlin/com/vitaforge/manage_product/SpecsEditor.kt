@@ -1,6 +1,8 @@
 package com.vitaforge.manage_product
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,8 +13,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.IconPrimary
@@ -43,6 +52,16 @@ internal fun SpecsEditor(
     onRemoveSpec: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val newRowRequester = remember { BringIntoViewRequester() }
+    val newRowFocusRequester = remember { FocusRequester() }
+    var previousCount by remember { mutableIntStateOf(specs.size) }
+    LaunchedEffect(specs.size) {
+        if (specs.size > previousCount) {
+            newRowRequester.bringIntoView()
+            newRowFocusRequester.requestFocus()
+        }
+        previousCount = specs.size
+    }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SectionSpacing)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -61,7 +80,10 @@ internal fun SpecsEditor(
             )
         }
         specs.forEachIndexed { index, spec ->
+            val isLast = index == specs.lastIndex
             SpecRow(
+                modifier = if (isLast) Modifier.bringIntoViewRequester(newRowRequester) else Modifier,
+                labelFocusRequester = if (isLast) newRowFocusRequester else null,
                 spec = spec,
                 onSpecChange = { onSpecChange(index, it) },
                 onRemove = { onRemoveSpec(index) },
@@ -76,6 +98,7 @@ private fun SpecRow(
     onSpecChange: (ProductSpec) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
+    labelFocusRequester: FocusRequester? = null,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -83,7 +106,7 @@ private fun SpecRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CustomTextField(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).then(if (labelFocusRequester != null) Modifier.focusRequester(labelFocusRequester) else Modifier),
             value = spec.label,
             onValueChange = { onSpecChange(spec.copy(label = it)) },
             placeholder = stringResource(Res.string.manage_product_specs_label_placeholder),
