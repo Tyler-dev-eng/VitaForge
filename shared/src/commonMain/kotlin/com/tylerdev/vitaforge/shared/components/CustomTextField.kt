@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.Alpha
@@ -42,8 +43,9 @@ fun CustomTextField(
         KeyboardOptions(
             keyboardType = KeyboardType.Text,
         ),
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    keyboardActions: KeyboardActions? = null,
 ) {
+    val focusManager = LocalFocusManager.current
     val borderColour by
         animateColorAsState(
             targetValue = if (error) BorderError else BorderIdle,
@@ -87,7 +89,7 @@ fun CustomTextField(
         singleLine = !expanded,
         shape = RoundedCornerShape(size = 6.dp),
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
+        keyboardActions = keyboardActions ?: KeyboardActions(onDone = { focusManager.clearFocus() }),
         colors =
             TextFieldDefaults.colors(
                 focusedTextColor = TextPrimary,
