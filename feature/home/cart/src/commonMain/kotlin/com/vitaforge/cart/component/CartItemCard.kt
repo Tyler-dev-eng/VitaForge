@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -165,6 +166,14 @@ private fun CartItemFooter(
         verticalAlignment = Alignment.Bottom,
     ) {
         Column {
+            product.discountedFromPrice?.let { oldPrice ->
+                Text(
+                    text = stringResource(Res.string.cart_price, formatAmount(oldPrice * cartItem.quantity)),
+                    fontSize = FontSize.EXTRA_SMALL,
+                    color = TextMuted,
+                    textDecoration = TextDecoration.LineThrough,
+                )
+            }
             Text(
                 text = stringResource(Res.string.cart_price, formatAmount(product.price * cartItem.quantity)),
                 fontSize = FontSize.MEDIUM,

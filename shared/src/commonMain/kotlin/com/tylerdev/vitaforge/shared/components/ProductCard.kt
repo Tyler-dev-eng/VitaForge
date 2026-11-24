@@ -168,7 +168,7 @@ private fun ProductWeight(product: Product) {
 private fun ProductFooter(product: Product) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(
