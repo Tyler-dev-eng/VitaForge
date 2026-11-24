@@ -41,6 +41,7 @@ service cloud.firestore {
     //   - specsServing: string | null (optional, <= 100 chars)
     //   - specs: list | null (optional, <= 10 items of map {label, value: string <= 100})
     //   - price: number (required, 0..100000)
+    //   - oldPrice: number | null (optional, 0..100000, pre-discount price)
     //   - isPopular, isDiscounted, isNew: bool (required)
     //
     // Collection: flavours
@@ -182,7 +183,7 @@ service cloud.firestore {
     function isValidProduct(data, productId) {
       return hasOnlyAllowedFields(data, [
                'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
-               'flavours', 'weight', 'specsServing', 'specs', 'price', 'isPopular',
+               'flavours', 'weight', 'specsServing', 'specs', 'price', 'oldPrice', 'isPopular',
                'isDiscounted', 'isNew'
              ]) &&
              hasRequiredFields(data, [
@@ -202,6 +203,8 @@ service cloud.firestore {
              isValidOptionalString(data, 'specsServing', 100) &&
              isValidSpecs(data.get('specs', null)) &&
              isNumberWithin(data.price, 0, 100000) &&
+             (data.get('oldPrice', null) == null ||
+              (data.get('oldPrice', null) is number && isNumberWithin(data.get('oldPrice', null), 0, 100000))) &&
              data.isPopular is bool &&
              data.isDiscounted is bool &&
              data.isNew is bool;

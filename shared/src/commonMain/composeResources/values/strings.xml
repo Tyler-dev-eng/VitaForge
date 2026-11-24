@@ -94,6 +94,7 @@
     <string name="manage_product_specs_add">+ Add spec</string>
     <string name="manage_product_specs_remove">Remove spec</string>
     <string name="manage_product_section_weight">Net weight (G)</string>
+    <string name="manage_product_section_old_price">Original price (R)</string>
     <string name="manage_product_section_price">Price (R)</string>
     <string name="manage_product_section_flavours">Available flavours</string>
     <string name="manage_product_flavours_loading">Loading flavours…</string>

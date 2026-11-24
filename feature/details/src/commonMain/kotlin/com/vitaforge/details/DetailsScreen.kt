@@ -46,6 +46,7 @@ import com.tylerdev.vitaforge.shared.SurfaceLighter
 import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
+import com.tylerdev.vitaforge.shared.components.OldPriceText
 import com.tylerdev.vitaforge.shared.components.PrimaryButton
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
@@ -232,12 +233,18 @@ private fun ProductHeader(
             } else {
                 WeightPill(weight = weight)
             }
-            Text(
-                text = stringResource(Res.string.product_card_price, product.price),
-                fontSize = FontSize.EXTRA_MEDIUM,
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold,
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(ItemSpacing),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                product.discountedFromPrice?.let { OldPriceText(oldPrice = it, fontSize = FontSize.REGULAR) }
+                Text(
+                    text = stringResource(Res.string.product_card_price, product.price),
+                    fontSize = FontSize.EXTRA_MEDIUM,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
         Text(
             text = product.title.uppercase(),

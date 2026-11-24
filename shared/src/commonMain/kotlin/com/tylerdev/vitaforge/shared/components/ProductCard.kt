@@ -179,12 +179,15 @@ private fun ProductFooter(product: Product) {
             ProductWeight(product = product)
             ProductBadge(badge = product.badge())
         }
-        Text(
-            text = "R${product.price}",
-            fontSize = FontSize.MEDIUM,
-            fontWeight = FontWeight.Bold,
-            color = TextSecondary,
-        )
+        Column(horizontalAlignment = Alignment.End) {
+            product.discountedFromPrice?.let { OldPriceText(oldPrice = it, fontSize = FontSize.EXTRA_SMALL) }
+            Text(
+                text = "R${product.price}",
+                fontSize = FontSize.MEDIUM,
+                fontWeight = FontWeight.Bold,
+                color = TextSecondary,
+            )
+        }
     }
 }
 

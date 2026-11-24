@@ -22,10 +22,15 @@ data class Product(
     val specsServing: String? = null,
     val specs: List<ProductSpec>? = null,
     val price: Double,
+    val oldPrice: Double? = null,
     val isPopular: Boolean = false,
     val isDiscounted: Boolean = false,
     val isNew: Boolean = false,
-)
+) {
+    /** The pre-discount price to show struck through, or null when the product isn't on sale. */
+    val discountedFromPrice: Double?
+        get() = oldPrice?.takeIf { isDiscounted && it > price }
+}
 
 @Serializable
 data class ProductSpec(

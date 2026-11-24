@@ -35,6 +35,7 @@ data class ManageProductState(
     val specsServing: String = "",
     val specs: List<ProductSpec> = emptyList(),
     val price: Double = 0.0,
+    val oldPrice: Double? = null,
     val isNew: Boolean = false,
     val isPopular: Boolean = false,
     val isDiscounted: Boolean = false,
@@ -80,9 +81,18 @@ class ManageProductViewModel(
     val isThumbnailInvalid: Boolean
         get() = isValidationVisible && screenState.thumbnail.isEmpty()
 
+    val isOldPriceInvalid: Boolean
+        get() = isValidationVisible && isOldPriceMissing()
+
+    private fun isOldPriceMissing(): Boolean {
+        val oldPrice = screenState.oldPrice
+        return screenState.isDiscounted && (oldPrice == null || oldPrice <= screenState.price)
+    }
+
     val isFormValid: Boolean
         get() =
-            screenState.title.isNotBlank() &&
+            !isOldPriceMissing() &&
+                screenState.title.isNotBlank() &&
                 screenState.description.isNotBlank() &&
                 screenState.thumbnail.isNotEmpty() &&
                 screenState.price != 0.0
@@ -114,6 +124,7 @@ class ManageProductViewModel(
         screenState =
             screenState.copy(specsServing = product.specsServing.orEmpty(), specs = product.specs.orEmpty())
         updatePrice(product.price)
+        updateOldPrice(product.oldPrice)
         updateNew(product.isNew)
         updatePopular(product.isPopular)
         updateDiscounted(product.isDiscounted)
@@ -222,6 +233,10 @@ class ManageProductViewModel(
         screenState = screenState.copy(price = value)
     }
 
+    fun updateOldPrice(value: Double?) {
+        screenState = screenState.copy(oldPrice = value)
+    }
+
     fun updateNew(value: Boolean) {
         screenState = screenState.copy(isNew = value)
     }
@@ -255,6 +270,7 @@ class ManageProductViewModel(
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
                             price = screenState.price,
+                            oldPrice = screenState.oldPrice.takeIf { screenState.isDiscounted },
                             isNew = screenState.isNew,
                             isPopular = screenState.isPopular,
                             isDiscounted = screenState.isDiscounted,
@@ -341,6 +357,7 @@ class ManageProductViewModel(
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
                             price = screenState.price,
+                            oldPrice = screenState.oldPrice.takeIf { screenState.isDiscounted },
                             isNew = screenState.isNew,
                             isPopular = screenState.isPopular,
                             isDiscounted = screenState.isDiscounted,

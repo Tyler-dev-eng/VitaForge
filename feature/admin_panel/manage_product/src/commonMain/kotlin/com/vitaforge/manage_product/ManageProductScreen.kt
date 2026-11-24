@@ -96,6 +96,7 @@ import vitaforge.shared.generated.resources.manage_product_section_category
 import vitaforge.shared.generated.resources.manage_product_section_description
 import vitaforge.shared.generated.resources.manage_product_section_flavours
 import vitaforge.shared.generated.resources.manage_product_section_media
+import vitaforge.shared.generated.resources.manage_product_section_old_price
 import vitaforge.shared.generated.resources.manage_product_section_price
 import vitaforge.shared.generated.resources.manage_product_section_title
 import vitaforge.shared.generated.resources.manage_product_section_weight
@@ -119,10 +120,17 @@ fun ManageProductScreen(
     var showDiscardDialog by remember { mutableStateOf(false) }
     val photoPicker = koinInject<PhotoPicker>()
     var priceText by remember { mutableStateOf("") }
+    var oldPriceText by remember { mutableStateOf("") }
 
     LaunchedEffect(screenState.price) {
         if (priceText.toDoubleOrNull() != screenState.price) {
             priceText = screenState.price.toPriceText()
+        }
+    }
+
+    LaunchedEffect(screenState.oldPrice) {
+        if (oldPriceText.toDoubleOrNull() != screenState.oldPrice) {
+            oldPriceText = screenState.oldPrice?.toPriceText().orEmpty()
         }
     }
 
@@ -426,6 +434,27 @@ fun ManageProductScreen(
                                 },
                                 placeholder = "Price",
                                 error = viewModel.isPriceInvalid,
+                                keyboardOptions =
+                                    KeyboardOptions(
+                                        keyboardType = KeyboardType.Decimal,
+                                        imeAction = ImeAction.Done,
+                                    ),
+                            )
+                        }
+                    }
+                    AnimatedVisibility(visible = screenState.isDiscounted) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            FormSectionLabel(stringResource(Res.string.manage_product_section_old_price))
+                            CustomTextField(
+                                value = oldPriceText,
+                                onValueChange = { value ->
+                                    if (isValidPriceInput(value)) {
+                                        oldPriceText = value
+                                        viewModel.updateOldPrice(value.toDoubleOrNull())
+                                    }
+                                },
+                                placeholder = stringResource(Res.string.manage_product_section_old_price),
+                                error = viewModel.isOldPriceInvalid,
                                 keyboardOptions =
                                     KeyboardOptions(
                                         keyboardType = KeyboardType.Decimal,

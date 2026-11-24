@@ -48,6 +48,7 @@ import com.tylerdev.vitaforge.shared.Resources
 import com.tylerdev.vitaforge.shared.SurfaceScrim
 import com.tylerdev.vitaforge.shared.TextBrand
 import com.tylerdev.vitaforge.shared.TextWhite
+import com.tylerdev.vitaforge.shared.components.OldPriceText
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
@@ -191,12 +192,18 @@ fun MainProductCard(
                         }
                     }
                 }
-                Text(
-                    text = stringResource(Res.string.product_card_price, product.price),
-                    fontSize = FontSize.EXTRA_REGULAR,
-                    color = TextBrand,
-                    fontWeight = FontWeight.Medium,
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    product.discountedFromPrice?.let { OldPriceText(oldPrice = it, fontSize = FontSize.SMALL) }
+                    Text(
+                        text = stringResource(Res.string.product_card_price, product.price),
+                        fontSize = FontSize.EXTRA_REGULAR,
+                        color = TextBrand,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
             }
         }
     }
