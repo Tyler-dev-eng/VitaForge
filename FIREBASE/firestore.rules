@@ -157,12 +157,13 @@ service cloud.firestore {
              data.get('isAdmin', false) == false;
     }
 
+    // Kept cheap on purpose: rules stop after 1000 expressions per request. Reading a
+    // missing key is an error (which denies), so size() == 2 plus label/value being
+    // present means the map holds exactly those two keys.
     function isValidSpec(spec) {
-      return spec is map &&
-             spec.keys().hasOnly(['label', 'value']) &&
-             spec.keys().hasAll(['label', 'value']) &&
-             isStringWithin(spec.label, 1, 100) &&
-             isStringWithin(spec.value, 1, 100);
+      return spec is map && spec.size() == 2 &&
+             spec.label is string && spec.label.size() > 0 && spec.label.size() <= 100 &&
+             spec.value is string && spec.value.size() > 0 && spec.value.size() <= 100;
     }
 
     // Rules have no loops, so the list is checked up to its 10-item cap.
