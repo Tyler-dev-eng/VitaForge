@@ -30,7 +30,7 @@ class AdminPanelViewModel(
 
     private val products =
         adminRepository
-            .readLastTenProducts()
+            .readAllProducts()
             .filterByCategory()
             .stateIn(
                 scope = viewModelScope,

@@ -14,7 +14,7 @@ interface AdminRepository {
 
     suspend fun deleteImageFromStorage(downloadUrl: String): Result<Unit>
 
-    fun readLastTenProducts(): Flow<RequestState<List<Product>>>
+    fun readAllProducts(): Flow<RequestState<List<Product>>>
 
     suspend fun readProductById(id: String): Result<Product>
 

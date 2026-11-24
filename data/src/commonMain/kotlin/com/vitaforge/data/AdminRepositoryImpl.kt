@@ -55,7 +55,7 @@ class AdminRepositoryImpl : AdminRepository {
             Firebase.storage.reference(storagePath).delete()
         }
 
-    override fun readLastTenProducts(): Flow<RequestState<List<Product>>> =
+    override fun readAllProducts(): Flow<RequestState<List<Product>>> =
         channelFlow {
             try {
                 val userId = getCurrentUserId()
@@ -64,7 +64,6 @@ class AdminRepositoryImpl : AdminRepository {
                     database
                         .collection(collectionPath = "product")
                         .orderBy("createdAt", Direction.DESCENDING)
-                        .limit(10)
                         .snapshots
                         .collectLatest { query ->
                             val products =
@@ -96,7 +95,7 @@ class AdminRepositoryImpl : AdminRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                send(RequestState.Error("Error while reading the last 10 items from the database. ${e.toFriendlyReason()}"))
+                send(RequestState.Error("Error while reading the products. ${e.toFriendlyReason()}"))
             }
         }
 
