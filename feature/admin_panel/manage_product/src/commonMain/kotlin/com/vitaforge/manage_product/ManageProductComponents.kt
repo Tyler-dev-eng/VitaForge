@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +72,8 @@ import vitaforge.shared.generated.resources.manage_product_flavour_add_confirm
 import vitaforge.shared.generated.resources.manage_product_flavour_add_placeholder
 import vitaforge.shared.generated.resources.manage_product_flavour_add_title
 import vitaforge.shared.generated.resources.manage_product_flavours_loading
+import vitaforge.shared.generated.resources.manage_product_flavours_show_all
+import vitaforge.shared.generated.resources.manage_product_flavours_show_less
 import vitaforge.shared.generated.resources.manage_product_upload_description
 import vitaforge.shared.generated.resources.manage_product_upload_hint
 import vitaforge.shared.generated.resources.manage_product_upload_title
@@ -253,18 +256,35 @@ internal fun FlavourChips(
                     val names = flavours.data.map { it.name }
                     names + selectedFlavours.filter { selected -> names.none { it.equals(selected, ignoreCase = true) } }
                 }
-            FlowRow(
-                modifier = modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
-            ) {
-                options.forEach { name ->
-                    FlavourChip(
-                        label = name,
-                        isSelected = selectedFlavours.any { it.equals(name, ignoreCase = true) },
-                        onClick = { onToggleFlavour(name) },
-                    )
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
+            val visibleOptions =
+                if (isExpanded) options else options.filter { name -> selectedFlavours.any { it.equals(name, ignoreCase = true) } }
+            Column(modifier = modifier.fillMaxWidth()) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
+                ) {
+                    visibleOptions.forEach { name ->
+                        FlavourChip(
+                            label = name,
+                            isSelected = selectedFlavours.any { it.equals(name, ignoreCase = true) },
+                            onClick = { onToggleFlavour(name) },
+                        )
+                    }
+                    AddFlavourChip(onClick = onAddClick)
                 }
-                AddFlavourChip(onClick = onAddClick)
+                if (options.size > selectedFlavours.size || isExpanded) {
+                    TextButton(onClick = { isExpanded = !isExpanded }) {
+                        Text(
+                            text =
+                                if (isExpanded) {
+                                    stringResource(Res.string.manage_product_flavours_show_less)
+                                } else {
+                                    stringResource(Res.string.manage_product_flavours_show_all, options.size)
+                                },
+                        )
+                    }
+                }
             }
         }
 
