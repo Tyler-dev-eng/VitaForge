@@ -45,10 +45,12 @@ import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
+import com.tylerdev.vitaforge.shared.util.formatAmount
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vitaforge.shared.generated.resources.Res
+import vitaforge.shared.generated.resources.cart_price
 import vitaforge.shared.generated.resources.product_badge_new
 import vitaforge.shared.generated.resources.product_badge_popular
 import vitaforge.shared.generated.resources.product_badge_sale
@@ -182,7 +184,7 @@ private fun ProductFooter(product: Product) {
         Column(horizontalAlignment = Alignment.End) {
             product.discountedFromPrice?.let { OldPriceText(oldPrice = it, fontSize = FontSize.EXTRA_SMALL) }
             Text(
-                text = "R${product.price}",
+                text = stringResource(Res.string.cart_price, formatAmount(product.price)),
                 fontSize = FontSize.MEDIUM,
                 fontWeight = FontWeight.Bold,
                 color = TextSecondary,

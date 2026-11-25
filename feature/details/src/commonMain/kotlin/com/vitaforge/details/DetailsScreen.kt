@@ -52,6 +52,7 @@ import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
 import com.tylerdev.vitaforge.shared.util.DisplayResult
+import com.tylerdev.vitaforge.shared.util.formatAmount
 import com.vitaforge.details.component.OptionChip
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -251,7 +252,7 @@ private fun ProductHeader(
             ) {
                 product.discountedFromPrice?.let { OldPriceText(oldPrice = it, fontSize = FontSize.REGULAR) }
                 Text(
-                    text = stringResource(Res.string.product_card_price, product.price),
+                    text = stringResource(Res.string.product_card_price, formatAmount(product.price)),
                     fontSize = FontSize.EXTRA_MEDIUM,
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold,
