@@ -63,6 +63,7 @@ import vitaforge.shared.generated.resources.details_added_to_cart
 import vitaforge.shared.generated.resources.details_colour_label
 import vitaforge.shared.generated.resources.details_flavour_label
 import vitaforge.shared.generated.resources.details_product_image
+import vitaforge.shared.generated.resources.details_size_label
 import vitaforge.shared.generated.resources.details_title
 import vitaforge.shared.generated.resources.details_weight_icon
 import vitaforge.shared.generated.resources.product_card_price
@@ -86,6 +87,7 @@ fun DetailsScreen(navigateBack: () -> Unit) {
     val product by viewModel.product.collectAsStateWithLifecycle()
     val selectedFlavour by viewModel.selectedFlavour.collectAsStateWithLifecycle()
     val selectedColour by viewModel.selectedColour.collectAsStateWithLifecycle()
+    val selectedSize by viewModel.selectedSize.collectAsStateWithLifecycle()
     val isAddingToCart by viewModel.isAddingToCart.collectAsStateWithLifecycle()
     val addedToCartMessage = stringResource(Res.string.details_added_to_cart)
     LaunchedEffect(Unit) {
@@ -123,11 +125,14 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                         PurchaseBar(
                             flavours = selectedProduct.flavours.orEmpty(),
                             selectedFlavour = selectedFlavour,
+                            sizes = selectedProduct.sizes.orEmpty(),
+                            selectedSize = selectedSize,
                             colours = selectedProduct.colours.orEmpty(),
                             selectedColour = selectedColour,
                             isAddingToCart = isAddingToCart,
                             onAddToCartClick = viewModel::addItemToCart,
                             onFlavourClick = viewModel::selectFlavour,
+                            onSizeClick = viewModel::selectSize,
                             onColourClick = viewModel::selectColour,
                         )
                     }
@@ -295,15 +300,19 @@ private fun WeightPill(
 private fun PurchaseBar(
     flavours: List<String>,
     selectedFlavour: String?,
+    sizes: List<String>,
+    selectedSize: String?,
     colours: List<String>,
     selectedColour: String?,
     isAddingToCart: Boolean,
     onAddToCartClick: () -> Unit,
     onFlavourClick: (String) -> Unit,
+    onSizeClick: (String) -> Unit,
     onColourClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isFlavourChosen = flavours.isEmpty() || selectedFlavour != null
+    val isSizeChosen = sizes.isEmpty() || selectedSize != null
     val isColourChosen = colours.isEmpty() || selectedColour != null
     Column(
         modifier =
@@ -322,6 +331,14 @@ private fun PurchaseBar(
                 onOptionClick = onFlavourClick,
             )
         }
+        if (sizes.isNotEmpty()) {
+            OptionSelector(
+                title = stringResource(Res.string.details_size_label),
+                options = sizes,
+                selectedOption = selectedSize,
+                onOptionClick = onSizeClick,
+            )
+        }
         if (colours.isNotEmpty()) {
             OptionSelector(
                 title = stringResource(Res.string.details_colour_label),
@@ -333,7 +350,7 @@ private fun PurchaseBar(
         PrimaryButton(
             icon = Resources.Icon.Cart,
             text = stringResource(Res.string.details_add_to_cart),
-            enabled = !isAddingToCart && isFlavourChosen && isColourChosen,
+            enabled = !isAddingToCart && isFlavourChosen && isSizeChosen && isColourChosen,
             onClick = onAddToCartClick,
         )
     }

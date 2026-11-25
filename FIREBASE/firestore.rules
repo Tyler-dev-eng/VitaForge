@@ -40,6 +40,7 @@ service cloud.firestore {
     //   - flavourImages: map | null (optional, <= 50 entries, flavour name -> image URL)
     //   - colours: list | null (optional, <= 50 items, accessories only)
     //   - colourImages: map | null (optional, <= 50 entries, colour name -> image URL)
+    //   - sizes: list | null (optional, <= 50 items, accessories only)
     //   - weight: int | null (optional, 0..100000)
     //   - specsServing: string | null (optional, <= 100 chars)
     //   - specs: list | null (optional, <= 10 items of map {label, value: string <= 100})
@@ -59,6 +60,12 @@ service cloud.firestore {
     //   - id: string (required, == document ID)
     //   - name: string (required, 1..50 chars)
     //
+    // Collection: sizes
+    // Document ID: size id
+    // Fields:
+    //   - id: string (required, == document ID)
+    //   - name: string (required, 1..50 chars)
+    //
     // Collection: order
     // Document ID: order id
     // Fields:
@@ -68,7 +75,7 @@ service cloud.firestore {
     //   - totalAmount: number (required, 0..1000000)
     //   - token: string | null (optional, <= 200 chars, PayPal order id)
     //
-    // Admin for product/flavours/colours writes = any user with privateData/role.isAdmin
+    // Admin for product/flavours/colours/sizes writes = any user with privateData/role.isAdmin
     // == true (plus the bootstrap UID in isAdmin()). Orders are create-only from
     // clients; the backend (Admin SDK) reads them.
     //
@@ -193,7 +200,7 @@ service cloud.firestore {
     function isValidProduct(data, productId) {
       return hasOnlyAllowedFields(data, [
                'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
-               'flavours', 'flavourImages', 'colours', 'colourImages', 'weight', 'specsServing', 'specs', 'price', 'oldPrice', 'isPopular',
+               'flavours', 'flavourImages', 'colours', 'colourImages', 'sizes', 'weight', 'specsServing', 'specs', 'price', 'oldPrice', 'isPopular',
                'isDiscounted', 'isNew'
              ]) &&
              hasRequiredFields(data, [
@@ -214,6 +221,8 @@ service cloud.firestore {
               (data.get('colours', null) is list && data.get('colours', null).size() <= 50)) &&
              (data.get('colourImages', null) == null ||
               (data.get('colourImages', null) is map && data.get('colourImages', null).size() <= 50)) &&
+             (data.get('sizes', null) == null ||
+              (data.get('sizes', null) is list && data.get('sizes', null).size() <= 50)) &&
              (data.get('weight', null) == null ||
               (data.get('weight', null) is int && isNumberWithin(data.get('weight', null), 0, 100000))) &&
              isValidOptionalString(data, 'specsServing', 100) &&
@@ -226,7 +235,7 @@ service cloud.firestore {
              data.isNew is bool;
     }
 
-    // Shared by the flavours and colours collections.
+    // Shared by the flavours, colours and sizes collections.
     function isValidNamedOption(data, optionId) {
       return hasOnlyAllowedFields(data, ['id', 'name']) &&
              hasRequiredFields(data, ['id', 'name']) &&
@@ -299,6 +308,13 @@ service cloud.firestore {
     match /colours/{colourId} {
       allow read: if isAuthenticated();
       allow create: if isAdmin() && isValidNamedOption(request.resource.data, colourId);
+      allow update, delete: if false;
+    }
+
+    // Sizes: any signed-in user can read; only admins can add.
+    match /sizes/{sizeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidNamedOption(request.resource.data, sizeId);
       allow update, delete: if false;
     }
 

@@ -111,8 +111,14 @@ import vitaforge.shared.generated.resources.manage_product_section_flavours
 import vitaforge.shared.generated.resources.manage_product_section_media
 import vitaforge.shared.generated.resources.manage_product_section_old_price
 import vitaforge.shared.generated.resources.manage_product_section_price
+import vitaforge.shared.generated.resources.manage_product_section_sizes
 import vitaforge.shared.generated.resources.manage_product_section_title
 import vitaforge.shared.generated.resources.manage_product_section_weight
+import vitaforge.shared.generated.resources.manage_product_size_add
+import vitaforge.shared.generated.resources.manage_product_size_add_placeholder
+import vitaforge.shared.generated.resources.manage_product_size_add_title
+import vitaforge.shared.generated.resources.manage_product_sizes_loading
+import vitaforge.shared.generated.resources.manage_product_sizes_show_all
 import vitaforge.shared.generated.resources.manage_product_title_add
 import vitaforge.shared.generated.resources.manage_product_title_edit
 
@@ -130,6 +136,13 @@ private val ColourChipLabels =
         loading = Res.string.manage_product_colours_loading,
     )
 
+private val SizeChipLabels =
+    OptionChipLabels(
+        add = Res.string.manage_product_size_add,
+        showAll = Res.string.manage_product_sizes_show_all,
+        loading = Res.string.manage_product_sizes_loading,
+    )
+
 @Composable
 fun ManageProductScreen(
     id: String?,
@@ -144,6 +157,7 @@ fun ManageProductScreen(
     var dropDownMenuOpened by remember { mutableStateOf(false) }
     var showAddFlavourDialog by remember { mutableStateOf(false) }
     var showAddColourDialog by remember { mutableStateOf(false) }
+    var showAddSizeDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
     val photoPicker = koinInject<PhotoPicker>()
@@ -194,6 +208,17 @@ fun ManageProductScreen(
             onConfirm = { name ->
                 showAddColourDialog = false
                 viewModel.addColour(name = name, onError = { message -> messageBarState.addError(message) })
+            },
+        )
+    }
+    if (showAddSizeDialog) {
+        AddOptionDialog(
+            title = stringResource(Res.string.manage_product_size_add_title),
+            placeholder = stringResource(Res.string.manage_product_size_add_placeholder),
+            onDismiss = { showAddSizeDialog = false },
+            onConfirm = { name ->
+                showAddSizeDialog = false
+                viewModel.addSize(name = name, onError = { message -> messageBarState.addError(message) })
             },
         )
     }
@@ -540,6 +565,20 @@ fun ManageProductScreen(
                                     onRemoveImage = viewModel::removeFlavourImage,
                                 )
                             }
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = screenState.category == ProductCategory.Accessories,
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            FormSectionLabel(stringResource(Res.string.manage_product_section_sizes))
+                            OptionChips(
+                                options = viewModel.availableSizes,
+                                selected = screenState.selectedSizes,
+                                labels = SizeChipLabels,
+                                onToggle = viewModel::toggleSize,
+                                onAddClick = { showAddSizeDialog = true },
+                            )
                         }
                     }
                     AnimatedVisibility(

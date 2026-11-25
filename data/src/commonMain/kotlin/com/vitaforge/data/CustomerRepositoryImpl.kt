@@ -21,7 +21,10 @@ private data class CartUpdate(
 )
 
 private fun CartItem.isSameSelection(other: CartItem): Boolean =
-    productId == other.productId && flavour == other.flavour && colour == other.colour
+    productId == other.productId &&
+        flavour == other.flavour &&
+        colour == other.colour &&
+        size == other.size
 
 private fun List<CartItem>.withItemAdded(newItem: CartItem): List<CartItem> {
     if (none { it.isSameSelection(newItem) }) return this + newItem

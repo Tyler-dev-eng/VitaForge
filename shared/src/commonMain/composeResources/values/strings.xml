@@ -109,6 +109,12 @@
     <string name="manage_product_flavour_add_placeholder">e.g., Cookies &amp; Cream</string>
     <string name="manage_product_option_add_confirm">Add</string>
     <string name="manage_product_option_add_cancel">Cancel</string>
+    <string name="manage_product_section_sizes">Available sizes</string>
+    <string name="manage_product_sizes_show_all">Show all sizes (%1$d)</string>
+    <string name="manage_product_sizes_loading">Loading sizes…</string>
+    <string name="manage_product_size_add">Add size</string>
+    <string name="manage_product_size_add_title">New size</string>
+    <string name="manage_product_size_add_placeholder">e.g., XL or 700 ml</string>
     <string name="manage_product_section_colours">Available colours</string>
     <string name="manage_product_colours_show_all">Show all colours (%1$d)</string>
     <string name="manage_product_colours_loading">Loading colours…</string>
@@ -159,6 +165,7 @@
     <string name="details_weight_icon">Weight</string>
     <string name="details_specs_title">Specifications</string>
     <string name="details_flavour_label">Flavour</string>
+    <string name="details_size_label">Size</string>
     <string name="details_colour_label">Colour</string>
     <string name="details_add_to_cart">Add to Cart</string>
     <string name="details_added_to_cart">Added to cart</string>

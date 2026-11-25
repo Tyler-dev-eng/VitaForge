@@ -12,19 +12,23 @@ import com.vitaforge.data.OrderRepositoryImpl
 import com.vitaforge.data.ProductRepositoryImpl
 import com.vitaforge.data.createColourRepository
 import com.vitaforge.data.createFlavourRepository
+import com.vitaforge.data.createSizeRepository
 import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.ColourRepository
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.FlavourRepository
 import com.vitaforge.data.domain.OrderRepository
 import com.vitaforge.data.domain.ProductRepository
+import com.vitaforge.data.domain.SizeRepository
 import com.vitaforge.details.DetailsViewModel
 import com.vitaforge.home.HomeGraphViewModel
 import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.manage_product.usecase.AddColourUseCase
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
+import com.vitaforge.manage_product.usecase.AddSizeUseCase
 import com.vitaforge.manage_product.usecase.ObserveColoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
+import com.vitaforge.manage_product.usecase.ObserveSizesUseCase
 import com.vitaforge.payment_completed.PaymentViewModel
 import com.vitaforge.products_overview.ProductOverviewViewModel
 import com.vitaforge.profile.ProfileViewModel
@@ -43,12 +47,15 @@ val sharedModule =
         single<ProductRepository> { ProductRepositoryImpl() }
         single<FlavourRepository> { createFlavourRepository() }
         single<ColourRepository> { createColourRepository() }
+        single<SizeRepository> { createSizeRepository() }
         single<OrderRepository> { OrderRepositoryImpl(get()) }
         single<PaypalApi> { PaypalApi() }
         factoryOf(::ObserveFlavoursUseCase)
         factoryOf(::AddFlavourUseCase)
         factoryOf(::ObserveColoursUseCase)
+        factoryOf(::ObserveSizesUseCase)
         factoryOf(::AddColourUseCase)
+        factoryOf(::AddSizeUseCase)
         viewModelOf(::AuthViewModel)
         viewModelOf(::HomeGraphViewModel)
         viewModelOf(::ProfileViewModel)

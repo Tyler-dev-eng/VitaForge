@@ -29,9 +29,9 @@ const escapeHtml = (value) =>
 
 const formatPrice = (amount) => `R${Number(amount).toFixed(2)}`;
 
-// " (Vanilla)", " (Black)" or "" depending on what the customer picked.
-const formatOptions = ({flavour, colour}) => {
-  const options = [flavour, colour].filter(Boolean).map(escapeHtml);
+// " (Vanilla)", " (M, Black)" or "" depending on what the customer picked.
+const formatOptions = ({flavour, size, colour}) => {
+  const options = [flavour, size, colour].filter(Boolean).map(escapeHtml);
   return options.length ? ` (${options.join(", ")})` : "";
 };
 
@@ -43,6 +43,7 @@ async function loadLineItems(db, items) {
       title: product.title ?? "Unknown product",
       flavour: item.flavour ?? null,
       colour: item.colour ?? null,
+      size: item.size ?? null,
       quantity: item.quantity,
       price: product.price ?? 0,
     };
