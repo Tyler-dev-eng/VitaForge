@@ -8,4 +8,6 @@ interface ColourRepository {
     fun observeColours(): Flow<RequestState<List<Colour>>>
 
     suspend fun addColour(name: String): Result<Colour>
+
+    suspend fun deleteColour(name: String): Result<Unit>
 }

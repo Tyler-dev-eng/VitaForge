@@ -11,6 +11,8 @@ internal class ColourRepositoryImpl : ColourRepository {
     override fun observeColours(): Flow<RequestState<List<Colour>>> = options.observe()
 
     override suspend fun addColour(name: String): Result<Colour> = options.add(name)
+
+    override suspend fun deleteColour(name: String): Result<Unit> = options.delete(name)
 }
 
 fun createColourRepository(): ColourRepository = ColourRepositoryImpl()

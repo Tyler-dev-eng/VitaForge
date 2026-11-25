@@ -69,6 +69,7 @@ import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.util.DisplayResult
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.manage_product.util.PhotoPicker
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -86,6 +87,8 @@ import vitaforge.shared.generated.resources.manage_product_badge_popular_title
 import vitaforge.shared.generated.resources.manage_product_colour_add
 import vitaforge.shared.generated.resources.manage_product_colour_add_placeholder
 import vitaforge.shared.generated.resources.manage_product_colour_add_title
+import vitaforge.shared.generated.resources.manage_product_colour_delete_title
+import vitaforge.shared.generated.resources.manage_product_colours_delete
 import vitaforge.shared.generated.resources.manage_product_colours_loading
 import vitaforge.shared.generated.resources.manage_product_colours_show_all
 import vitaforge.shared.generated.resources.manage_product_delete_confirm
@@ -97,13 +100,13 @@ import vitaforge.shared.generated.resources.manage_product_discard_title
 import vitaforge.shared.generated.resources.manage_product_flavour_add
 import vitaforge.shared.generated.resources.manage_product_flavour_add_placeholder
 import vitaforge.shared.generated.resources.manage_product_flavour_add_title
-import vitaforge.shared.generated.resources.manage_product_flavour_delete_message
 import vitaforge.shared.generated.resources.manage_product_flavour_delete_title
 import vitaforge.shared.generated.resources.manage_product_flavours_delete
 import vitaforge.shared.generated.resources.manage_product_flavours_loading
 import vitaforge.shared.generated.resources.manage_product_flavours_show_all
 import vitaforge.shared.generated.resources.manage_product_keep_editing
 import vitaforge.shared.generated.resources.manage_product_option_add_cancel
+import vitaforge.shared.generated.resources.manage_product_option_delete_message
 import vitaforge.shared.generated.resources.manage_product_section_badges
 import vitaforge.shared.generated.resources.manage_product_section_category
 import vitaforge.shared.generated.resources.manage_product_section_colour_images
@@ -120,6 +123,8 @@ import vitaforge.shared.generated.resources.manage_product_section_weight
 import vitaforge.shared.generated.resources.manage_product_size_add
 import vitaforge.shared.generated.resources.manage_product_size_add_placeholder
 import vitaforge.shared.generated.resources.manage_product_size_add_title
+import vitaforge.shared.generated.resources.manage_product_size_delete_title
+import vitaforge.shared.generated.resources.manage_product_sizes_delete
 import vitaforge.shared.generated.resources.manage_product_sizes_loading
 import vitaforge.shared.generated.resources.manage_product_sizes_show_all
 import vitaforge.shared.generated.resources.manage_product_title_add
@@ -138,6 +143,7 @@ private val ColourChipLabels =
         add = Res.string.manage_product_colour_add,
         showAll = Res.string.manage_product_colours_show_all,
         loading = Res.string.manage_product_colours_loading,
+        delete = Res.string.manage_product_colours_delete,
     )
 
 private val SizeChipLabels =
@@ -145,7 +151,15 @@ private val SizeChipLabels =
         add = Res.string.manage_product_size_add,
         showAll = Res.string.manage_product_sizes_show_all,
         loading = Res.string.manage_product_sizes_loading,
+        delete = Res.string.manage_product_sizes_delete,
     )
+
+/** A flavour, colour or size waiting for the admin to confirm its deletion. */
+private data class PendingDeletion(
+    val title: StringResource,
+    val name: String,
+    val delete: (name: String, onError: (String) -> Unit) -> Unit,
+)
 
 @Composable
 fun ManageProductScreen(
@@ -164,7 +178,7 @@ fun ManageProductScreen(
     var showAddSizeDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
-    var flavourToDelete by remember { mutableStateOf<String?>(null) }
+    var pendingDeletion by remember { mutableStateOf<PendingDeletion?>(null) }
     val photoPicker = koinInject<PhotoPicker>()
     var priceText by remember { mutableStateOf("") }
     var oldPriceText by remember { mutableStateOf("") }
@@ -256,16 +270,16 @@ fun ManageProductScreen(
             },
         )
     }
-    flavourToDelete?.let { flavour ->
+    pendingDeletion?.let { deletion ->
         ConfirmDialog(
-            title = stringResource(Res.string.manage_product_flavour_delete_title),
-            message = stringResource(Res.string.manage_product_flavour_delete_message, flavour),
+            title = stringResource(deletion.title),
+            message = stringResource(Res.string.manage_product_option_delete_message, deletion.name),
             confirmText = stringResource(Res.string.manage_product_delete_confirm),
             dismissText = stringResource(Res.string.manage_product_option_add_cancel),
-            onDismiss = { flavourToDelete = null },
+            onDismiss = { pendingDeletion = null },
             onConfirm = {
-                flavourToDelete = null
-                viewModel.deleteFlavour(name = flavour, onError = { message -> messageBarState.addError(message) })
+                pendingDeletion = null
+                deletion.delete(deletion.name) { message -> messageBarState.addError(message) }
             },
         )
     }
@@ -569,7 +583,14 @@ fun ManageProductScreen(
                                 labels = FlavourChipLabels,
                                 onToggle = viewModel::toggleFlavour,
                                 onAddClick = { showAddFlavourDialog = true },
-                                onDelete = { flavour -> flavourToDelete = flavour },
+                                onDelete = { flavour ->
+                                    pendingDeletion =
+                                        PendingDeletion(
+                                            title = Res.string.manage_product_flavour_delete_title,
+                                            name = flavour,
+                                            delete = viewModel::deleteFlavour,
+                                        )
+                                },
                             )
                             if (screenState.selectedFlavours.isNotEmpty()) {
                                 OptionImagesEditor(
@@ -597,6 +618,14 @@ fun ManageProductScreen(
                                 labels = SizeChipLabels,
                                 onToggle = viewModel::toggleSize,
                                 onAddClick = { showAddSizeDialog = true },
+                                onDelete = { size ->
+                                    pendingDeletion =
+                                        PendingDeletion(
+                                            title = Res.string.manage_product_size_delete_title,
+                                            name = size,
+                                            delete = viewModel::deleteSize,
+                                        )
+                                },
                             )
                         }
                     }
@@ -611,6 +640,14 @@ fun ManageProductScreen(
                                 labels = ColourChipLabels,
                                 onToggle = viewModel::toggleColour,
                                 onAddClick = { showAddColourDialog = true },
+                                onDelete = { colour ->
+                                    pendingDeletion =
+                                        PendingDeletion(
+                                            title = Res.string.manage_product_colour_delete_title,
+                                            name = colour,
+                                            delete = viewModel::deleteColour,
+                                        )
+                                },
                             )
                             if (screenState.selectedColours.isNotEmpty()) {
                                 OptionImagesEditor(

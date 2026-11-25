@@ -17,7 +17,9 @@ import com.vitaforge.data.domain.errorMessage
 import com.vitaforge.manage_product.usecase.AddColourUseCase
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.AddSizeUseCase
+import com.vitaforge.manage_product.usecase.DeleteColourUseCase
 import com.vitaforge.manage_product.usecase.DeleteFlavourUseCase
+import com.vitaforge.manage_product.usecase.DeleteSizeUseCase
 import com.vitaforge.manage_product.usecase.ObserveColoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveSizesUseCase
@@ -31,6 +33,8 @@ private const val ADD_FLAVOUR_ERROR = "Could not add flavour."
 private const val DELETE_FLAVOUR_ERROR = "Could not delete flavour."
 private const val ADD_COLOUR_ERROR = "Could not add colour."
 private const val ADD_SIZE_ERROR = "Could not add size."
+private const val DELETE_COLOUR_ERROR = "Could not delete colour."
+private const val DELETE_SIZE_ERROR = "Could not delete size."
 private const val INVALID_FORM_ERROR = "Please fill in the highlighted fields."
 private const val NO_IMAGE_ERROR = "No image selected"
 
@@ -73,8 +77,10 @@ class ManageProductViewModel(
     private val deleteFlavourUseCase: DeleteFlavourUseCase,
     private val observeColoursUseCase: ObserveColoursUseCase,
     private val addColourUseCase: AddColourUseCase,
+    private val deleteColourUseCase: DeleteColourUseCase,
     private val observeSizesUseCase: ObserveSizesUseCase,
     private val addSizeUseCase: AddSizeUseCase,
+    private val deleteSizeUseCase: DeleteSizeUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val productId = savedStateHandle.get<String>("id") ?: ""
@@ -233,8 +239,10 @@ class ManageProductViewModel(
 
     private fun List<String>.toggle(name: String): List<String> {
         val isSelected = any { it.equals(name, ignoreCase = true) }
-        return if (isSelected) filterNot { it.equals(name, ignoreCase = true) } else this + name
+        return if (isSelected) without(name) else this + name
     }
+
+    private fun List<String>.without(name: String): List<String> = filterNot { it.equals(name, ignoreCase = true) }
 
     fun addFlavour(
         name: String,
@@ -244,19 +252,6 @@ class ManageProductViewModel(
             addFlavourUseCase(name).onSuccess { flavour ->
                 updateSelectedFlavours(screenState.selectedFlavours + flavour.name)
             }
-        }
-    }
-
-    /** Deletes [name] from the shared flavour list and deselects it on this product. */
-    fun deleteFlavour(
-        name: String,
-        onError: (String) -> Unit,
-    ) {
-        viewModelScope.launch {
-            deleteFlavourUseCase(name)
-                .onSuccess {
-                    updateSelectedFlavours(screenState.selectedFlavours.filterNot { it.equals(name, ignoreCase = true) })
-                }.onFailure { onError(DELETE_FLAVOUR_ERROR) }
         }
     }
 
@@ -279,6 +274,47 @@ class ManageProductViewModel(
             addSizeUseCase(name).onSuccess { size ->
                 screenState = screenState.copy(selectedSizes = screenState.selectedSizes + size.name)
             }
+        }
+    }
+
+    /** Deletes [name] from the shared flavour list and deselects it on this product. */
+    fun deleteFlavour(
+        name: String,
+        onError: (String) -> Unit,
+    ) {
+        deleteOption(DELETE_FLAVOUR_ERROR, onError, { deleteFlavourUseCase(name) }) {
+            updateSelectedFlavours(screenState.selectedFlavours.without(name))
+        }
+    }
+
+    /** Deletes [name] from the shared colour list and deselects it on this product. */
+    fun deleteColour(
+        name: String,
+        onError: (String) -> Unit,
+    ) {
+        deleteOption(DELETE_COLOUR_ERROR, onError, { deleteColourUseCase(name) }) {
+            screenState = screenState.copy(selectedColours = screenState.selectedColours.without(name))
+        }
+    }
+
+    /** Deletes [name] from the shared size list and deselects it on this product. */
+    fun deleteSize(
+        name: String,
+        onError: (String) -> Unit,
+    ) {
+        deleteOption(DELETE_SIZE_ERROR, onError, { deleteSizeUseCase(name) }) {
+            screenState = screenState.copy(selectedSizes = screenState.selectedSizes.without(name))
+        }
+    }
+
+    private fun deleteOption(
+        errorMessage: String,
+        onError: (String) -> Unit,
+        delete: suspend () -> Result<Unit>,
+        deselect: () -> Unit,
+    ) {
+        viewModelScope.launch {
+            delete().onSuccess { deselect() }.onFailure { onError(errorMessage) }
         }
     }
 

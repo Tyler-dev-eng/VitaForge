@@ -11,6 +11,8 @@ internal class SizeRepositoryImpl : SizeRepository {
     override fun observeSizes(): Flow<RequestState<List<Size>>> = options.observe()
 
     override suspend fun addSize(name: String): Result<Size> = options.add(name)
+
+    override suspend fun deleteSize(name: String): Result<Unit> = options.delete(name)
 }
 
 fun createSizeRepository(): SizeRepository = SizeRepositoryImpl()

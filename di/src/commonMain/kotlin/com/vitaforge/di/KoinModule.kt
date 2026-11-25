@@ -26,7 +26,9 @@ import com.vitaforge.manage_product.ManageProductViewModel
 import com.vitaforge.manage_product.usecase.AddColourUseCase
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.AddSizeUseCase
+import com.vitaforge.manage_product.usecase.DeleteColourUseCase
 import com.vitaforge.manage_product.usecase.DeleteFlavourUseCase
+import com.vitaforge.manage_product.usecase.DeleteSizeUseCase
 import com.vitaforge.manage_product.usecase.ObserveColoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveSizesUseCase
@@ -58,6 +60,8 @@ val sharedModule =
         factoryOf(::ObserveSizesUseCase)
         factoryOf(::AddColourUseCase)
         factoryOf(::AddSizeUseCase)
+        factoryOf(::DeleteColourUseCase)
+        factoryOf(::DeleteSizeUseCase)
         viewModelOf(::AuthViewModel)
         viewModelOf(::HomeGraphViewModel)
         viewModelOf(::ProfileViewModel)
