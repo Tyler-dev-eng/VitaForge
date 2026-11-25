@@ -98,7 +98,7 @@
     <string name="manage_product_section_price">Price (R)</string>
     <string name="manage_product_section_flavours">Available flavours</string>
     <string name="manage_product_flavours_show_all">Show all flavours (%1$d)</string>
-    <string name="manage_product_flavours_show_less">Show less</string>
+    <string name="manage_product_options_show_less">Show less</string>
     <string name="manage_product_section_flavour_images">Flavour images (optional)</string>
     <string name="manage_product_flavour_image_add">Tap to add an image</string>
     <string name="manage_product_flavour_image_description">Image for %1$s</string>
@@ -107,8 +107,14 @@
     <string name="manage_product_flavour_add">Add flavour</string>
     <string name="manage_product_flavour_add_title">New flavour</string>
     <string name="manage_product_flavour_add_placeholder">e.g., Cookies &amp; Cream</string>
-    <string name="manage_product_flavour_add_confirm">Add</string>
-    <string name="manage_product_flavour_add_cancel">Cancel</string>
+    <string name="manage_product_option_add_confirm">Add</string>
+    <string name="manage_product_option_add_cancel">Cancel</string>
+    <string name="manage_product_section_colours">Available colours</string>
+    <string name="manage_product_colours_show_all">Show all colours (%1$d)</string>
+    <string name="manage_product_colours_loading">Loading colours…</string>
+    <string name="manage_product_colour_add">Add colour</string>
+    <string name="manage_product_colour_add_title">New colour</string>
+    <string name="manage_product_colour_add_placeholder">e.g., Matte Black</string>
     <string name="manage_product_section_badges">Catalog badges &amp; status</string>
     <string name="manage_product_badge_new_title">New release</string>
     <string name="manage_product_badge_new_subtitle">Flags product with 'NEW' tag</string>
@@ -152,6 +158,7 @@
     <string name="details_weight_icon">Weight</string>
     <string name="details_specs_title">Specifications</string>
     <string name="details_flavour_label">Flavour</string>
+    <string name="details_colour_label">Colour</string>
     <string name="details_add_to_cart">Add to Cart</string>
     <string name="details_added_to_cart">Added to cart</string>
     <string name="details_quantity_decrease">Decrease quantity</string>

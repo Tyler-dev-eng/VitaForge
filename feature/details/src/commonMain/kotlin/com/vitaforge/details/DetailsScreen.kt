@@ -52,7 +52,7 @@ import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
 import com.tylerdev.vitaforge.shared.robotoCondensedFontFamily
 import com.tylerdev.vitaforge.shared.util.DisplayResult
-import com.vitaforge.details.component.FlavourChip
+import com.vitaforge.details.component.OptionChip
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,6 +60,7 @@ import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.details_add_to_cart
 import vitaforge.shared.generated.resources.details_added_to_cart
+import vitaforge.shared.generated.resources.details_colour_label
 import vitaforge.shared.generated.resources.details_flavour_label
 import vitaforge.shared.generated.resources.details_product_image
 import vitaforge.shared.generated.resources.details_title
@@ -84,6 +85,7 @@ fun DetailsScreen(navigateBack: () -> Unit) {
     val viewModel = koinViewModel<DetailsViewModel>()
     val product by viewModel.product.collectAsStateWithLifecycle()
     val selectedFlavour by viewModel.selectedFlavour.collectAsStateWithLifecycle()
+    val selectedColour by viewModel.selectedColour.collectAsStateWithLifecycle()
     val isAddingToCart by viewModel.isAddingToCart.collectAsStateWithLifecycle()
     val addedToCartMessage = stringResource(Res.string.details_added_to_cart)
     LaunchedEffect(Unit) {
@@ -117,9 +119,12 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                         PurchaseBar(
                             flavours = selectedProduct.flavours.orEmpty(),
                             selectedFlavour = selectedFlavour,
+                            colours = selectedProduct.colours.orEmpty(),
+                            selectedColour = selectedColour,
                             isAddingToCart = isAddingToCart,
                             onAddToCartClick = viewModel::addItemToCart,
                             onFlavourClick = viewModel::selectFlavour,
+                            onColourClick = viewModel::selectColour,
                         )
                     }
                 }
@@ -285,11 +290,16 @@ private fun WeightPill(
 private fun PurchaseBar(
     flavours: List<String>,
     selectedFlavour: String?,
+    colours: List<String>,
+    selectedColour: String?,
     isAddingToCart: Boolean,
     onAddToCartClick: () -> Unit,
     onFlavourClick: (String) -> Unit,
+    onColourClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isFlavourChosen = flavours.isEmpty() || selectedFlavour != null
+    val isColourChosen = colours.isEmpty() || selectedColour != null
     Column(
         modifier =
             modifier
@@ -300,31 +310,41 @@ private fun PurchaseBar(
         verticalArrangement = Arrangement.spacedBy(SectionSpacing),
     ) {
         if (flavours.isNotEmpty()) {
-            FlavourSelector(
-                flavours = flavours,
-                selectedFlavour = selectedFlavour,
-                onFlavourClick = onFlavourClick,
+            OptionSelector(
+                title = stringResource(Res.string.details_flavour_label),
+                options = flavours,
+                selectedOption = selectedFlavour,
+                onOptionClick = onFlavourClick,
+            )
+        }
+        if (colours.isNotEmpty()) {
+            OptionSelector(
+                title = stringResource(Res.string.details_colour_label),
+                options = colours,
+                selectedOption = selectedColour,
+                onOptionClick = onColourClick,
             )
         }
         PrimaryButton(
             icon = Resources.Icon.Cart,
             text = stringResource(Res.string.details_add_to_cart),
-            enabled = !isAddingToCart && (flavours.isEmpty() || selectedFlavour != null),
+            enabled = !isAddingToCart && isFlavourChosen && isColourChosen,
             onClick = onAddToCartClick,
         )
     }
 }
 
 @Composable
-private fun FlavourSelector(
-    flavours: List<String>,
-    selectedFlavour: String?,
-    onFlavourClick: (String) -> Unit,
+private fun OptionSelector(
+    title: String,
+    options: List<String>,
+    selectedOption: String?,
+    onOptionClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(ItemSpacing)) {
         Text(
-            text = stringResource(Res.string.details_flavour_label).uppercase(),
+            text = title.uppercase(),
             fontSize = FontSize.SMALL,
             fontWeight = FontWeight.Medium,
             fontFamily = robotoCondensedFontFamily(),
@@ -335,11 +355,11 @@ private fun FlavourSelector(
             verticalArrangement = Arrangement.spacedBy(ItemSpacing),
             horizontalArrangement = Arrangement.spacedBy(ItemSpacing),
         ) {
-            flavours.forEach { flavour ->
-                FlavourChip(
-                    flavour = flavour,
-                    isSelected = flavour == selectedFlavour,
-                    onClick = { onFlavourClick(flavour) },
+            options.forEach { option ->
+                OptionChip(
+                    label = option,
+                    isSelected = option == selectedOption,
+                    onClick = { onOptionClick(option) },
                 )
             }
         }

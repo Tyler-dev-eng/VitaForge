@@ -61,19 +61,14 @@ import com.tylerdev.vitaforge.shared.TextSecondary
 import com.tylerdev.vitaforge.shared.TextWhite
 import com.tylerdev.vitaforge.shared.bebasNeueFontFamily
 import com.tylerdev.vitaforge.shared.components.CustomTextField
-import com.tylerdev.vitaforge.shared.domain.Flavour
 import com.tylerdev.vitaforge.shared.util.RequestState
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vitaforge.shared.generated.resources.Res
-import vitaforge.shared.generated.resources.manage_product_flavour_add
-import vitaforge.shared.generated.resources.manage_product_flavour_add_cancel
-import vitaforge.shared.generated.resources.manage_product_flavour_add_confirm
-import vitaforge.shared.generated.resources.manage_product_flavour_add_placeholder
-import vitaforge.shared.generated.resources.manage_product_flavour_add_title
-import vitaforge.shared.generated.resources.manage_product_flavours_loading
-import vitaforge.shared.generated.resources.manage_product_flavours_show_all
-import vitaforge.shared.generated.resources.manage_product_flavours_show_less
+import vitaforge.shared.generated.resources.manage_product_option_add_cancel
+import vitaforge.shared.generated.resources.manage_product_option_add_confirm
+import vitaforge.shared.generated.resources.manage_product_options_show_less
 import vitaforge.shared.generated.resources.manage_product_upload_description
 import vitaforge.shared.generated.resources.manage_product_upload_hint
 import vitaforge.shared.generated.resources.manage_product_upload_title
@@ -240,47 +235,53 @@ internal fun ImageUploadPlaceholder(modifier: Modifier = Modifier) {
     }
 }
 
+internal data class OptionChipLabels(
+    val add: StringResource,
+    val showAll: StringResource,
+    val loading: StringResource,
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun FlavourChips(
-    flavours: RequestState<List<Flavour>>,
-    selectedFlavours: List<String>,
-    onToggleFlavour: (String) -> Unit,
+internal fun OptionChips(
+    options: RequestState<List<String>>,
+    selected: List<String>,
+    labels: OptionChipLabels,
+    onToggle: (String) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when (flavours) {
+    when (options) {
         is RequestState.Success -> {
-            val options =
-                remember(flavours.data, selectedFlavours) {
-                    val names = flavours.data.map { it.name }
-                    names + selectedFlavours.filter { selected -> names.none { it.equals(selected, ignoreCase = true) } }
+            val allOptions =
+                remember(options.data, selected) {
+                    options.data + selected.filter { name -> options.data.none { it.equals(name, ignoreCase = true) } }
                 }
             var isExpanded by rememberSaveable { mutableStateOf(false) }
             val visibleOptions =
-                if (isExpanded) options else options.filter { name -> selectedFlavours.any { it.equals(name, ignoreCase = true) } }
+                if (isExpanded) allOptions else allOptions.filter { name -> selected.any { it.equals(name, ignoreCase = true) } }
             Column(modifier = modifier.fillMaxWidth()) {
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
                 ) {
                     visibleOptions.forEach { name ->
-                        FlavourChip(
+                        OptionChip(
                             label = name,
-                            isSelected = selectedFlavours.any { it.equals(name, ignoreCase = true) },
-                            onClick = { onToggleFlavour(name) },
+                            isSelected = selected.any { it.equals(name, ignoreCase = true) },
+                            onClick = { onToggle(name) },
                         )
                     }
-                    AddFlavourChip(onClick = onAddClick)
+                    AddOptionChip(label = labels.add, onClick = onAddClick)
                 }
-                if (options.size > selectedFlavours.size || isExpanded) {
+                if (allOptions.size > selected.size || isExpanded) {
                     TextButton(onClick = { isExpanded = !isExpanded }) {
                         Text(
                             text =
                                 if (isExpanded) {
-                                    stringResource(Res.string.manage_product_flavours_show_less)
+                                    stringResource(Res.string.manage_product_options_show_less)
                                 } else {
-                                    stringResource(Res.string.manage_product_flavours_show_all, options.size)
+                                    stringResource(labels.showAll, allOptions.size)
                                 },
                         )
                     }
@@ -291,7 +292,7 @@ internal fun FlavourChips(
         is RequestState.Error ->
             Text(
                 modifier = modifier,
-                text = flavours.message,
+                text = options.message,
                 fontSize = FontSize.REGULAR,
                 color = TextOnErrorContainer,
             )
@@ -299,7 +300,7 @@ internal fun FlavourChips(
         else ->
             Text(
                 modifier = modifier,
-                text = stringResource(Res.string.manage_product_flavours_loading),
+                text = stringResource(labels.loading),
                 fontSize = FontSize.REGULAR,
                 color = TextMuted,
             )
@@ -307,7 +308,7 @@ internal fun FlavourChips(
 }
 
 @Composable
-private fun FlavourChip(
+private fun OptionChip(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -350,7 +351,8 @@ private fun FlavourChip(
 }
 
 @Composable
-private fun AddFlavourChip(
+private fun AddOptionChip(
+    label: StringResource,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -380,7 +382,7 @@ private fun AddFlavourChip(
                 tint = IconPrimary,
             )
             Text(
-                text = stringResource(Res.string.manage_product_flavour_add),
+                text = stringResource(label),
                 fontSize = FontSize.REGULAR,
                 color = TextPrimary,
             )
@@ -408,7 +410,9 @@ private fun ChipTouchTarget(
 }
 
 @Composable
-internal fun AddFlavourDialog(
+internal fun AddOptionDialog(
+    title: String,
+    placeholder: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
@@ -418,7 +422,7 @@ internal fun AddFlavourDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = stringResource(Res.string.manage_product_flavour_add_title),
+                text = title,
                 fontSize = FontSize.EXTRA_MEDIUM,
                 color = TextPrimary,
             )
@@ -427,7 +431,7 @@ internal fun AddFlavourDialog(
             CustomTextField(
                 value = name,
                 onValueChange = { name = it },
-                placeholder = stringResource(Res.string.manage_product_flavour_add_placeholder),
+                placeholder = placeholder,
             )
         },
         confirmButton = {
@@ -437,7 +441,7 @@ internal fun AddFlavourDialog(
                 colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary),
             ) {
                 Text(
-                    text = stringResource(Res.string.manage_product_flavour_add_confirm),
+                    text = stringResource(Res.string.manage_product_option_add_confirm),
                     fontSize = FontSize.REGULAR,
                     fontWeight = FontWeight.Medium,
                 )
@@ -449,7 +453,7 @@ internal fun AddFlavourDialog(
                 colors = ButtonDefaults.textButtonColors(contentColor = TextPrimary),
             ) {
                 Text(
-                    text = stringResource(Res.string.manage_product_flavour_add_cancel),
+                    text = stringResource(Res.string.manage_product_option_add_cancel),
                     fontSize = FontSize.REGULAR,
                     fontWeight = FontWeight.Medium,
                 )

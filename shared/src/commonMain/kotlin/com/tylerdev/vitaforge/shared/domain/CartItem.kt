@@ -9,4 +9,5 @@ data class CartItem(
     val productId: String,
     val flavour: String? = null,
     val quantity: Int,
+    val colour: String? = null,
 )

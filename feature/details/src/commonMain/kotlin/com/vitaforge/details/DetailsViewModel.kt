@@ -39,6 +39,13 @@ class DetailsViewModel(
         _selectedFlavour.value = flavour
     }
 
+    private val _selectedColour = MutableStateFlow<String?>(null)
+    val selectedColour: StateFlow<String?> = _selectedColour.asStateFlow()
+
+    fun selectColour(colour: String) {
+        _selectedColour.value = colour
+    }
+
     private val _isAddingToCart = MutableStateFlow(false)
     val isAddingToCart: StateFlow<Boolean> = _isAddingToCart.asStateFlow()
 
@@ -54,6 +61,7 @@ class DetailsViewModel(
                 CartItem(
                     productId = productId,
                     flavour = selectedFlavour.value,
+                    colour = selectedColour.value,
                     quantity = ADDED_QUANTITY,
                 )
             val result = customerRepository.addItemToCart(cartItem)

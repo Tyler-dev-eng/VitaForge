@@ -77,22 +77,33 @@ import rememberMessageBarState
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.manage_product_add_bullet
 import vitaforge.shared.generated.resources.manage_product_back
-import vitaforge.shared.generated.resources.manage_product_delete_confirm
-import vitaforge.shared.generated.resources.manage_product_delete_message
-import vitaforge.shared.generated.resources.manage_product_delete_title
-import vitaforge.shared.generated.resources.manage_product_discard_confirm
-import vitaforge.shared.generated.resources.manage_product_discard_message
-import vitaforge.shared.generated.resources.manage_product_discard_title
-import vitaforge.shared.generated.resources.manage_product_flavour_add_cancel
-import vitaforge.shared.generated.resources.manage_product_keep_editing
 import vitaforge.shared.generated.resources.manage_product_badge_discounted_subtitle
 import vitaforge.shared.generated.resources.manage_product_badge_discounted_title
 import vitaforge.shared.generated.resources.manage_product_badge_new_subtitle
 import vitaforge.shared.generated.resources.manage_product_badge_new_title
 import vitaforge.shared.generated.resources.manage_product_badge_popular_subtitle
 import vitaforge.shared.generated.resources.manage_product_badge_popular_title
+import vitaforge.shared.generated.resources.manage_product_colour_add
+import vitaforge.shared.generated.resources.manage_product_colour_add_placeholder
+import vitaforge.shared.generated.resources.manage_product_colour_add_title
+import vitaforge.shared.generated.resources.manage_product_colours_loading
+import vitaforge.shared.generated.resources.manage_product_colours_show_all
+import vitaforge.shared.generated.resources.manage_product_delete_confirm
+import vitaforge.shared.generated.resources.manage_product_delete_message
+import vitaforge.shared.generated.resources.manage_product_delete_title
+import vitaforge.shared.generated.resources.manage_product_discard_confirm
+import vitaforge.shared.generated.resources.manage_product_discard_message
+import vitaforge.shared.generated.resources.manage_product_discard_title
+import vitaforge.shared.generated.resources.manage_product_flavour_add
+import vitaforge.shared.generated.resources.manage_product_flavour_add_placeholder
+import vitaforge.shared.generated.resources.manage_product_flavour_add_title
+import vitaforge.shared.generated.resources.manage_product_flavours_loading
+import vitaforge.shared.generated.resources.manage_product_flavours_show_all
+import vitaforge.shared.generated.resources.manage_product_keep_editing
+import vitaforge.shared.generated.resources.manage_product_option_add_cancel
 import vitaforge.shared.generated.resources.manage_product_section_badges
 import vitaforge.shared.generated.resources.manage_product_section_category
+import vitaforge.shared.generated.resources.manage_product_section_colours
 import vitaforge.shared.generated.resources.manage_product_section_description
 import vitaforge.shared.generated.resources.manage_product_section_flavours
 import vitaforge.shared.generated.resources.manage_product_section_media
@@ -102,6 +113,20 @@ import vitaforge.shared.generated.resources.manage_product_section_title
 import vitaforge.shared.generated.resources.manage_product_section_weight
 import vitaforge.shared.generated.resources.manage_product_title_add
 import vitaforge.shared.generated.resources.manage_product_title_edit
+
+private val FlavourChipLabels =
+    OptionChipLabels(
+        add = Res.string.manage_product_flavour_add,
+        showAll = Res.string.manage_product_flavours_show_all,
+        loading = Res.string.manage_product_flavours_loading,
+    )
+
+private val ColourChipLabels =
+    OptionChipLabels(
+        add = Res.string.manage_product_colour_add,
+        showAll = Res.string.manage_product_colours_show_all,
+        loading = Res.string.manage_product_colours_loading,
+    )
 
 @Composable
 fun ManageProductScreen(
@@ -116,6 +141,7 @@ fun ManageProductScreen(
     var showCategoryDialog by remember { mutableStateOf(false) }
     var dropDownMenuOpened by remember { mutableStateOf(false) }
     var showAddFlavourDialog by remember { mutableStateOf(false) }
+    var showAddColourDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
     val photoPicker = koinInject<PhotoPicker>()
@@ -148,11 +174,24 @@ fun ManageProductScreen(
         },
     )
     if (showAddFlavourDialog) {
-        AddFlavourDialog(
+        AddOptionDialog(
+            title = stringResource(Res.string.manage_product_flavour_add_title),
+            placeholder = stringResource(Res.string.manage_product_flavour_add_placeholder),
             onDismiss = { showAddFlavourDialog = false },
             onConfirm = { name ->
                 showAddFlavourDialog = false
                 viewModel.addFlavour(name = name, onError = { message -> messageBarState.addError(message) })
+            },
+        )
+    }
+    if (showAddColourDialog) {
+        AddOptionDialog(
+            title = stringResource(Res.string.manage_product_colour_add_title),
+            placeholder = stringResource(Res.string.manage_product_colour_add_placeholder),
+            onDismiss = { showAddColourDialog = false },
+            onConfirm = { name ->
+                showAddColourDialog = false
+                viewModel.addColour(name = name, onError = { message -> messageBarState.addError(message) })
             },
         )
     }
@@ -161,7 +200,7 @@ fun ManageProductScreen(
             title = stringResource(Res.string.manage_product_delete_title),
             message = stringResource(Res.string.manage_product_delete_message),
             confirmText = stringResource(Res.string.manage_product_delete_confirm),
-            dismissText = stringResource(Res.string.manage_product_flavour_add_cancel),
+            dismissText = stringResource(Res.string.manage_product_option_add_cancel),
             onDismiss = { showDeleteDialog = false },
             onConfirm = {
                 showDeleteDialog = false
@@ -479,10 +518,11 @@ fun ManageProductScreen(
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             FormSectionLabel(stringResource(Res.string.manage_product_section_flavours))
-                            FlavourChips(
-                                flavours = viewModel.availableFlavours,
-                                selectedFlavours = screenState.selectedFlavours,
-                                onToggleFlavour = viewModel::toggleFlavour,
+                            OptionChips(
+                                options = viewModel.availableFlavours,
+                                selected = screenState.selectedFlavours,
+                                labels = FlavourChipLabels,
+                                onToggle = viewModel::toggleFlavour,
                                 onAddClick = { showAddFlavourDialog = true },
                             )
                             if (screenState.selectedFlavours.isNotEmpty()) {
@@ -497,6 +537,20 @@ fun ManageProductScreen(
                                     onRemoveImage = viewModel::removeFlavourImage,
                                 )
                             }
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = screenState.category == ProductCategory.Accessories,
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            FormSectionLabel(stringResource(Res.string.manage_product_section_colours))
+                            OptionChips(
+                                options = viewModel.availableColours,
+                                selected = screenState.selectedColours,
+                                labels = ColourChipLabels,
+                                onToggle = viewModel::toggleColour,
+                                onAddClick = { showAddColourDialog = true },
+                            )
                         }
                     }
                     FormSectionLabel(stringResource(Res.string.manage_product_section_badges))

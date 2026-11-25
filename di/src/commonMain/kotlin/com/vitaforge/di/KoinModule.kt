@@ -10,8 +10,10 @@ import com.vitaforge.data.AdminRepositoryImpl
 import com.vitaforge.data.CustomerRepositoryImpl
 import com.vitaforge.data.OrderRepositoryImpl
 import com.vitaforge.data.ProductRepositoryImpl
+import com.vitaforge.data.createColourRepository
 import com.vitaforge.data.createFlavourRepository
 import com.vitaforge.data.domain.AdminRepository
+import com.vitaforge.data.domain.ColourRepository
 import com.vitaforge.data.domain.CustomerRepository
 import com.vitaforge.data.domain.FlavourRepository
 import com.vitaforge.data.domain.OrderRepository
@@ -19,7 +21,9 @@ import com.vitaforge.data.domain.ProductRepository
 import com.vitaforge.details.DetailsViewModel
 import com.vitaforge.home.HomeGraphViewModel
 import com.vitaforge.manage_product.ManageProductViewModel
+import com.vitaforge.manage_product.usecase.AddColourUseCase
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
+import com.vitaforge.manage_product.usecase.ObserveColoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
 import com.vitaforge.payment_completed.PaymentViewModel
 import com.vitaforge.products_overview.ProductOverviewViewModel
@@ -38,10 +42,13 @@ val sharedModule =
         single<AdminRepository> { AdminRepositoryImpl() }
         single<ProductRepository> { ProductRepositoryImpl() }
         single<FlavourRepository> { createFlavourRepository() }
+        single<ColourRepository> { createColourRepository() }
         single<OrderRepository> { OrderRepositoryImpl(get()) }
         single<PaypalApi> { PaypalApi() }
         factoryOf(::ObserveFlavoursUseCase)
         factoryOf(::AddFlavourUseCase)
+        factoryOf(::ObserveColoursUseCase)
+        factoryOf(::AddColourUseCase)
         viewModelOf(::AuthViewModel)
         viewModelOf(::HomeGraphViewModel)
         viewModelOf(::ProfileViewModel)

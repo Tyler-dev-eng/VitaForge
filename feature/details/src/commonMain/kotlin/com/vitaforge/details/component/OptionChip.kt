@@ -21,8 +21,8 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import com.tylerdev.vitaforge.shared.TextSecondary
 
 @Composable
-fun FlavourChip(
-    flavour: String,
+fun OptionChip(
+    label: String,
     isSelected: Boolean = false,
     onClick: () -> Unit,
 ) {
@@ -40,7 +40,7 @@ fun FlavourChip(
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = flavour,
+            text = label,
             fontSize = FontSize.SMALL,
             color = if (isSelected) TextSecondary else TextPrimary,
             fontWeight = FontWeight.Medium,

@@ -29,6 +29,12 @@ const escapeHtml = (value) =>
 
 const formatPrice = (amount) => `R${Number(amount).toFixed(2)}`;
 
+// " (Vanilla)", " (Black)" or "" depending on what the customer picked.
+const formatOptions = ({flavour, colour}) => {
+  const options = [flavour, colour].filter(Boolean).map(escapeHtml);
+  return options.length ? ` (${options.join(", ")})` : "";
+};
+
 async function loadLineItems(db, items) {
   return Promise.all(items.map(async (item) => {
     const snapshot = await db.collection("product").doc(item.productId).get();
@@ -36,6 +42,7 @@ async function loadLineItems(db, items) {
     return {
       title: product.title ?? "Unknown product",
       flavour: item.flavour ?? null,
+      colour: item.colour ?? null,
       quantity: item.quantity,
       price: product.price ?? 0,
     };
@@ -45,7 +52,7 @@ async function loadLineItems(db, items) {
 function buildEmailHtml({firstName, orderId, lines, totalAmount}) {
   const rows = lines.map((line) => `
     <tr>
-      <td>${escapeHtml(line.title)}${line.flavour ? ` (${escapeHtml(line.flavour)})` : ""}</td>
+      <td>${escapeHtml(line.title)}${formatOptions(line)}</td>
       <td align="center">${line.quantity}</td>
       <td align="right">${formatPrice(line.price * line.quantity)}</td>
     </tr>`).join("");

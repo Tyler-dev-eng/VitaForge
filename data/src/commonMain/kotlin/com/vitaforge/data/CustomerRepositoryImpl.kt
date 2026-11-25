@@ -20,11 +20,13 @@ private data class CartUpdate(
     val cart: List<CartItem>,
 )
 
+private fun CartItem.isSameSelection(other: CartItem): Boolean =
+    productId == other.productId && flavour == other.flavour && colour == other.colour
+
 private fun List<CartItem>.withItemAdded(newItem: CartItem): List<CartItem> {
-    val hasMatch = any { it.productId == newItem.productId && it.flavour == newItem.flavour }
-    if (!hasMatch) return this + newItem
+    if (none { it.isSameSelection(newItem) }) return this + newItem
     return map { item ->
-        if (item.productId == newItem.productId && item.flavour == newItem.flavour) {
+        if (item.isSameSelection(newItem)) {
             item.copy(quantity = item.quantity + newItem.quantity)
         } else {
             item

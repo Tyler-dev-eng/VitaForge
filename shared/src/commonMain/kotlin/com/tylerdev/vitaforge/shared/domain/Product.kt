@@ -19,6 +19,7 @@ data class Product(
     val category: String,
     val flavours: List<String>? = null,
     val flavourImages: Map<String, String>? = null,
+    val colours: List<String>? = null,
     val weight: Int? = null,
     val specsServing: String? = null,
     val specs: List<ProductSpec>? = null,

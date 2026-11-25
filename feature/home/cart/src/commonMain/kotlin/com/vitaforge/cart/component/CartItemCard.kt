@@ -219,7 +219,7 @@ private fun cartItemSubtitle(
                 stringResource(Res.string.cart_weight_grams, grams)
             }
         }
-    return listOfNotNull(cartItem.flavour, weight)
+    return listOfNotNull(cartItem.flavour, cartItem.colour, weight)
         .takeIf { it.isNotEmpty() }
         ?.joinToString(separator = stringResource(Res.string.cart_item_subtitle_separator))
 }

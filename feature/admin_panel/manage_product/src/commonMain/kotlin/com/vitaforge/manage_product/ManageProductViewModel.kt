@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tylerdev.vitaforge.shared.domain.Flavour
 import com.tylerdev.vitaforge.shared.domain.ImageFile
 import com.tylerdev.vitaforge.shared.domain.Product
 import com.tylerdev.vitaforge.shared.domain.ProductCategory
@@ -14,13 +13,18 @@ import com.tylerdev.vitaforge.shared.domain.ProductSpec
 import com.tylerdev.vitaforge.shared.util.RequestState
 import com.vitaforge.data.domain.AdminRepository
 import com.vitaforge.data.domain.errorMessage
+import com.vitaforge.manage_product.usecase.AddColourUseCase
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
+import com.vitaforge.manage_product.usecase.ObserveColoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 private const val ADD_FLAVOUR_ERROR = "Could not add flavour."
+private const val ADD_COLOUR_ERROR = "Could not add colour."
 private const val INVALID_FORM_ERROR = "Please fill in the highlighted fields."
 private const val NO_IMAGE_ERROR = "No image selected"
 
@@ -33,6 +37,7 @@ data class ManageProductState(
     val category: ProductCategory = ProductCategory.Protein,
     val selectedFlavours: List<String> = emptyList(),
     val flavourImages: Map<String, String> = emptyMap(),
+    val selectedColours: List<String> = emptyList(),
     val weight: Int? = null,
     val specsServing: String = "",
     val specs: List<ProductSpec> = emptyList(),
@@ -47,6 +52,8 @@ class ManageProductViewModel(
     private val adminRepository: AdminRepository,
     private val observeFlavoursUseCase: ObserveFlavoursUseCase,
     private val addFlavourUseCase: AddFlavourUseCase,
+    private val observeColoursUseCase: ObserveColoursUseCase,
+    private val addColourUseCase: AddColourUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val productId = savedStateHandle.get<String>("id") ?: ""
@@ -57,7 +64,10 @@ class ManageProductViewModel(
     var thumbnailUploaderState: RequestState<Unit> by mutableStateOf(RequestState.Idle)
         private set
 
-    var availableFlavours: RequestState<List<Flavour>> by mutableStateOf(RequestState.Loading)
+    var availableFlavours: RequestState<List<String>> by mutableStateOf(RequestState.Loading)
+        private set
+
+    var availableColours: RequestState<List<String>> by mutableStateOf(RequestState.Loading)
         private set
 
     var isSaving by mutableStateOf(false)
@@ -110,6 +120,7 @@ class ManageProductViewModel(
 
     init {
         observeAvailableFlavours()
+        observeAvailableColours()
         productId.takeIf { it.isNotEmpty() }?.let { id ->
             viewModelScope.launch {
                 adminRepository.readProductById(id).onSuccess { product -> loadProduct(product) }
@@ -131,6 +142,7 @@ class ManageProductViewModel(
                 .map { it.trim() }
                 .filter { it.isNotEmpty() },
         )
+        screenState = screenState.copy(selectedColours = product.colours.orEmpty())
         updateWeight(product.weight)
         screenState = screenState.copy(flavourImages = product.flavourImages.orEmpty())
         screenState =
@@ -180,11 +192,16 @@ class ManageProductViewModel(
     }
 
     fun toggleFlavour(name: String) {
-        val current = screenState.selectedFlavours
-        val isSelected = current.any { it.equals(name, ignoreCase = true) }
-        updateSelectedFlavours(
-            if (isSelected) current.filterNot { it.equals(name, ignoreCase = true) } else current + name,
-        )
+        updateSelectedFlavours(screenState.selectedFlavours.toggle(name))
+    }
+
+    fun toggleColour(name: String) {
+        screenState = screenState.copy(selectedColours = screenState.selectedColours.toggle(name))
+    }
+
+    private fun List<String>.toggle(name: String): List<String> {
+        val isSelected = any { it.equals(name, ignoreCase = true) }
+        return if (isSelected) filterNot { it.equals(name, ignoreCase = true) } else this + name
     }
 
     fun addFlavour(
@@ -197,6 +214,22 @@ class ManageProductViewModel(
                 .onFailure { error ->
                     onError(
                         if (error is IllegalArgumentException) error.message ?: ADD_FLAVOUR_ERROR else ADD_FLAVOUR_ERROR,
+                    )
+                }
+        }
+    }
+
+    fun addColour(
+        name: String,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            addColourUseCase(name)
+                .onSuccess { colour ->
+                    screenState = screenState.copy(selectedColours = screenState.selectedColours + colour.name)
+                }.onFailure { error ->
+                    onError(
+                        if (error is IllegalArgumentException) error.message ?: ADD_COLOUR_ERROR else ADD_COLOUR_ERROR,
                     )
                 }
         }
@@ -260,11 +293,29 @@ class ManageProductViewModel(
     private fun productFlavours(): List<String> =
         if (screenState.category == ProductCategory.Accessories) emptyList() else screenState.selectedFlavours
 
+    private fun productColours(): List<String>? = screenState.selectedColours.takeIf { screenState.category == ProductCategory.Accessories }
+
     private fun observeAvailableFlavours() {
         viewModelScope.launch {
-            observeFlavoursUseCase().collect { availableFlavours = it }
+            observeFlavoursUseCase().toNames { it.name }.collect { availableFlavours = it }
         }
     }
+
+    private fun observeAvailableColours() {
+        viewModelScope.launch {
+            observeColoursUseCase().toNames { it.name }.collect { availableColours = it }
+        }
+    }
+
+    private fun <T> Flow<RequestState<List<T>>>.toNames(nameOf: (T) -> String): Flow<RequestState<List<String>>> =
+        map { state ->
+            when (state) {
+                is RequestState.Success -> RequestState.Success(state.data.map(nameOf))
+                is RequestState.Error -> state
+                RequestState.Loading -> RequestState.Loading
+                RequestState.Idle -> RequestState.Idle
+            }
+        }
 
     fun updateWeight(value: Int?) {
         screenState = screenState.copy(weight = value)
@@ -334,6 +385,7 @@ class ManageProductViewModel(
                             category = screenState.category.name,
                             flavours = productFlavours(),
                             flavourImages = productFlavourImages(),
+                            colours = productColours(),
                             weight = screenState.weight,
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
@@ -426,6 +478,7 @@ class ManageProductViewModel(
                             category = screenState.category.name,
                             flavours = productFlavours(),
                             flavourImages = productFlavourImages(),
+                            colours = productColours(),
                             weight = screenState.weight,
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
