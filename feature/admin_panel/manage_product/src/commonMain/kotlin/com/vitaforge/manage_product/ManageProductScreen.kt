@@ -97,6 +97,9 @@ import vitaforge.shared.generated.resources.manage_product_discard_title
 import vitaforge.shared.generated.resources.manage_product_flavour_add
 import vitaforge.shared.generated.resources.manage_product_flavour_add_placeholder
 import vitaforge.shared.generated.resources.manage_product_flavour_add_title
+import vitaforge.shared.generated.resources.manage_product_flavour_delete_message
+import vitaforge.shared.generated.resources.manage_product_flavour_delete_title
+import vitaforge.shared.generated.resources.manage_product_flavours_delete
 import vitaforge.shared.generated.resources.manage_product_flavours_loading
 import vitaforge.shared.generated.resources.manage_product_flavours_show_all
 import vitaforge.shared.generated.resources.manage_product_keep_editing
@@ -127,6 +130,7 @@ private val FlavourChipLabels =
         add = Res.string.manage_product_flavour_add,
         showAll = Res.string.manage_product_flavours_show_all,
         loading = Res.string.manage_product_flavours_loading,
+        delete = Res.string.manage_product_flavours_delete,
     )
 
 private val ColourChipLabels =
@@ -160,6 +164,7 @@ fun ManageProductScreen(
     var showAddSizeDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
+    var flavourToDelete by remember { mutableStateOf<String?>(null) }
     val photoPicker = koinInject<PhotoPicker>()
     var priceText by remember { mutableStateOf("") }
     var oldPriceText by remember { mutableStateOf("") }
@@ -248,6 +253,19 @@ fun ManageProductScreen(
             onConfirm = {
                 showDiscardDialog = false
                 navigateBack()
+            },
+        )
+    }
+    flavourToDelete?.let { flavour ->
+        ConfirmDialog(
+            title = stringResource(Res.string.manage_product_flavour_delete_title),
+            message = stringResource(Res.string.manage_product_flavour_delete_message, flavour),
+            confirmText = stringResource(Res.string.manage_product_delete_confirm),
+            dismissText = stringResource(Res.string.manage_product_option_add_cancel),
+            onDismiss = { flavourToDelete = null },
+            onConfirm = {
+                flavourToDelete = null
+                viewModel.deleteFlavour(name = flavour, onError = { message -> messageBarState.addError(message) })
             },
         )
     }
@@ -551,6 +569,7 @@ fun ManageProductScreen(
                                 labels = FlavourChipLabels,
                                 onToggle = viewModel::toggleFlavour,
                                 onAddClick = { showAddFlavourDialog = true },
+                                onDelete = { flavour -> flavourToDelete = flavour },
                             )
                             if (screenState.selectedFlavours.isNotEmpty()) {
                                 OptionImagesEditor(

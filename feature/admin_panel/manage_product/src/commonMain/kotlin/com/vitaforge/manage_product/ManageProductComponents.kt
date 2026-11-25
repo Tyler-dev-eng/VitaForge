@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tylerdev.vitaforge.shared.Black
+import com.tylerdev.vitaforge.shared.BorderError
 import com.tylerdev.vitaforge.shared.BorderIdle
 import com.tylerdev.vitaforge.shared.FontSize
 import com.tylerdev.vitaforge.shared.IconPrimary
@@ -68,6 +69,8 @@ import org.jetbrains.compose.resources.stringResource
 import vitaforge.shared.generated.resources.Res
 import vitaforge.shared.generated.resources.manage_product_option_add_cancel
 import vitaforge.shared.generated.resources.manage_product_option_add_confirm
+import vitaforge.shared.generated.resources.manage_product_option_delete_description
+import vitaforge.shared.generated.resources.manage_product_options_delete_done
 import vitaforge.shared.generated.resources.manage_product_options_show_less
 import vitaforge.shared.generated.resources.manage_product_upload_description
 import vitaforge.shared.generated.resources.manage_product_upload_hint
@@ -239,6 +242,7 @@ internal data class OptionChipLabels(
     val add: StringResource,
     val showAll: StringResource,
     val loading: StringResource,
+    val delete: StringResource? = null,
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -250,6 +254,7 @@ internal fun OptionChips(
     onToggle: (String) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onDelete: ((String) -> Unit)? = null,
 ) {
     when (options) {
         is RequestState.Success -> {
@@ -258,32 +263,49 @@ internal fun OptionChips(
                     options.data + selected.filter { name -> options.data.none { it.equals(name, ignoreCase = true) } }
                 }
             var isExpanded by rememberSaveable { mutableStateOf(false) }
+            var isDeleting by rememberSaveable { mutableStateOf(false) }
             val visibleOptions =
                 if (isExpanded) allOptions else allOptions.filter { name -> selected.any { it.equals(name, ignoreCase = true) } }
             Column(modifier = modifier.fillMaxWidth()) {
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
-                ) {
-                    visibleOptions.forEach { name ->
-                        OptionChip(
-                            label = name,
-                            isSelected = selected.any { it.equals(name, ignoreCase = true) },
-                            onClick = { onToggle(name) },
-                        )
+                if (isDeleting && onDelete != null) {
+                    DeletableOptionChips(options = options.data, onDelete = onDelete)
+                } else {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
+                    ) {
+                        visibleOptions.forEach { name ->
+                            OptionChip(
+                                label = name,
+                                isSelected = selected.any { it.equals(name, ignoreCase = true) },
+                                onClick = { onToggle(name) },
+                            )
+                        }
+                        AddOptionChip(label = labels.add, onClick = onAddClick)
                     }
-                    AddOptionChip(label = labels.add, onClick = onAddClick)
                 }
-                if (allOptions.size > selected.size || isExpanded) {
-                    TextButton(onClick = { isExpanded = !isExpanded }) {
-                        Text(
-                            text =
-                                if (isExpanded) {
-                                    stringResource(Res.string.manage_product_options_show_less)
-                                } else {
-                                    stringResource(labels.showAll, allOptions.size)
-                                },
-                        )
+                Row(horizontalArrangement = Arrangement.spacedBy(ChipSpacing)) {
+                    if (!isDeleting && (allOptions.size > selected.size || isExpanded)) {
+                        TextButton(onClick = { isExpanded = !isExpanded }) {
+                            Text(
+                                text =
+                                    if (isExpanded) {
+                                        stringResource(Res.string.manage_product_options_show_less)
+                                    } else {
+                                        stringResource(labels.showAll, allOptions.size)
+                                    },
+                            )
+                        }
+                    }
+                    if (onDelete != null && labels.delete != null && (isDeleting || options.data.isNotEmpty())) {
+                        TextButton(onClick = { isDeleting = !isDeleting }) {
+                            Text(
+                                text =
+                                    stringResource(
+                                        if (isDeleting) Res.string.manage_product_options_delete_done else labels.delete,
+                                    ),
+                            )
+                        }
                     }
                 }
             }
@@ -346,6 +368,57 @@ private fun OptionChip(
                     tint = IconWhite,
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun DeletableOptionChips(
+    options: List<String>,
+    onDelete: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(ChipSpacing),
+    ) {
+        options.forEach { name ->
+            DeletableOptionChip(label = name, onClick = { onDelete(name) })
+        }
+    }
+}
+
+@Composable
+private fun DeletableOptionChip(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ChipTouchTarget(
+        modifier = modifier,
+        selected = false,
+        role = Role.Button,
+        onClick = onClick,
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .height(ChipHeight)
+                    .clip(ChipShape)
+                    .background(Surface)
+                    .border(width = 1.dp, color = BorderError, shape = ChipShape)
+                    .padding(horizontal = ChipHorizontalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ChipContentSpacing),
+        ) {
+            Text(text = label, fontSize = FontSize.REGULAR, color = TextPrimary)
+            Icon(
+                modifier = Modifier.size(ChipIconSize),
+                painter = painterResource(Resources.Icon.TrashCan),
+                contentDescription = stringResource(Res.string.manage_product_option_delete_description, label),
+                tint = IconPrimary,
+            )
         }
     }
 }

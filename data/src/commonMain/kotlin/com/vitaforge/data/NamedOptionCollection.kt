@@ -12,7 +12,7 @@ import kotlin.uuid.Uuid
 private const val FIELD_ID = "id"
 private const val FIELD_NAME = "name"
 
-/** A Firestore collection of uniquely named options that admins can add to, such as flavours or colours. */
+/** A Firestore collection of uniquely named options that admins manage, such as flavours or colours. */
 internal class NamedOptionCollection<T>(
     private val path: String,
     private val label: String,
@@ -46,6 +46,21 @@ internal class NamedOptionCollection<T>(
             Result.failure(e)
         }
     }
+
+    /** Deletes every option called [name]; succeeds when there is none left to delete. */
+    suspend fun delete(name: String): Result<Unit> =
+        try {
+            collection
+                .get()
+                .documents
+                .filter { it.get<String>(field = FIELD_NAME).equals(name, ignoreCase = true) }
+                .forEach { it.reference.delete() }
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
     private suspend fun exists(name: String): Boolean =
         collection

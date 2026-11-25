@@ -17,6 +17,7 @@ import com.vitaforge.data.domain.errorMessage
 import com.vitaforge.manage_product.usecase.AddColourUseCase
 import com.vitaforge.manage_product.usecase.AddFlavourUseCase
 import com.vitaforge.manage_product.usecase.AddSizeUseCase
+import com.vitaforge.manage_product.usecase.DeleteFlavourUseCase
 import com.vitaforge.manage_product.usecase.ObserveColoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveFlavoursUseCase
 import com.vitaforge.manage_product.usecase.ObserveSizesUseCase
@@ -27,6 +28,7 @@ import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 private const val ADD_FLAVOUR_ERROR = "Could not add flavour."
+private const val DELETE_FLAVOUR_ERROR = "Could not delete flavour."
 private const val ADD_COLOUR_ERROR = "Could not add colour."
 private const val ADD_SIZE_ERROR = "Could not add size."
 private const val INVALID_FORM_ERROR = "Please fill in the highlighted fields."
@@ -68,6 +70,7 @@ class ManageProductViewModel(
     private val adminRepository: AdminRepository,
     private val observeFlavoursUseCase: ObserveFlavoursUseCase,
     private val addFlavourUseCase: AddFlavourUseCase,
+    private val deleteFlavourUseCase: DeleteFlavourUseCase,
     private val observeColoursUseCase: ObserveColoursUseCase,
     private val addColourUseCase: AddColourUseCase,
     private val observeSizesUseCase: ObserveSizesUseCase,
@@ -241,6 +244,19 @@ class ManageProductViewModel(
             addFlavourUseCase(name).onSuccess { flavour ->
                 updateSelectedFlavours(screenState.selectedFlavours + flavour.name)
             }
+        }
+    }
+
+    /** Deletes [name] from the shared flavour list and deselects it on this product. */
+    fun deleteFlavour(
+        name: String,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            deleteFlavourUseCase(name)
+                .onSuccess {
+                    updateSelectedFlavours(screenState.selectedFlavours.filterNot { it.equals(name, ignoreCase = true) })
+                }.onFailure { onError(DELETE_FLAVOUR_ERROR) }
         }
     }
 

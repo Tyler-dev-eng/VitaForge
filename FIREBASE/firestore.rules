@@ -75,7 +75,7 @@ service cloud.firestore {
     //   - totalAmount: number (required, 0..1000000)
     //   - token: string | null (optional, <= 200 chars, PayPal order id)
     //
-    // Admin for product/flavours/colours/sizes writes = any user with privateData/role.isAdmin
+    // Admin for product/flavours/colours/sizes writes (only flavours can be deleted) = any user with privateData/role.isAdmin
     // == true (plus the bootstrap UID in isAdmin()). Orders are create-only from
     // clients; the backend (Admin SDK) reads them.
     //
@@ -297,11 +297,12 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Flavours: any signed-in user can read; only admins can add.
+    // Flavours: any signed-in user can read; only admins can add or delete.
     match /flavours/{flavourId} {
       allow read: if isAuthenticated();
       allow create: if isAdmin() && isValidNamedOption(request.resource.data, flavourId);
-      allow update, delete: if false;
+      allow delete: if isAdmin();
+      allow update: if false;
     }
 
     // Colours: any signed-in user can read; only admins can add.

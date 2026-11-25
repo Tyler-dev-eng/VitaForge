@@ -8,4 +8,6 @@ interface FlavourRepository {
     fun observeFlavours(): Flow<RequestState<List<Flavour>>>
 
     suspend fun addFlavour(name: String): Result<Flavour>
+
+    suspend fun deleteFlavour(name: String): Result<Unit>
 }

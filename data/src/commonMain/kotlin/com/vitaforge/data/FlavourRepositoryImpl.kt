@@ -11,6 +11,8 @@ internal class FlavourRepositoryImpl : FlavourRepository {
     override fun observeFlavours(): Flow<RequestState<List<Flavour>>> = options.observe()
 
     override suspend fun addFlavour(name: String): Result<Flavour> = options.add(name)
+
+    override suspend fun deleteFlavour(name: String): Result<Unit> = options.delete(name)
 }
 
 fun createFlavourRepository(): FlavourRepository = FlavourRepositoryImpl()
