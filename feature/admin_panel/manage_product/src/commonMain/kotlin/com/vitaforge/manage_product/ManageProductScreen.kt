@@ -20,8 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -172,7 +170,6 @@ fun ManageProductScreen(
     val focusManager = LocalFocusManager.current
     val thumbnailUploaderState = viewModel.thumbnailUploaderState
     var showCategoryDialog by remember { mutableStateOf(false) }
-    var dropDownMenuOpened by remember { mutableStateOf(false) }
     var showAddFlavourDialog by remember { mutableStateOf(false) }
     var showAddColourDialog by remember { mutableStateOf(false) }
     var showAddSizeDialog by remember { mutableStateOf(false) }
@@ -326,36 +323,7 @@ fun ManageProductScreen(
                 },
                 actions = {
                     if (id != null) {
-                        Box {
-                            IconButton(onClick = { dropDownMenuOpened = true }) {
-                                Icon(
-                                    painter = painterResource(Resources.Icon.VerticalMenu),
-                                    contentDescription = "Vertical menu Icon",
-                                    tint = IconPrimary,
-                                )
-                            }
-                        }
-                        DropdownMenu(
-                            containerColor = Surface,
-                            expanded = dropDownMenuOpened,
-                            onDismissRequest = { dropDownMenuOpened = false },
-                        ) {
-                            DropdownMenuItem(
-                                leadingIcon = {
-                                    Icon(
-                                        modifier = Modifier.size(14.dp),
-                                        painter = painterResource(Resources.Icon.TrashCan),
-                                        contentDescription = "Delete Icon",
-                                        tint = IconPrimary,
-                                    )
-                                },
-                                onClick = {
-                                    dropDownMenuOpened = false
-                                    showDeleteDialog = true
-                                },
-                                text = { Text(text = "Delete", color = TextPrimary) },
-                            )
-                        }
+                        ProductOptionsMenu(onDeleteClick = { showDeleteDialog = true })
                     }
                 },
                 colors =
