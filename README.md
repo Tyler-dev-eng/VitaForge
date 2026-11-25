@@ -2,17 +2,30 @@
 
 A Kotlin Multiplatform e-commerce app for Android and iOS with a shared Compose Multiplatform UI. Customers browse supplements by category, add them to a cart, and check out with PayPal. Admins manage the product catalogue from inside the app.
 
+## Screenshots
+
+Captured on an Android emulator.
+
+| Home | Categories | Category search | Product details |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.png" alt="Home screen" width="220"> | <img src="docs/screenshots/categories.png" alt="Categories screen" width="220"> | <img src="docs/screenshots/category-search.png" alt="Category search screen" width="220"> | <img src="docs/screenshots/product-details.png" alt="Product details screen" width="220"> |
+
+| Empty cart | Admin panel | Add product |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/cart.png" alt="Empty cart screen" width="220"> | <img src="docs/screenshots/admin-panel.png" alt="Admin panel screen" width="220"> | <img src="docs/screenshots/add-product.png" alt="Add product screen" width="220"> |
+
 ## Features
 
 - **Auth** — Google sign-in via Firebase Authentication (KMPAuth).
-- **Browse** — products overview, category browsing, and in-category search with loading, empty, and error states.
-- **Product details** — view a product and pick a flavour before adding it to the cart.
+- **Browse** — a home screen with an auto-sliding new products carousel, category shortcuts, and discounted products; category browsing, and in-category search with loading, empty, and error states.
+- **Product details** — description, specifications, and old and discounted prices. Pick from the available flavours, or colours and sizes for accessories, before adding to the cart.
 - **Cart** — quantity controls (minimum of one), an item-count badge in the bottom bar, and inline error messages.
 - **Checkout** — customer details form and a PayPal checkout flow that returns to the app through a deep link.
 - **Orders** — an order is created in Firestore once payment completes, and the cart is cleared.
 - **Order confirmation email** — a Cloud Function emails the customer when an order document is created (via [Resend](https://resend.com/)).
 - **Profile** — view and manage the signed-in customer.
-- **Admin panel** — create and edit products, including image upload to Firebase Storage.
+- **Admin panel** — list, filter, and search all products.
+- **Product management** — create, edit, and delete products, with validation and delete/discard confirmations. Descriptions support bullet points, and products can have specifications. Manage flavours, colours, and sizes, with images per flavour or colour uploaded to Firebase Storage.
 - **Push notifications** — set up with KMPNotifier.
 
 ## Architecture
