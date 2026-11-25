@@ -20,6 +20,7 @@ data class Product(
     val flavours: List<String>? = null,
     val flavourImages: Map<String, String>? = null,
     val colours: List<String>? = null,
+    val colourImages: Map<String, String>? = null,
     val weight: Int? = null,
     val specsServing: String? = null,
     val specs: List<ProductSpec>? = null,
@@ -33,21 +34,32 @@ data class Product(
     val discountedFromPrice: Double?
         get() = oldPrice?.takeIf { isDiscounted && it > price }
 
-    /** The main image: the thumbnail, or the first flavour's image when no thumbnail was added. */
+    /** The main image: the thumbnail, or the first flavour or colour image when no thumbnail was added. */
     val coverImage: String
         get() =
             thumbnail.takeIf { it.isNotBlank() }
-                ?: flavours
-                    .orEmpty()
-                    .firstNotNullOfOrNull { flavourImages?.get(it)?.takeIf(String::isNotBlank) }
+                ?: firstImage(flavours, flavourImages)
+                ?: firstImage(colours, colourImages)
                 ?: ""
 
-    /** The image for [flavour], falling back to [coverImage] when it has none. */
-    fun imageFor(flavour: String?): String =
-        flavour
-            ?.let { flavourImages?.get(it) }
-            ?.takeIf { it.isNotBlank() }
+    /** The image for the chosen [flavour] or [colour], falling back to [coverImage] when it has none. */
+    fun imageFor(
+        flavour: String? = null,
+        colour: String? = null,
+    ): String =
+        imageOf(flavour, flavourImages)
+            ?: imageOf(colour, colourImages)
             ?: coverImage
+
+    private fun firstImage(
+        options: List<String>?,
+        images: Map<String, String>?,
+    ): String? = options.orEmpty().firstNotNullOfOrNull { imageOf(it, images) }
+
+    private fun imageOf(
+        option: String?,
+        images: Map<String, String>?,
+    ): String? = option?.let { images?.get(it) }?.takeIf { it.isNotBlank() }
 }
 
 @Serializable

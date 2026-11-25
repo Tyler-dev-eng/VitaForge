@@ -103,8 +103,10 @@ import vitaforge.shared.generated.resources.manage_product_keep_editing
 import vitaforge.shared.generated.resources.manage_product_option_add_cancel
 import vitaforge.shared.generated.resources.manage_product_section_badges
 import vitaforge.shared.generated.resources.manage_product_section_category
+import vitaforge.shared.generated.resources.manage_product_section_colour_images
 import vitaforge.shared.generated.resources.manage_product_section_colours
 import vitaforge.shared.generated.resources.manage_product_section_description
+import vitaforge.shared.generated.resources.manage_product_section_flavour_images
 import vitaforge.shared.generated.resources.manage_product_section_flavours
 import vitaforge.shared.generated.resources.manage_product_section_media
 import vitaforge.shared.generated.resources.manage_product_section_old_price
@@ -526,12 +528,13 @@ fun ManageProductScreen(
                                 onAddClick = { showAddFlavourDialog = true },
                             )
                             if (screenState.selectedFlavours.isNotEmpty()) {
-                                FlavourImagesEditor(
-                                    flavours = screenState.selectedFlavours,
+                                OptionImagesEditor(
+                                    title = stringResource(Res.string.manage_product_section_flavour_images),
+                                    options = screenState.selectedFlavours,
                                     images = screenState.flavourImages,
-                                    uploadingFlavour = viewModel.uploadingFlavour,
+                                    uploadingOption = viewModel.uploadingImage?.takeUnless { it.isColour }?.name,
                                     onPickImage = { flavour ->
-                                        viewModel.setImageTarget(flavour)
+                                        viewModel.setImageTarget(OptionImageTarget(name = flavour, isColour = false))
                                         photoPicker.open()
                                     },
                                     onRemoveImage = viewModel::removeFlavourImage,
@@ -551,6 +554,19 @@ fun ManageProductScreen(
                                 onToggle = viewModel::toggleColour,
                                 onAddClick = { showAddColourDialog = true },
                             )
+                            if (screenState.selectedColours.isNotEmpty()) {
+                                OptionImagesEditor(
+                                    title = stringResource(Res.string.manage_product_section_colour_images),
+                                    options = screenState.selectedColours,
+                                    images = screenState.colourImages,
+                                    uploadingOption = viewModel.uploadingImage?.takeIf { it.isColour }?.name,
+                                    onPickImage = { colour ->
+                                        viewModel.setImageTarget(OptionImageTarget(name = colour, isColour = true))
+                                        photoPicker.open()
+                                    },
+                                    onRemoveImage = viewModel::removeColourImage,
+                                )
+                            }
                         }
                     }
                     FormSectionLabel(stringResource(Res.string.manage_product_section_badges))

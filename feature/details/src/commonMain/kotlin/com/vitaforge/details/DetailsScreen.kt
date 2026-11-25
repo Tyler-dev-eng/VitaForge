@@ -115,7 +115,11 @@ fun DetailsScreen(navigateBack: () -> Unit) {
                             ),
                 ) {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        ProductContent(product = selectedProduct, selectedFlavour = selectedFlavour)
+                        ProductContent(
+                            product = selectedProduct,
+                            selectedFlavour = selectedFlavour,
+                            selectedColour = selectedColour,
+                        )
                         PurchaseBar(
                             flavours = selectedProduct.flavours.orEmpty(),
                             selectedFlavour = selectedFlavour,
@@ -172,6 +176,7 @@ private fun DetailsTopBar(
 private fun ProductContent(
     product: Product,
     selectedFlavour: String?,
+    selectedColour: String?,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -181,7 +186,7 @@ private fun ProductContent(
                 .padding(top = ItemSpacing, bottom = SectionSpacing),
         verticalArrangement = Arrangement.spacedBy(SectionSpacing),
     ) {
-        ProductImage(imageUrl = product.imageFor(selectedFlavour))
+        ProductImage(imageUrl = product.imageFor(flavour = selectedFlavour, colour = selectedColour))
         ProductHeader(product = product)
         Text(
             text = product.description,

@@ -28,6 +28,12 @@ private const val ADD_COLOUR_ERROR = "Could not add colour."
 private const val INVALID_FORM_ERROR = "Please fill in the highlighted fields."
 private const val NO_IMAGE_ERROR = "No image selected"
 
+/** The flavour or colour a picked photo belongs to. */
+data class OptionImageTarget(
+    val name: String,
+    val isColour: Boolean,
+)
+
 data class ManageProductState(
     val id: String = Uuid.random().toHexString(),
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
@@ -38,6 +44,7 @@ data class ManageProductState(
     val selectedFlavours: List<String> = emptyList(),
     val flavourImages: Map<String, String> = emptyMap(),
     val selectedColours: List<String> = emptyList(),
+    val colourImages: Map<String, String> = emptyMap(),
     val weight: Int? = null,
     val specsServing: String = "",
     val specs: List<ProductSpec> = emptyList(),
@@ -46,7 +53,11 @@ data class ManageProductState(
     val isNew: Boolean = false,
     val isPopular: Boolean = false,
     val isDiscounted: Boolean = false,
-)
+) {
+    /** Every flavour and colour image uploaded on the form. */
+    val optionImageUrls: Set<String>
+        get() = (flavourImages.values + colourImages.values).toSet()
+}
 
 class ManageProductViewModel(
     private val adminRepository: AdminRepository,
@@ -73,11 +84,11 @@ class ManageProductViewModel(
     var isSaving by mutableStateOf(false)
         private set
 
-    var uploadingFlavour: String? by mutableStateOf(null)
+    var uploadingImage: OptionImageTarget? by mutableStateOf(null)
         private set
 
-    /** Which flavour the next picked photo belongs to; null means the product thumbnail. */
-    private var imageTarget: String? = null
+    /** Which option the next picked photo belongs to; null means the product thumbnail. */
+    private var imageTarget: OptionImageTarget? = null
 
     var isValidationVisible by mutableStateOf(false)
         private set
@@ -102,8 +113,9 @@ class ManageProductViewModel(
     val isOldPriceInvalid: Boolean
         get() = isValidationVisible && isOldPriceMissing()
 
-    /** A product needs a thumbnail, or at least one flavour image that can stand in for it. */
-    private fun hasProductImage(): Boolean = screenState.thumbnail.isNotEmpty() || productFlavourImages() != null
+    /** A product needs a thumbnail, or at least one flavour or colour image that can stand in for it. */
+    private fun hasProductImage(): Boolean =
+        screenState.thumbnail.isNotEmpty() || productFlavourImages() != null || productColourImages() != null
 
     private fun isOldPriceMissing(): Boolean {
         val oldPrice = screenState.oldPrice
@@ -142,7 +154,8 @@ class ManageProductViewModel(
                 .map { it.trim() }
                 .filter { it.isNotEmpty() },
         )
-        screenState = screenState.copy(selectedColours = product.colours.orEmpty())
+        screenState =
+            screenState.copy(selectedColours = product.colours.orEmpty(), colourImages = product.colourImages.orEmpty())
         updateWeight(product.weight)
         screenState = screenState.copy(flavourImages = product.flavourImages.orEmpty())
         screenState =
@@ -235,8 +248,8 @@ class ManageProductViewModel(
         }
     }
 
-    fun setImageTarget(flavour: String?) {
-        imageTarget = flavour
+    fun setImageTarget(target: OptionImageTarget?) {
+        imageTarget = target
     }
 
     fun onPhotoSelected(
@@ -244,13 +257,13 @@ class ManageProductViewModel(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) {
-        val flavour = imageTarget
+        val target = imageTarget
         imageTarget = null
-        if (flavour == null) uploadThumbnailToStorage(file, onSuccess) else uploadFlavourImage(flavour, file, onSuccess, onError)
+        if (target == null) uploadThumbnailToStorage(file, onSuccess) else uploadOptionImage(target, file, onSuccess, onError)
     }
 
-    private fun uploadFlavourImage(
-        flavour: String,
+    private fun uploadOptionImage(
+        target: OptionImageTarget,
         file: ImageFile?,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
@@ -260,13 +273,12 @@ class ManageProductViewModel(
             return
         }
         viewModelScope.launch {
-            uploadingFlavour = flavour
+            uploadingImage = target
             val result = adminRepository.uploadImageToStorage(file)
-            uploadingFlavour = null
+            uploadingImage = null
             result.fold(
                 onSuccess = { url ->
-                    discardUnsavedImage(screenState.flavourImages[flavour])
-                    screenState = screenState.copy(flavourImages = screenState.flavourImages + (flavour to url))
+                    setOptionImage(target, url)
                     onSuccess()
                 },
                 onFailure = { onError(result.errorMessage()) },
@@ -275,19 +287,38 @@ class ManageProductViewModel(
     }
 
     fun removeFlavourImage(flavour: String) {
-        discardUnsavedImage(screenState.flavourImages[flavour])
-        screenState = screenState.copy(flavourImages = screenState.flavourImages - flavour)
+        setOptionImage(OptionImageTarget(name = flavour, isColour = false), url = null)
+    }
+
+    fun removeColourImage(colour: String) {
+        setOptionImage(OptionImageTarget(name = colour, isColour = true), url = null)
+    }
+
+    /** Sets or, when [url] is null, removes the image of [target]. */
+    private fun setOptionImage(
+        target: OptionImageTarget,
+        url: String?,
+    ) {
+        val images = if (target.isColour) screenState.colourImages else screenState.flavourImages
+        discardUnsavedImage(images[target.name])
+        val updated = if (url == null) images - target.name else images + (target.name to url)
+        screenState =
+            if (target.isColour) screenState.copy(colourImages = updated) else screenState.copy(flavourImages = updated)
     }
 
     /** Deletes an uploaded image straight away when it was never saved on the product, so it isn't orphaned. */
     private fun discardUnsavedImage(url: String?) {
-        if (url == null || url in savedState.flavourImages.values) return
+        if (url == null || url in savedState.optionImageUrls) return
         viewModelScope.launch { adminRepository.deleteImageFromStorage(downloadUrl = url) }
     }
 
-    private fun productFlavourImages(): Map<String, String>? =
-        screenState.flavourImages
-            .filter { (flavour, url) -> url.isNotBlank() && productFlavours().any { it.equals(flavour, ignoreCase = true) } }
+    private fun productFlavourImages(): Map<String, String>? = screenState.flavourImages.keptFor(productFlavours())
+
+    private fun productColourImages(): Map<String, String>? = screenState.colourImages.keptFor(productColours().orEmpty())
+
+    /** The images whose option is still on the product. */
+    private fun Map<String, String>.keptFor(options: List<String>): Map<String, String>? =
+        filter { (name, url) -> url.isNotBlank() && options.any { it.equals(name, ignoreCase = true) } }
             .takeIf { it.isNotEmpty() }
 
     private fun productFlavours(): List<String> =
@@ -386,6 +417,7 @@ class ManageProductViewModel(
                             flavours = productFlavours(),
                             flavourImages = productFlavourImages(),
                             colours = productColours(),
+                            colourImages = productColourImages(),
                             weight = screenState.weight,
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
@@ -409,10 +441,14 @@ class ManageProductViewModel(
     }
 
     private suspend fun onSaved(onSuccess: () -> Unit) {
-        val keptImages = productFlavourImages().orEmpty()
-        val staleImages = (savedState.flavourImages.values + screenState.flavourImages.values).toSet() - keptImages.values.toSet()
+        val keptState =
+            screenState.copy(
+                flavourImages = productFlavourImages().orEmpty(),
+                colourImages = productColourImages().orEmpty(),
+            )
+        val staleImages = savedState.optionImageUrls + screenState.optionImageUrls - keptState.optionImageUrls
         staleImages.forEach { adminRepository.deleteImageFromStorage(downloadUrl = it) }
-        screenState = screenState.copy(flavourImages = keptImages)
+        screenState = keptState
         savedState = screenState
         onSuccess()
     }
@@ -479,6 +515,7 @@ class ManageProductViewModel(
                             flavours = productFlavours(),
                             flavourImages = productFlavourImages(),
                             colours = productColours(),
+                            colourImages = productColourImages(),
                             weight = screenState.weight,
                             specsServing = productSpecsServing(),
                             specs = productSpecs(),
@@ -528,7 +565,7 @@ class ManageProductViewModel(
                 result.fold(
                     onSuccess = {
                         deleteThumbnailFromStorage(onSuccess = {}, onError = {})
-                        screenState.flavourImages.values.forEach { adminRepository.deleteImageFromStorage(downloadUrl = it) }
+                        screenState.optionImageUrls.forEach { adminRepository.deleteImageFromStorage(downloadUrl = it) }
                         onSuccess()
                     },
                     onFailure = { onError(result.errorMessage()) },

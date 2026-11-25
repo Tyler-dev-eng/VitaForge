@@ -39,6 +39,7 @@ service cloud.firestore {
     //   - flavours: list | null (optional, <= 50 items)
     //   - flavourImages: map | null (optional, <= 50 entries, flavour name -> image URL)
     //   - colours: list | null (optional, <= 50 items, accessories only)
+    //   - colourImages: map | null (optional, <= 50 entries, colour name -> image URL)
     //   - weight: int | null (optional, 0..100000)
     //   - specsServing: string | null (optional, <= 100 chars)
     //   - specs: list | null (optional, <= 10 items of map {label, value: string <= 100})
@@ -192,7 +193,7 @@ service cloud.firestore {
     function isValidProduct(data, productId) {
       return hasOnlyAllowedFields(data, [
                'id', 'createdAt', 'title', 'description', 'thumbnail', 'category',
-               'flavours', 'flavourImages', 'colours', 'weight', 'specsServing', 'specs', 'price', 'oldPrice', 'isPopular',
+               'flavours', 'flavourImages', 'colours', 'colourImages', 'weight', 'specsServing', 'specs', 'price', 'oldPrice', 'isPopular',
                'isDiscounted', 'isNew'
              ]) &&
              hasRequiredFields(data, [
@@ -211,6 +212,8 @@ service cloud.firestore {
               (data.get('flavourImages', null) is map && data.get('flavourImages', null).size() <= 50)) &&
              (data.get('colours', null) == null ||
               (data.get('colours', null) is list && data.get('colours', null).size() <= 50)) &&
+             (data.get('colourImages', null) == null ||
+              (data.get('colourImages', null) is map && data.get('colourImages', null).size() <= 50)) &&
              (data.get('weight', null) == null ||
               (data.get('weight', null) is int && isNumberWithin(data.get('weight', null), 0, 100000))) &&
              isValidOptionalString(data, 'specsServing', 100) &&

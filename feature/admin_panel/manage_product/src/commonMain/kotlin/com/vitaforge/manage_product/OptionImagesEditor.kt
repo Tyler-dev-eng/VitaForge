@@ -33,10 +33,9 @@ import com.tylerdev.vitaforge.shared.TextPrimary
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vitaforge.shared.generated.resources.Res
-import vitaforge.shared.generated.resources.manage_product_flavour_image_add
-import vitaforge.shared.generated.resources.manage_product_flavour_image_description
-import vitaforge.shared.generated.resources.manage_product_flavour_image_remove
-import vitaforge.shared.generated.resources.manage_product_section_flavour_images
+import vitaforge.shared.generated.resources.manage_product_option_image_add
+import vitaforge.shared.generated.resources.manage_product_option_image_description
+import vitaforge.shared.generated.resources.manage_product_option_image_remove
 
 private val SlotSize = 56.dp
 private val SlotShape = RoundedCornerShape(8.dp)
@@ -45,31 +44,32 @@ private val RemoveIconSize = 18.dp
 private val RowSpacing = 12.dp
 
 @Composable
-internal fun FlavourImagesEditor(
-    flavours: List<String>,
+internal fun OptionImagesEditor(
+    title: String,
+    options: List<String>,
     images: Map<String, String>,
-    uploadingFlavour: String?,
+    uploadingOption: String?,
     onPickImage: (String) -> Unit,
     onRemoveImage: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(RowSpacing)) {
-        FormSectionLabel(stringResource(Res.string.manage_product_section_flavour_images))
-        flavours.forEach { flavour ->
-            FlavourImageRow(
-                flavour = flavour,
-                imageUrl = images[flavour],
-                isUploading = uploadingFlavour == flavour,
-                onPickImage = { onPickImage(flavour) },
-                onRemoveImage = { onRemoveImage(flavour) },
+        FormSectionLabel(title)
+        options.forEach { option ->
+            OptionImageRow(
+                option = option,
+                imageUrl = images[option],
+                isUploading = uploadingOption == option,
+                onPickImage = { onPickImage(option) },
+                onRemoveImage = { onRemoveImage(option) },
             )
         }
     }
 }
 
 @Composable
-private fun FlavourImageRow(
-    flavour: String,
+private fun OptionImageRow(
+    option: String,
     imageUrl: String?,
     isUploading: Boolean,
     onPickImage: () -> Unit,
@@ -85,12 +85,12 @@ private fun FlavourImageRow(
         horizontalArrangement = Arrangement.spacedBy(RowSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        FlavourImageSlot(flavour = flavour, imageUrl = imageUrl, isUploading = isUploading)
+        OptionImageSlot(option = option, imageUrl = imageUrl, isUploading = isUploading)
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = flavour, fontSize = FontSize.REGULAR, color = TextPrimary)
+            Text(text = option, fontSize = FontSize.REGULAR, color = TextPrimary)
             if (imageUrl == null && !isUploading) {
                 Text(
-                    text = stringResource(Res.string.manage_product_flavour_image_add),
+                    text = stringResource(Res.string.manage_product_option_image_add),
                     fontSize = FontSize.SMALL,
                     color = TextMuted,
                 )
@@ -101,7 +101,7 @@ private fun FlavourImageRow(
                 Icon(
                     modifier = Modifier.size(RemoveIconSize),
                     painter = painterResource(Resources.Icon.TrashCan),
-                    contentDescription = stringResource(Res.string.manage_product_flavour_image_remove, flavour),
+                    contentDescription = stringResource(Res.string.manage_product_option_image_remove, option),
                     tint = IconPrimary,
                 )
             }
@@ -110,8 +110,8 @@ private fun FlavourImageRow(
 }
 
 @Composable
-private fun FlavourImageSlot(
-    flavour: String,
+private fun OptionImageSlot(
+    option: String,
     imageUrl: String?,
     isUploading: Boolean,
     modifier: Modifier = Modifier,
@@ -125,8 +125,13 @@ private fun FlavourImageSlot(
             imageUrl != null ->
                 AsyncImage(
                     modifier = Modifier.size(SlotSize),
-                    model = ImageRequest.Builder(LocalPlatformContext.current).data(imageUrl).crossfade(true).build(),
-                    contentDescription = stringResource(Res.string.manage_product_flavour_image_description, flavour),
+                    model =
+                        ImageRequest
+                            .Builder(LocalPlatformContext.current)
+                            .data(imageUrl)
+                            .crossfade(true)
+                            .build(),
+                    contentDescription = stringResource(Res.string.manage_product_option_image_description, option),
                     contentScale = ContentScale.Fit,
                 )
             else ->

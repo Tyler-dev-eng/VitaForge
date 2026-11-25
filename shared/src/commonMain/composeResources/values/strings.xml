@@ -100,9 +100,9 @@
     <string name="manage_product_flavours_show_all">Show all flavours (%1$d)</string>
     <string name="manage_product_options_show_less">Show less</string>
     <string name="manage_product_section_flavour_images">Flavour images (optional)</string>
-    <string name="manage_product_flavour_image_add">Tap to add an image</string>
-    <string name="manage_product_flavour_image_description">Image for %1$s</string>
-    <string name="manage_product_flavour_image_remove">Remove image for %1$s</string>
+    <string name="manage_product_option_image_add">Tap to add an image</string>
+    <string name="manage_product_option_image_description">Image for %1$s</string>
+    <string name="manage_product_option_image_remove">Remove image for %1$s</string>
     <string name="manage_product_flavours_loading">Loading flavours…</string>
     <string name="manage_product_flavour_add">Add flavour</string>
     <string name="manage_product_flavour_add_title">New flavour</string>
@@ -115,6 +115,7 @@
     <string name="manage_product_colour_add">Add colour</string>
     <string name="manage_product_colour_add_title">New colour</string>
     <string name="manage_product_colour_add_placeholder">e.g., Matte Black</string>
+    <string name="manage_product_section_colour_images">Colour images (optional)</string>
     <string name="manage_product_section_badges">Catalog badges &amp; status</string>
     <string name="manage_product_badge_new_title">New release</string>
     <string name="manage_product_badge_new_subtitle">Flags product with 'NEW' tag</string>
